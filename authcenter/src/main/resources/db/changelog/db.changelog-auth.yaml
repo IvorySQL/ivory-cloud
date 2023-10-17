@@ -1,0 +1,4 @@
+databaseChangeLog:
+  - includeAll:
+      path: db/changelog/auth
+  - logicalFilePath: "db/changelog/db.changelog-auth.yaml"

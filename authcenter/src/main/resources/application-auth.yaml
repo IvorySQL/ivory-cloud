@@ -1,0 +1,51 @@
+spring: 
+  mail:
+    #发送邮件服务器
+    host: mail.highgo.com 
+    #发送邮件的邮箱地址
+    username: hgcloud@highgo.com 
+    #客户端授权码，不是邮箱密码,网易的是自己设置的
+    #password: ENC(kcTf3lydCHRUrsrf87Hw89yei9G32lCkgDKKKRTm7RY=) 
+    password: ENC(kcTf3lydCHRUrsrf87Hw89yei9G32lCkgDKKKRTm7RY=)
+    #465或者994
+    properties.mail.smtp.port: 25 
+    # 发送邮件的地址，和上面username一致可以任意
+    from: hgcloud@highgo.com
+    properties.mail.smtp.starttls.enable: false
+    properties.mail.smtp.starttls.required: false
+    properties.mail.smtp.ssl.enable: false
+    default-encoding: utf-8
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-auth.yaml
+common:
+  request-path-prefix: highgodb
+security:
+  ignore:
+    static: >
+      /index.html,
+      /favicon.ico,
+      /static/css/**,
+      /static/fonts/**,
+      /static/img/**,
+      /static/js/**,
+      /cloudapi/api/v1/updateUserInfo,
+      /cloudapi/api/v1/userRegister,
+      /isv/produce/**,
+      /doc.html,
+      /webjars/**,
+      /swagger-resources/**,
+      /swagger-ui/**,
+      /META-INF/resources/webjars/springfox-swagger-ui/**,
+      /css/**,
+      /js/**,
+      /images/**,
+      /druid/**,
+      /actuator/**,
+      **/favicon.ico
+      /v2/api-docs
+    api: >
+      /emailVerificationCode,
+      /emailVerificationCodeForRegister,
+      /test/**    
+    

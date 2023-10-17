@@ -1,0 +1,88 @@
+spring:
+  application:
+    name: CLOUD-NATIVE
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+  datasource:
+    druid:
+      db-type: com.alibaba.druid.pool.DruidDataSource
+      driver-class-name: org.postgresql.Driver
+      url: jdbc:postgresql://127.0.0.1:5432/native
+      username: postgres
+      password: "highgo@123"
+  jpa:
+    show-sql: false
+    open-in-view: false
+    properties:
+      javax.persistence.validation.mode: none
+#      hibernate:
+#        temp:
+#          use_jdbc_metadata_defaults: false
+
+  jackson:
+    date-format: "yyyy-MM-dd HH:mm:ss"
+    time-zone: GMT
+    serialization:
+      write-dates-as-timestamps: false
+common:
+  version: v1
+  request-path-prefix: /cloudapi/api
+  alert-path-prefix: alert
+  serviceName: ivory
+#  storageClassLabels: "{'cnp.inspurcloud.cn/system-storageclass': 'false'}"
+  refreshWatcherTaskTime: 600000 # 单位ms 默认10分钟
+  linuxk8sConfigPath: /root/.kube/config
+
+logging:
+  level:
+#    com:
+#      inspur:
+#        common: ERROR
+    org:
+      hibernate: error
+    root: info
+  config: config/spring_pro_logback.xml
+
+images:
+  highgodb458:
+    db: harbor.highgo.com/highgo/crunchy-highgo:sm3nodemx
+#    db: harbor.highgo.com/highgo/crunchy-highgo:sm3-v2
+    backrest: harbor.highgo.com/highgo/crunchy-pgbackrest:sm3-v2
+    pgadmin: harbor.highgo.com/highgo/crunchy-pgadmin4:hgadmin2
+    exporter: harbor.highgo.com/highgo/crunchy-postgres-exporter:v1.5
+  ivory23:
+    db: docker.io/ivorysql/ivorysql:ubi8-2.2-1.1-1
+    backrest: docker.io/ivorysql/pgbackrest:ubi8-2.45-1.1-1
+    pgadmin: docker.io/ivorysql/pgadmin:ubi8-7.4-1.1-1
+    exporter: docker.io/ivorysql/postgres-exporter:ubi8-0.13.2-1.1-1
+server:
+  port: 8081
+  error:
+    include-exception: true
+    include-message: always
+
+#eureka:
+#  client:
+#    serviceUrl:
+      #往指定的注册中心进行服务注册http://eureka:eureka@localhost:8761/eureka/
+      #指定多个注册中地址进行注册
+#      defaultZone: http://highgo:highgo@localhost:8764/eureka
+cluster:
+  group: ivory-operator.ivorysql.org
+  version: v1beta1
+  kind: IvoryCluster
+  plural: ivoryclusters
+  singular: ivorycluster
+  instanceIdName: ivory/instanceId
+  clusterId: ivory/clusterId
+  prometheusFilter: ivory/user
+  clusterNameLabel: ${cluster.group}/cluster
+  clusterRoleLabel: ${cluster.group}/role
+  clusterDataLabel: ${cluster.group}/data
+  crBackupAnnotation: ${cluster.group}/pgbackrest-backup
+  crRestoreAnnotation: ${cluster.group}/pgbackrest-restore
+  grafanaName: grafana
+  alertManagerName: alertmanager
+  prometheusName: prometheus
