@@ -1,0 +1,271 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+                   http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    <changeSet author="kangzemin (generated)" id="1666142611000-1">
+        <createTable tableName="instance">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="cluster_id" type="VARCHAR(36)"/>
+            <column name="namespace" type="VARCHAR(255)"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="version" type="VARCHAR(36)"/>
+            <column name="storage_class" type="VARCHAR(36)"/>
+            <column name="type" type="VARCHAR(36)"/>
+            <column name="cpu" type="INT"/>
+            <column name="memory" type="INT"/>
+            <column name="storage" type="INT"/>
+            <column name="account" type="VARCHAR(64)"/>
+            <column name="creator" type="VARCHAR(64)"/>
+            <column name="root_user" type="VARCHAR(64)"/>
+            <column name="status" type="VARCHAR(32)"/>
+            <column name="admin" type="VARCHAR(32)"/>
+            <column name="node_port_switch" type="VARCHAR(32)"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="is_deleted" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="kangzemin (generated)" id="1666142611000-2">
+        <createTable tableName="extra_meta">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="instance_id" type="VARCHAR(36)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="value" type="VARCHAR(1024)"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="is_deleted" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="kangzemin (generated)" id="1666142611000-3">
+        <createTable tableName="instance_network">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="instance_id" type="VARCHAR(36)"/>
+            <column name="type" type="VARCHAR(36)" remarks="只读 ro， 读写 rw"/>
+            <column name="node_ip" type="VARCHAR(128)"/>
+            <column name="node_port" type="INT"/>
+            <column name="service" type="VARCHAR(1000)"/>
+            <column name="port" type="INT"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="is_deleted" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="kangzemin (generated)" id="1666142611000-4">
+        <createTable tableName="backup_policy">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="instance_id" type="VARCHAR(36)"/>
+            <column name="status" type="VARCHAR(36)" remarks="是否开启自动备份"/>
+            <column name="backup_type" type="VARCHAR(36)" remarks="备份类型 物理/逻辑"/>
+            <column name="backup_mode" type="VARCHAR(36)" remarks="备份模式 全量/增量"/>
+            <column name="start_time" type="VARCHAR(36)" remarks="开始备份时间"/>
+            <column name="backup_period" type="VARCHAR(255)" remarks="备份周期 周几备份"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="is_deleted" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="kangzemin (generated)" id="1666142611000-5">
+        <createTable tableName="backup">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="instance_id" type="VARCHAR(36)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="backup_type" type="VARCHAR(36)" remarks="备份类型 物理/逻辑"/>
+            <column name="backup_mode" type="VARCHAR(36)" remarks="备份模式 全量/增量"/>
+            <column name="backup_method" type="VARCHAR(36)" remarks="备份方式 手动/自动"/>
+            <column name="status" type="VARCHAR(36)" remarks="备份状态"/>
+            <column name="last_recovery_time" type="datetime" remarks="最后一次恢复时间"/>
+            <column name="file_name" type="VARCHAR(255)" remarks="备份文件名"/>
+            <column name="is_restoring" type="VARCHAR(5)" remarks="是否正在恢复中"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="is_deleted" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="kangzemin (generated)" id="1666142611000-6">
+        <createTable tableName="config_param_defination">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(64)"/>
+            <column name="param_type" type="VARCHAR(36)"/>
+            <column name="default_value" type="VARCHAR(512)"/>
+            <column name="min" type="VARCHAR(36)"/>
+            <column name="max" type="VARCHAR(36)"/>
+            <column name="enum_value" type="VARCHAR(512)"/>
+            <column name="rule" type="VARCHAR(64)"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="is_deleted" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="kangzemin (generated)" id="1666142611000-7">
+        <createTable tableName="config_instance_param">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="instance_id" type="VARCHAR(36)"/>
+            <column name="name" type="VARCHAR(64)"/>
+            <column name="value" type="VARCHAR(512)"/>
+            <column name="type" type="VARCHAR(36)"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="is_deleted" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="kangzemin (generated)" id="1666142611000-8">
+        <createTable tableName="config_change_param">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="config_change_history_id" type="VARCHAR(36)"/>
+            <column name="param_name" type="VARCHAR(64)"/>
+            <column name="source_value" type="VARCHAR(512)"/>
+            <column name="target_value" type="VARCHAR(512)"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="is_deleted" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="kangzemin (generated)" id="1666142611000-9">
+        <createTable tableName="config_change_history">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="instance_id" type="VARCHAR(36)"/>
+            <column name="status" type="VARCHAR(36)"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="is_deleted" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="kangzemin" id="1666142611000-11">
+        <createTable tableName="k8s_cluster_info">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="cluster_id" type="VARCHAR(36)"/>
+            <column name="cluster_name" type="VARCHAR(255)"/>
+            <column name="config" type="text" remarks="集群配置文件"/>
+            <column name="server_url" type="VARCHAR(128)"/>
+            <column name="server_user" type="VARCHAR(255)"/>
+            <column name="server_pass" type="VARCHAR(255)"/>
+            <column name="server_sshport" type="INT"/>
+            <column name="config_path" type="VARCHAR(255)"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="is_deleted" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="kangzemin (generated)" id="1667694437000-1">
+        <createTable tableName="instance_event">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="instance_id" type="VARCHAR(36)"/>
+            <column name="node_num" type="INT"/>
+            <column name="node_ready_num" type="INT"/>
+            <column name="stsevent" type="VARCHAR(255)"/>
+            <column name="podevent" type="VARCHAR(255)"/>
+            <column name="resource_version" type="BIGINT"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="is_deleted" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="lucunqaio" id="1681899463000">
+        <createTable tableName="autoscaling_history">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="instance_id" type="VARCHAR(36)"/>
+            <column name="type" type="VARCHAR(36)"/>
+            <column name="operation" type="VARCHAR(36)"/>
+            <column name="alert_message" type="VARCHAR(255)"/>
+            <column name="status" type="VARCHAR(36)"/>
+            <column name="source_value" type="VARCHAR(36)"/>
+            <column name="target_value" type="VARCHAR(36)"/>
+            <column name="operate_log" type="VARCHAR(255)"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="is_deleted" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="lucunqaio" id="1682063181000">
+        <createTable tableName="autoscaling_switch">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="autoscaling_switch" type="VARCHAR(36)"/>
+            <column name="cluster_id" type="VARCHAR(36)"/>
+            <column name="user_id" type="VARCHAR(36)"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="is_deleted" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="lucunqaio" id="1682068412000">
+        <createTable tableName="autoscaling_alert_rule">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="cluster_id" type="VARCHAR(36)"/>
+            <column name="user_id" type="VARCHAR(36)"/>
+            <column name="alert_name" type="VARCHAR(36)"/>
+            <column name="type" type="VARCHAR(36)"/>
+            <column name="conditionals" type="VARCHAR(36)"/>
+            <column name="threshold" type="VARCHAR(36)"/>
+            <column name="autoscaling" type="VARCHAR(36)"/>
+            <column name="duration" type="VARCHAR(36)"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="is_deleted" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="sunruike" id="1695633551885">
+        <createTable tableName="restore_record">
+            <column name="id" type="VARCHAR(36)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="instance_id" type="VARCHAR(36)"/>
+            <column name="start_time" type="VARCHAR(36)"/>
+            <column name="completion_time" type="VARCHAR(36)"/>
+            <column name="finished" type="BOOLEAN"/>
+            <column name="created_at" type="datetime"/>
+            <column name="updated_at" type="datetime"/>
+            <column name="deleted_at" type="datetime"/>
+            <column name="is_deleted" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,35 @@
+<alert-rule>
+
+    <rule id="0001" name="CPULow">
+        <type value="CPU"/>
+        <autoscaling value="SHRINK"/>
+        <threshold value="30"/>
+        <duration value="60"/>
+        <conditionals value="LT"/>
+    </rule>
+
+    <rule id="0002" name="CPUHigh">
+        <type value="CPU"/>
+        <autoscaling value="EXPANSION"/>
+        <threshold value="80"/>
+        <duration value="30"/>
+        <conditionals value="GT"/>
+    </rule>
+
+    <rule id="0003" name="MemoryLow">
+        <type value="MEMORY"/>
+        <autoscaling value="SHRINK"/>
+        <threshold value="30"/>
+        <duration value="60"/>
+        <conditionals value="LT"/>
+    </rule>
+
+    <rule id="0004" name="MemoryHigh">
+        <type value="MEMORY"/>
+        <autoscaling value="EXPANSION"/>
+        <threshold value="80"/>
+        <duration value="30"/>
+        <conditionals value="GT"/>
+    </rule>
+
+</alert-rule>

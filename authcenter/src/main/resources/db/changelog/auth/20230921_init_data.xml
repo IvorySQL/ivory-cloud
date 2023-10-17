@@ -1,0 +1,91 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+                   http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+              
+
+    
+    <changeSet author="chushaolin (generated)" id="1695796611-101">
+        <insert tableName="user_type">
+            <column name="id" valueNumeric="1"/>
+            <column name="deleted" valueNumeric="0"/>
+            <column name="type" value="1"/>
+            <column name="name" value="体验用户"/>
+        </insert>
+        <insert tableName="user_type"> 
+            <column name="id" valueNumeric="2"/>
+            <column name="deleted" valueNumeric="0"/>
+            <column name="type" value="2"/>
+            <column name="name" value="普通用户"/>
+        </insert>
+        <insert tableName="user_type">
+            <column name="id" valueNumeric="3"/>
+            <column name="deleted" valueNumeric="0"/>
+            <column name="type" value="3"/>
+            <column name="name" value="admin用户"/>
+        </insert>
+    </changeSet>
+    
+    <changeSet author="chushaolin (generated)" id="1695796611-102">
+        <insert tableName="user_role">
+            <column name="id" valueNumeric="1"/>
+            <column name="deleted" valueNumeric="0"/>
+            <column name="type" value="1"/>
+            <column name="name" value="routine"/>
+        </insert>
+        <insert tableName="user_role"> 
+            <column name="id" valueNumeric="2"/>
+            <column name="deleted" valueNumeric="0"/>
+            <column name="type" value="2"/>
+            <column name="name" value="admin"/>
+        </insert>        
+    </changeSet>
+    
+
+    <changeSet author="chushaolin (generated)" id="1695796611-1034">
+        <insert tableName="users">
+            <column name="id" valueNumeric="2"/>
+            <column name="bms_quota_switch" valueNumeric="0"/>
+            <column name="db_config_status"/>
+            <column name="udb_config_url"/>
+            <column name="email"/>
+            <column name="first_login"/>
+            <column name="deleted" valueNumeric="0"/>
+            <column name="monitor_status" value="uninstall"/>
+            <column name="monitor_url"/>
+            <column name="name" value="admin"/>
+            <column name="password" value="$2a$10$K3XriimzOFEUSYjAFg2MYuXTzQ2geDo7eO7f79aTO/aoPiFTyOR7y"/>
+            <column name="reg_time"/>
+            <column name="saas_acceptancetime"/>
+            <column name="saas_expiretime"/>
+            <column name="u_tel"/>
+            <column name="type" valueNumeric="3"/>
+            <column name="role" valueNumeric="2"/>
+        </insert>
+        <insert tableName="users">
+            <column name="id" valueNumeric="3"/>
+            <column name="bms_quota_switch" valueNumeric="0"/>
+            <column name="db_config_status"/>
+            <column name="udb_config_url"/>
+            <column name="email"/>
+            <column name="first_login"/>
+            <column name="deleted" valueNumeric="0"/>
+            <column name="monitor_status" value="uninstall"/>
+            <column name="monitor_url"/>
+            <column name="name" value="demo"/>
+            <column name="password" value="$2a$10$K3XriimzOFEUSYjAFg2MYuXTzQ2geDo7eO7f79aTO/aoPiFTyOR7y"/>
+            <column name="reg_time"/>
+            <column name="saas_acceptancetime"/>
+            <column name="saas_expiretime"/>
+            <column name="u_tel"/>
+            <column name="type" valueNumeric="2"/>
+            <column name="role" valueNumeric="1"/>
+        </insert>
+    </changeSet>    
+
+
+</databaseChangeLog>
