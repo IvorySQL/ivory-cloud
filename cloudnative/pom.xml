@@ -14,15 +14,18 @@
     <packaging>jar</packaging>
     <description>highgo cloud native</description>
 
+    <properties>
+        <!-- the root directory of the inlong project -->
+        <root.dir>${project.basedir}</root.dir>
+    </properties>
     <dependencies>
-
 
         <dependency>
             <groupId>com.highgo.cloud</groupId>
             <artifactId>authcenter</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -35,8 +38,8 @@
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
-                    <artifactId>tomcat-annotations-api</artifactId>
                     <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat-annotations-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -47,8 +50,8 @@
             <version>2.9.2</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>tomcat-annotations-api</artifactId>
                     <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat-annotations-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -60,8 +63,8 @@
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
-                    <artifactId>tomcat-annotations-api</artifactId>
                     <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat-annotations-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -73,8 +76,8 @@
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
-                    <artifactId>tomcat-annotations-api</artifactId>
                     <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat-annotations-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -86,8 +89,8 @@
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
-                    <artifactId>tomcat-annotations-api</artifactId>
                     <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat-annotations-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -99,8 +102,8 @@
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
-                    <artifactId>tomcat-annotations-api</artifactId>
                     <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat-annotations-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -112,16 +115,16 @@
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
-                    <artifactId>tomcat-annotations-api</artifactId>
                     <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat-annotations-api</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
-                    <groupId>com.fasterxml.jackson.core</groupId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>jackson-core</artifactId>
                     <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -133,8 +136,8 @@
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
-                    <artifactId>tomcat-annotations-api</artifactId>
                     <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat-annotations-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -145,14 +148,13 @@
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
-                    <artifactId>tomcat-annotations-api</artifactId>
                     <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat-annotations-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
 
-
-        <!--阿里druid数据库链接依赖-->
+        <!--阿里druid数据库链接依赖 -->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid-spring-boot-starter</artifactId>
@@ -164,8 +166,8 @@
             <artifactId>postgresql</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>tomcat-annotations-api</artifactId>
                     <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat-annotations-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -176,14 +178,13 @@
             <version>3.10.1</version>
         </dependency>
 
-
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
             <version>2.0.1.Final</version>
         </dependency>
 
-        <!--begin k8s client-->
+        <!--begin k8s client -->
         <dependency>
             <groupId>io.kubernetes</groupId>
             <artifactId>client-java-extended</artifactId>
@@ -191,8 +192,8 @@
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
-                    <artifactId>tomcat-annotations-api</artifactId>
                     <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat-annotations-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -203,8 +204,8 @@
             <version>5.12.4</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>tomcat-annotations-api</artifactId>
                     <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat-annotations-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -311,7 +312,7 @@
             <version>5.12.4</version>
         </dependency>
 
-        <!--end k8s client-->
+        <!--end k8s client -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
@@ -320,37 +321,29 @@
 
     </dependencies>
 
-
-	<build>
-	        <resources>
+    <build>
+        <resources>
             <resource>
                 <directory>src/main/java</directory>
-                <!--java文件中的xml文件允许打进包中，这部分是mybatis文件-->
+                <!--java文件中的xml文件允许打进包中，这部分是mybatis文件 -->
                 <includes>
                     <include>**/*.xml</include>
                 </includes>
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
-                <!--这里打包的时候不打配置文件，因为这里的jar包仅供其他项目集成，应该在使用此jar的最外层加配置-->
+                <!--这里打包的时候不打配置文件，因为这里的jar包仅供其他项目集成，应该在使用此jar的最外层加配置 -->
                 <excludes>
                     <exclude>*.xml</exclude>
                 </excludes>
             </resource>
         </resources>
-	<plugins>
-		<plugin>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-maven-plugin</artifactId>
-			<version>2.3.5.RELEASE</version>
-			<executions>
-				<execution>
-					<goals>
-						<goal>repackage</goal>
-					</goals>
-				</execution>
-			</executions>
-            <configuration>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.3.5.RELEASE</version>
+                <configuration>
                     <excludes>
                         <exclude>
                             <groupId>org.springframework.boot</groupId>
@@ -358,32 +351,103 @@
                         </exclude>
                     </excludes>
                     <mainClass>com.highgo.platform.CloudNativeApplication</mainClass>
-             </configuration>
-		</plugin>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
-		<!-- 跳过单元测试 -->
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-surefire-plugin</artifactId>
-			<version>2.22.2</version>
-			<configuration>
-				<skipTests>true</skipTests>
-			</configuration>
-		</plugin>
-        <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-            <configuration>
-                <excludes>
-                    <exclude>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-configuration-processor</artifactId>
-                    </exclude>
-                </excludes>
-            </configuration>
-        </plugin>
+            <!-- 跳过单元测试 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-configuration-processor</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <!-- code format -->
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.27.2</version>
+                <configuration>
+                    <java>
+                        <eclipse>
+                            <file>${root.dir}/codestyle/spotless_formatter.xml</file>
+                        </eclipse>
+                        <licenseHeader>
+                            <file>${root.dir}/codestyle/license-header</file>
+                        </licenseHeader>
 
-	</plugins>
-	</build>
-
+                        <!-- remove unused imports -->
+                        <removeUnusedImports />
+                        <!--
+                        <replaceRegex>
+                            <name>Remove wildcard imports</name>
+                            <searchRegex>import\s+[^\*\s]+\*;(\r\n|\r|\n)</searchRegex>
+                            <replacement>$1</replacement>
+                        </replaceRegex>-->
+                    </java>
+                    <pom>
+                        <sortPom>
+                            <encoding>UTF-8</encoding>
+                            <nrOfIndentSpace>4</nrOfIndentSpace>
+                            <keepBlankLines>true</keepBlankLines>
+                            <indentBlankLines>false</indentBlankLines>
+                            <indentSchemaLocation>true</indentSchemaLocation>
+                            <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
+                            <sortModules>false</sortModules>
+                            <sortExecutions>false</sortExecutions>
+                            <predefinedSortOrder>custom_1</predefinedSortOrder>
+                            <expandEmptyElements>false</expandEmptyElements>
+                            <sortProperties>false</sortProperties>
+                        </sortPom>
+                        <replace>
+                            <name>Leading blank line</name>
+                            <search>project</search>
+                            <replacement>project</replacement>
+                        </replace>
+                    </pom>
+                    <markdown>
+                        <includes>
+                            <include>docs/**/*.md</include>
+                        </includes>
+                        <excludes>
+                            <exclude>**/.github/**/*.md</exclude>
+                        </excludes>
+                        <flexmark />
+                    </markdown>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>compile-apply-format</id>
+                        <goals>
+                            <!-- apply the format when compile the project -->
+                            <goal>check</goal>
+                            <goal>apply</goal>
+                        </goals>
+                        <!-- <phase>compile</phase> -->
+                        <phase>process-sources</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
