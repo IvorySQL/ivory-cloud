@@ -1,23 +1,20 @@
-/* ------------------------------------------------
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- * 文件名称: BaseMapper.java
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * 摘要：
- *      此文件包含BaseMapper接口。
- *
- * 作者信息及编写日期：zourenli@highgo.com，20220627.
- *
- * 修改信息：
- * 2022.6.27，邹仁利，添加BaseMapper interface.
- *
- * 版权信息：
- * Copyright (c) 2009-2019, HighGo Software Co.,Ltd. All rights reserved.
- *
- *文件路径：
- *		src/main/java/com/highgo/cloud/base/BaseMapper.java
- *
- *-------------------------------------------------
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package com.highgo.cloud.base;
 
 import java.util.List;
@@ -47,12 +44,12 @@ public interface BaseMapper<D, E> {
      * @param dtoList /
      * @return /
      */
-    List <E> toEntity(List<D> dtoList);
+    List<E> toEntity(List<D> dtoList);
 
     /**
      * Entity集合转DTO集合
      * @param entityList /
      * @return /
      */
-    List <D> toDto(List<E> entityList);
+    List<D> toDto(List<E> entityList);
 }

@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.cloud.constant;
 
 import java.util.ArrayList;
@@ -11,7 +28,7 @@ import java.util.List;
  */
 public class DeployConstant {
 
-    //must be same with db_conf_id in table db_configuration
+    // must be same with db_conf_id in table db_configuration
     /**
      * 单实例
      * 数据库独享服务器、实例。
@@ -35,7 +52,7 @@ public class DeployConstant {
     public static final int SHARED_BANDWIDTH = 100;
     public static final String IPTYPESUFFIX = "_sbgp";
 
-    //must be same with deploy_mode in table server
+    // must be same with deploy_mode in table server
     /**
      * 未部署
      */
@@ -72,14 +89,14 @@ public class DeployConstant {
      * hghac 读写分离
      */
     public static final int DEPLOY_HGPROXY_HGHAC = 6;
- //   public static final String DEPLOY_HGPROXY_NAME = "HGPROXY";
-    
+    // public static final String DEPLOY_HGPROXY_NAME = "HGPROXY";
+
     /**
      * dbha 读写分离
      */
     public static final int DEPLOY_HGPROXY_DBHA = 7;
-    
-    //must be same with server_id in table server
+
+    // must be same with server_id in table server
     /**
      * 虚拟机
      */
