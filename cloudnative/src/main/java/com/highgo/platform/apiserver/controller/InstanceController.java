@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.apiserver.controller;
 
 import com.highgo.cloud.model.PageInfo;
@@ -22,6 +39,7 @@ import java.util.List;
 @RestController
 @RequestMapping("${common.request-path-prefix}/${common.version}")
 public class InstanceController {
+
     private static final Logger logger = LoggerFactory.getLogger(InstanceController.class);
 
     @Autowired
@@ -50,17 +68,19 @@ public class InstanceController {
     @ApiOperation(value = "实例分页", notes = "", tags = {"OpenAPI"})
     @RequestMapping(value = "/instances/{userId}/{pageNo}/{pageSize}", method = RequestMethod.GET)
     public PageInfo<List<InstanceVO>> listInstance(@PathVariable("userId") int userId,
-                                                   @PathVariable("pageNo") int pageNo,
-                                                   @PathVariable("pageSize") int pageSize,
-                                                   @RequestParam(value = "clusterId") String clusterId,
-                                                   @RequestParam(value = "filter") String filter) {
+            @PathVariable("pageNo") int pageNo,
+            @PathVariable("pageSize") int pageSize,
+            @RequestParam(value = "clusterId") String clusterId,
+            @RequestParam(value = "filter") String filter) {
         return instanceService.listByFilter(userId, filter, clusterId, pageNo, pageSize);
     }
 
     @ApiOperation(value = "修改实例描述", notes = "", tags = {"OpenAPI"})
     @RequestMapping(value = "/instances/{id}/description", method = RequestMethod.PATCH)
-    public ActionResponse modifyDescription(@PathVariable String id, @RequestBody @Validated ModifyInstanceDescriptionVO modifyInstanceDescriptionParam) {
-        logger.info("[InstanceController.modifyDescription] instanceId is {}, modifyInstanceDescriptionParam is {}", id, modifyInstanceDescriptionParam.toString());
+    public ActionResponse modifyDescription(@PathVariable String id,
+            @RequestBody @Validated ModifyInstanceDescriptionVO modifyInstanceDescriptionParam) {
+        logger.info("[InstanceController.modifyDescription] instanceId is {}, modifyInstanceDescriptionParam is {}", id,
+                modifyInstanceDescriptionParam.toString());
         return instanceService.modifyInstanceDescription(id, modifyInstanceDescriptionParam);
     }
 
@@ -73,28 +93,32 @@ public class InstanceController {
 
     @ApiOperation(value = "规格变更", notes = "", tags = {"OpenAPI"})
     @RequestMapping(value = "/instances/{id}/action/modify-spec", method = RequestMethod.POST)
-    public ActionResponse modifyInstance(@Validated @PathVariable String id, @RequestBody ModifyClassVO modifyClassParam) {
-        logger.info("[InstanceController.modifyInstance] instanceId is {},modifyClassParam is {}", id, modifyClassParam.toString());
+    public ActionResponse modifyInstance(@Validated @PathVariable String id,
+            @RequestBody ModifyClassVO modifyClassParam) {
+        logger.info("[InstanceController.modifyInstance] instanceId is {},modifyClassParam is {}", id,
+                modifyClassParam.toString());
         return instanceService.modifyInstance(id, modifyClassParam);
     }
 
     @ApiOperation(value = "磁盘扩容", notes = "", tags = {"OpenAPI"})
     @RequestMapping(value = "/instances/{id}/action/storage", method = RequestMethod.POST)
-    public ActionResponse extendInstance(@Validated @PathVariable String id, @RequestBody ModifyStorageVO modifyStorageParam) {
-        logger.info("[InstanceController.extendInstance] instanceId is {}, modifyStorageParam is {}", id, modifyStorageParam.toString());
+    public ActionResponse extendInstance(@Validated @PathVariable String id,
+            @RequestBody ModifyStorageVO modifyStorageParam) {
+        logger.info("[InstanceController.extendInstance] instanceId is {}, modifyStorageParam is {}", id,
+                modifyStorageParam.toString());
         return instanceService.extendInstance(id, modifyStorageParam);
     }
 
-    ///**
+    /// **
     // * 统计实例数量
     // *
     // * @return
     // */
-    //@ApiOperation(value = "实例数量统计", notes = "", tags = {"OpenAPI"})
-    //@RequestMapping(value = "/instances/action/count", method = RequestMethod.GET)
-    //public InstanceCountVO countInstance() {
-    //    return instanceService.getInstanceCount();
-    //}
+    // @ApiOperation(value = "实例数量统计", notes = "", tags = {"OpenAPI"})
+    // @RequestMapping(value = "/instances/action/count", method = RequestMethod.GET)
+    // public InstanceCountVO countInstance() {
+    // return instanceService.getInstanceCount();
+    // }
     /**
      * 统计实例数量
      *
@@ -114,13 +138,15 @@ public class InstanceController {
     @ApiOperation(value = "实例列表", notes = "", tags = {"OpenAPI"})
     @RequestMapping(value = "/instances/list/{userId}", method = RequestMethod.GET)
     public List<InstanceVO> list(@PathVariable String userId) {
-            return instanceService.list(userId);
+        return instanceService.list(userId);
     }
 
     @ApiOperation(value = "外网开关", notes = "", tags = {"OpenAPI"})
     @RequestMapping(value = "/instances/{id}/action/nodeport-switch", method = RequestMethod.POST)
-    public ActionResponse nodeportSwitch(@Validated @PathVariable String id, @RequestBody ModifySwitchVO modifySwitchVO) {
-        logger.info("[InstanceController.nodeportSwitch] instanceId is {}, modifySwitchVO is {}", id, modifySwitchVO.toString());
+    public ActionResponse nodeportSwitch(@Validated @PathVariable String id,
+            @RequestBody ModifySwitchVO modifySwitchVO) {
+        logger.info("[InstanceController.nodeportSwitch] instanceId is {}, modifySwitchVO is {}", id,
+                modifySwitchVO.toString());
         return instanceService.modifyNodeportSwitch(id, modifySwitchVO);
     }
 

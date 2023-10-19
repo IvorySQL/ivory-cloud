@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.operator.service.impl;
 
 import com.highgo.platform.apiserver.model.dto.BackupDTO;
@@ -36,6 +53,7 @@ import java.util.List;
  */
 @Service
 public class OperatorRestoreServiceImpl implements OperatorRestoreService {
+
     private static final Logger logger = LoggerFactory.getLogger(OperatorRestoreServiceImpl.class);
 
     @Autowired
@@ -60,7 +78,8 @@ public class OperatorRestoreServiceImpl implements OperatorRestoreService {
         }
 
         try {
-            List<String> options = new ArrayList(Arrays.asList("--type=time", String.format("--target=\"%s\"", CommonUtil.dateToStr(backup.getCreatedAt()))));
+            List<String> options = new ArrayList(Arrays.asList("--type=time",
+                    String.format("--target=\"%s\"", CommonUtil.dateToStr(backup.getCreatedAt()))));
             return RestoreDatasource
                     .builder()
                     .postgresCluster(RestoreCluster
@@ -77,15 +96,17 @@ public class OperatorRestoreServiceImpl implements OperatorRestoreService {
     }
 
     @Override
-    public void restoreCallback(KubernetesClient kubernetesClient, String instanceId, RestoreStatus restoreStatus, RestoreRecordDTO restoreRecord) {
+    public void restoreCallback(KubernetesClient kubernetesClient, String instanceId, RestoreStatus restoreStatus,
+            RestoreRecordDTO restoreRecord) {
 
         String restoreId = restoreStatus.getId();
         String backupId = restoreId.split(":")[0];
 
         InstanceDTO dto = instanceService.getDTO(instanceId);
 
-        //修改cr  restore为false
-        io.fabric8.kubernetes.client.dsl.Resource<DatabaseCluster> clusterResource = kubernetesClient.customResources(DatabaseCluster.class).inNamespace(dto.getNamespace()).withName(dto.getName());
+        // 修改cr restore为false
+        io.fabric8.kubernetes.client.dsl.Resource<DatabaseCluster> clusterResource = kubernetesClient
+                .customResources(DatabaseCluster.class).inNamespace(dto.getNamespace()).withName(dto.getName());
         DatabaseCluster databaseCluster = clusterResource.get();
         databaseCluster.getSpec().getBackups().getPgbackrest().getRestore().setEnabled(false);
         clusterResource.patch(databaseCluster);
@@ -96,9 +117,10 @@ public class OperatorRestoreServiceImpl implements OperatorRestoreService {
         restoreRecord.setInstanceId(instanceId);
         restoreRecord.setStartTime(restoreStatus.getStartTime());
         restoreRecord.setCompletionTime(restoreStatus.getCompletionTime());
-        
+
         restoreRecordService.createOrModifyRestoreRecord(restoreRecord);
-        restoreService.restoreInstanceCallBack(instanceId, backupId, restoreStatus.getSucceeded() !=null && restoreStatus.getSucceeded() > 0);
+        restoreService.restoreInstanceCallBack(instanceId, backupId,
+                restoreStatus.getSucceeded() != null && restoreStatus.getSucceeded() > 0);
     }
 
     @Override
@@ -109,7 +131,7 @@ public class OperatorRestoreServiceImpl implements OperatorRestoreService {
                 throw new BackupException(BackupError.BACKUP_NOT_EXIST);
             }
             Restore restore = new Restore();
-            //restore.setAffinity(operatorCommonService.getAffinity(instanceDTO.getName()));
+            // restore.setAffinity(operatorCommonService.getAffinity(instanceDTO.getName()));
             restore.setEnabled(true);
             restore.getOptions().add(String.format("--target=\"%s\"", CommonUtil.dateToStr(backup.getCreatedAt())));
             return restore;

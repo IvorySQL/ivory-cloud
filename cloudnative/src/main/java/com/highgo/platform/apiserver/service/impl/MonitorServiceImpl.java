@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.apiserver.service.impl;
 
 import com.highgo.cloud.auth.entity.User;
@@ -36,6 +53,7 @@ import java.util.Optional;
  */
 @Service
 public class MonitorServiceImpl implements MonitorService {
+
     private static final Logger logger = LoggerFactory.getLogger(MonitorServiceImpl.class);
 
     @Autowired
@@ -68,16 +86,16 @@ public class MonitorServiceImpl implements MonitorService {
         List<User> users = accountRepository.listByUserIdAndClusterId(userDto.getId(), userDto.getClusterId());
         UserVO userVO = new UserVO();
         if (!CollectionUtils.isEmpty(users)) {
-            //用户监控信息存在， 直接返回
+            // 用户监控信息存在， 直接返回
             BeanUtil.copyNotNullProperties(users.get(0), userVO);
             return userVO;
         }
 
-        //监控信息不存在，需要新建
+        // 监控信息不存在，需要新建
         userDto.setNamespace(userDto.getName() + userDto.getId());
         userDto.setMonitorStatus(MonitorStatus.CREATING.name());
         User user = accountRepository.getOne(userDto.getId());
-        //修改数据入库
+        // 修改数据入库
         user.setMonitorStatus(userDto.getMonitorStatus());
         user.setPrometheusReady(false);
         user.setAccessMode(userDto.getAccessMode());
@@ -86,13 +104,13 @@ public class MonitorServiceImpl implements MonitorService {
         user.setCreatedTime(new Timestamp((new Date()).getTime()));
         user.setPrometheusReady(false);
 
-        //查询k8s 集群信息
+        // 查询k8s 集群信息
         Optional<K8sClusterInfoPO> K8sClusterInfoPO = k8sClusterInfoRepository.findByClusterId(userDto.getClusterId());
         if (!K8sClusterInfoPO.isPresent()) {
             logger.error("[MonitorServiceImpl.monitor] cluster is not exits. clusterId is {}", userDto.getClusterId());
             throw new ClusterException(ClusterError.CLUSTER_NOT_EXIST_ERROR);
         }
-        //新建monitor
+        // 新建monitor
         asyncTask.createMonitor(userDto);
         BeanUtil.copyNotNullProperties(user, userVO);
         return userVO;
@@ -101,7 +119,7 @@ public class MonitorServiceImpl implements MonitorService {
     @Override
     public ActionResponse delMonitor(int userId, String cluserId) {
         try {
-            //查询k8s 集群信息
+            // 查询k8s 集群信息
             Optional<K8sClusterInfoPO> K8sClusterInfoPO = k8sClusterInfoRepository.findByClusterId(cluserId);
             if (!K8sClusterInfoPO.isPresent()) {
                 logger.error("[MonitorServiceImpl.delMonitor] cluster is not exits. clusterId is {}", cluserId);
@@ -109,12 +127,12 @@ public class MonitorServiceImpl implements MonitorService {
             }
 
             List<User> users = accountRepository.listByUserIdAndClusterId(userId, cluserId);
-            if(CollectionUtils.isEmpty(users)){
+            if (CollectionUtils.isEmpty(users)) {
                 logger.error("[MonitorServiceImpl.delMonitor] monitor is not exits. clusterId is {}", cluserId);
                 throw new ClusterException(ClusterError.CLUSTER_NOT_EXIST_ERROR);
             }
 
-            //构建ssh连接master信息
+            // 构建ssh连接master信息
             K8sClusterInfoPO k = K8sClusterInfoPO.get();
             ServerConnectVO server = ServerConnectVO
                     .builder()
@@ -129,7 +147,7 @@ public class MonitorServiceImpl implements MonitorService {
             String result = SshUtil.remoteExeCommand(server);
             logger.info(result);
         } catch (Exception e) {
-            throw new RuntimeException("Monitor deletion failure",e);
+            throw new RuntimeException("Monitor deletion failure", e);
         }
 
         return ActionResponse.actionSuccess();

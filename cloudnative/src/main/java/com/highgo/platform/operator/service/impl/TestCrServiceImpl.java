@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.operator.service.impl;
 
 import com.highgo.platform.apiserver.model.dto.BackupDTO;
@@ -20,7 +37,7 @@ import java.util.List;
 /**
  *  crservice demo, 数据库项目需根据产品特性实现CrService，并注册为service
  */
-//@Service //启动dbbase项目调试时，需要反注释此行
+// @Service //启动dbbase项目调试时，需要反注释此行
 public class TestCrServiceImpl implements CrService {
 
     @Autowired
@@ -69,7 +86,7 @@ public class TestCrServiceImpl implements CrService {
         instanceNetworkDTOS.add(instanceNetworkDTO1);
         instanceDTO.setNetwork(instanceNetworkDTOS);
 
-        instanceService.createInstanceCallback(instanceId, instanceNetworkDTOS, "","",true);
+        instanceService.createInstanceCallback(instanceId, instanceNetworkDTOS, "", "", true);
 
         return false;
     }
@@ -119,7 +136,7 @@ public class TestCrServiceImpl implements CrService {
     @Override
     public boolean deleteCr(InstanceDTO instanceDTO) {
         System.out.println("删除CR中");
-        //=====test====
+        // =====test====
         try {
             Thread.sleep(8000);
         } catch (InterruptedException e) {
@@ -149,9 +166,9 @@ public class TestCrServiceImpl implements CrService {
 
     @Override
     public boolean nodeportSwitch(InstanceDTO instanceDTO) {
-        if(instanceDTO.getNodePortSwitch().equals(SwitchStatus.OFF)){
+        if (instanceDTO.getNodePortSwitch().equals(SwitchStatus.OFF)) {
             instanceService.closeNodeportSwitchCallback(instanceDTO.getId(), true);
-        }else {
+        } else {
             instanceService.openNodeportSwitchCallback(instanceDTO.getId(), 5555, 6666, true);
         }
         return true;
@@ -163,7 +180,7 @@ public class TestCrServiceImpl implements CrService {
      * @return
      */
     @Override
-    public boolean createBackup(BackupDTO backupDTO){
+    public boolean createBackup(BackupDTO backupDTO) {
         System.out.println("创建备份中");
         backupService.createBackupCallback(backupDTO.getId(), "filename", true);
         return true;
@@ -175,7 +192,7 @@ public class TestCrServiceImpl implements CrService {
      * @return
      */
     @Override
-    public boolean applyBackupPolicy(BackupPolicyDTO backupPolicyDTO){
+    public boolean applyBackupPolicy(BackupPolicyDTO backupPolicyDTO) {
         System.out.println("更新自动备份策略中...");
         return true;
     }
@@ -186,7 +203,7 @@ public class TestCrServiceImpl implements CrService {
      * @return
      */
     @Override
-    public boolean deleteBackup(BackupDTO backupDTO){
+    public boolean deleteBackup(BackupDTO backupDTO) {
         System.out.println("删除备份中。。。");
         return true;
     }
@@ -221,7 +238,7 @@ public class TestCrServiceImpl implements CrService {
     }
 
     @Override
-    public boolean restore(InstanceDTO instanceDTO){
+    public boolean restore(InstanceDTO instanceDTO) {
         System.out.println("恢复中。。。");
         return true;
     }

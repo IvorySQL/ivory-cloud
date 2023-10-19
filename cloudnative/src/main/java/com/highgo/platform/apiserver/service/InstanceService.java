@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.apiserver.service;
 
 import com.highgo.cloud.enums.InstanceStatus;
@@ -36,7 +53,8 @@ public interface InstanceService {
      * 创建实例完成回调方法
      * @param result
      */
-    public void createInstanceCallback(String instanceId,  List<InstanceNetworkDTO> networkDTOList, String originInstanceId, String originBackupId, boolean result);
+    public void createInstanceCallback(String instanceId, List<InstanceNetworkDTO> networkDTOList,
+            String originInstanceId, String originBackupId, boolean result);
 
     /**
      * 执行删除实例任务
@@ -79,7 +97,6 @@ public interface InstanceService {
      */
     PageInfo<List<InstanceVO>> listByFilter(int userId, String filter, String clusterId, int pageNo, int pageSize);
 
-
     InstanceCountVO getInstanceCountByUser(String userId);
 
     /**
@@ -89,14 +106,14 @@ public interface InstanceService {
      */
     public InstanceCountVO getInstanceCount();
 
-    ///**
+    /// **
     // * 项目下所有实例列表
     // *
     // * @param projectId
     // * @return
     // */
-    //@Deprecated
-    //public List<InstanceVO> list(String projectId);
+    // @Deprecated
+    // public List<InstanceVO> list(String projectId);
 
     /**
      * 查询所有项目下所有实例列表
@@ -112,7 +129,8 @@ public interface InstanceService {
      * @param modifyInstanceDescriptionParam
      * @return
      */
-    public ActionResponse modifyInstanceDescription(String id, ModifyInstanceDescriptionVO modifyInstanceDescriptionParam);
+    public ActionResponse modifyInstanceDescription(String id,
+            ModifyInstanceDescriptionVO modifyInstanceDescriptionParam);
 
     /**
      * 执行实例重启任务

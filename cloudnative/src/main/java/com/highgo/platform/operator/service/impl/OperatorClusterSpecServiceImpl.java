@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.operator.service.impl;
 
 import com.highgo.cloud.constant.DBConstant;
@@ -51,6 +68,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class OperatorClusterSpecServiceImpl implements OperatorClusterSpecService {
+
     private static final Logger logger = LoggerFactory.getLogger(OperatorClusterSpecServiceImpl.class);
 
     @Value(value = "${images.ivory23.db}")
@@ -83,7 +101,6 @@ public class OperatorClusterSpecServiceImpl implements OperatorClusterSpecServic
     @Autowired
     private ConfigDefinationRepository configDefinationRepository;
 
-
     /**
      * 构建postgrescluster cr spec
      *
@@ -98,49 +115,55 @@ public class OperatorClusterSpecServiceImpl implements OperatorClusterSpecServic
             databaseClusterSpec.setImage(databaseImage);
             databaseClusterSpec.setPostgresVersion(DBConstant.IVORY_PG_KERNEL_VERSION);
         } else {
-            logger.error("[OperatorClusterSpecServiceImpl.initClusterSpec] pg version not support. version is {}", instanceDTO.getVersion());
+            logger.error("[OperatorClusterSpecServiceImpl.initClusterSpec] pg version not support. version is {}",
+                    instanceDTO.getVersion());
             throw new InstanceException(InstanceError.INSTANCE_VERSION_NOT_SUPPORT);
         }
-        if(InstanceType.HA.equals(instanceDTO.getType())){
+        if (InstanceType.HA.equals(instanceDTO.getType())) {
             replicas = 3;
         }
         // 节点数量信息入库 instance_event表
         instanceService.updateNodeNum(instanceDTO.getId(), replicas);
         instanceService.updateNodeReadyNum(instanceDTO.getId(), 0);
         // 管理员密码入库
-        extraMetaService.saveExtraMeta(instanceDTO.getId(), OperatorConstant.PASSWORD, CommonUtil.base64(instanceDTO.getPassword()));
+        extraMetaService.saveExtraMeta(instanceDTO.getId(), OperatorConstant.PASSWORD,
+                CommonUtil.base64(instanceDTO.getPassword()));
         // 实例信息
-        Instance instance = operatorInstanceService.geInstance(instanceDTO.getName(), replicas, instanceDTO.getCpu(), instanceDTO.getMemory(), instanceDTO.getStorage()+"Gi", instanceDTO.getStorageClass());
+        Instance instance = operatorInstanceService.geInstance(instanceDTO.getName(), replicas, instanceDTO.getCpu(),
+                instanceDTO.getMemory(), instanceDTO.getStorage() + "Gi", instanceDTO.getStorageClass());
         databaseClusterSpec.setInstances(new ArrayList<>(Arrays.asList(instance)));
         // 备份信息 storageclass storage
-        Backup backup = operatorBackupsService.getBackupLocal(instanceDTO.getStorage()+"Gi", instanceDTO.getStorageClass());
+        Backup backup =
+                operatorBackupsService.getBackupLocal(instanceDTO.getStorage() + "Gi", instanceDTO.getStorageClass());
         databaseClusterSpec.setBackups(backup);
         // 镜像拉取秘钥
-        databaseClusterSpec.setImagePullSecrets(new ArrayList<>(Arrays.asList(ImagePullSecret.builder().name(imagePullSecret).build())));
+        databaseClusterSpec.setImagePullSecrets(
+                new ArrayList<>(Arrays.asList(ImagePullSecret.builder().name(imagePullSecret).build())));
         // svc
         String svcType = OperatorConstant.CLUSTER_IP;
-        if(SwitchStatus.ON.equals(instanceDTO.getNodePortSwitch())){
+        if (SwitchStatus.ON.equals(instanceDTO.getNodePortSwitch())) {
             svcType = OperatorConstant.NODEPORT;
         }
         databaseClusterSpec.setService(DatabaseService.builder().type(svcType).build());
 
         // restore 恢复、克隆
-        if(StringUtils.isNotEmpty(instanceDTO.getOriginalBackupId()) && StringUtils.isNotEmpty(instanceDTO.getOriginalInstanceId())){
+        if (StringUtils.isNotEmpty(instanceDTO.getOriginalBackupId())
+                && StringUtils.isNotEmpty(instanceDTO.getOriginalInstanceId())) {
             databaseClusterSpec.setDataSource(operatorRestoreService.getDataSourceCluster(instanceDTO));
         }
 
-        //add highgo-lucunqiao
+        // add highgo-lucunqiao
         // 管理员用户
         databaseClusterSpec.setUsers(new ArrayList<>(Arrays.asList(
                 User.builder().name(DBConstant.SYSDBA).options(UserOption.SUPERUSER.name()).build(),
                 User.builder().name(DBConstant.SYSSAO).options(UserOption.SUPERUSER.name()).build(),
                 User.builder().name(DBConstant.SYSSSO).options(UserOption.SUPERUSER.name()).build())));
 
-        //highgoDBClusterSpec.setImagePullPolicy("Always");
+        // highgoDBClusterSpec.setImagePullPolicy("Always");
         databaseClusterSpec.setImagePullPolicy("IfNotPresent");
         databaseClusterSpec.setPort(DBConstant.SEE_DEFAULT_PORT);
 
-        //数据库param
+        // 数据库param
         List<Map> maps = configDefinationRepository.listParamByInstanceId(instanceDTO.getId());
         List<ConfigParamInfoVO> configParamInfoVOS = new ArrayList<>();
         for (Map<?, ?> map : maps) {
@@ -164,7 +187,7 @@ public class OperatorClusterSpecServiceImpl implements OperatorClusterSpecServic
                         .build())
                 .build());
 
-        //monitor  exporter
+        // monitor exporter
         databaseClusterSpec.setMonitoring(Monitor
                 .builder()
                 .pgmonitor(PgMonitor
@@ -176,7 +199,7 @@ public class OperatorClusterSpecServiceImpl implements OperatorClusterSpecServic
                         .build())
                 .build());
 
-        //pgadmin
+        // pgadmin
         databaseClusterSpec.setUserInterface(UserInterface
                 .builder()
                 .pgAdmin(PgAdmin

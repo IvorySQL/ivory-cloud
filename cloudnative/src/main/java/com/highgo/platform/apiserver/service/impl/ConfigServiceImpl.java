@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.apiserver.service.impl;
 
 import com.highgo.cloud.constant.InstanceAllowConstant;
@@ -48,6 +65,7 @@ import java.util.Optional;
 
 @Service
 public class ConfigServiceImpl implements ConfigService {
+
     private static final Logger logger = LoggerFactory.getLogger(ConfigServiceImpl.class);
 
     @Autowired
@@ -119,14 +137,14 @@ public class ConfigServiceImpl implements ConfigService {
         // 2 config_change_param表增加流水记录
         List<ConfigChangeParamPO> configChangeParamPOList = new ArrayList<>(); // 流水表入库
         List<ConfigInstanceParamDTO> configInstanceParamDTOS = new ArrayList<>(); // 提交给cr执行变更
-        List<ConfigChangeParamVO> configChangeParamVOS  = modifyConfigChangeParam.getParams();
+        List<ConfigChangeParamVO> configChangeParamVOS = modifyConfigChangeParam.getParams();
         List<ConfigInstanceParamPO> configInstanceParamPOList = configInstanceParamRepository.listByInstanceId(id);
-        for(ConfigChangeParamVO configChangeParamVO: configChangeParamVOS){
-            for(ConfigInstanceParamPO instanceParamPO: configInstanceParamPOList){
-                if(!instanceParamPO.getName().equals(configChangeParamVO.getParamName())){
+        for (ConfigChangeParamVO configChangeParamVO : configChangeParamVOS) {
+            for (ConfigInstanceParamPO instanceParamPO : configInstanceParamPOList) {
+                if (!instanceParamPO.getName().equals(configChangeParamVO.getParamName())) {
                     continue;
                 }
-                if(instanceParamPO.getValue().equals(configChangeParamVO.getTargetValue())){
+                if (instanceParamPO.getValue().equals(configChangeParamVO.getTargetValue())) {
                     // 目标值和当前值一致，不做变更，跳过该条记录
                     continue;
                 }
@@ -142,7 +160,7 @@ public class ConfigServiceImpl implements ConfigService {
                 configChangeParamPOList.add(configChangeParamPO);
             }
         }
-        if(configChangeParamPOList.isEmpty()){
+        if (configChangeParamPOList.isEmpty()) {
             // 无变更参数
             throw new InstanceException(InstanceError.INSTANCE_NO_CHANGE);
         }
@@ -169,30 +187,34 @@ public class ConfigServiceImpl implements ConfigService {
     @Override
     public void modifyParametersCallback(String id, String configHistoryId, boolean result) {
         Optional<InstancePO> instancePOOptional = instanceRepository.findById(id);
-        if(!instancePOOptional.isPresent()){
+        if (!instancePOOptional.isPresent()) {
             logger.error("[ConfigServiceImpl.modifyParametersCallback] instance is not exist. instance id is {}", id);
             return;
         }
-        Optional<ConfigChangeHistoryPO> configChangeHistoryPOOptional = configChangeHistoryRepository.findById(configHistoryId);
-        if(!configChangeHistoryPOOptional.isPresent()){
-            logger.error("[ConfigServiceImpl.modifyParametersCallback] ConfigChangeHistoryPO is not exist. ConfigChangeHistoryPO id is {}", configHistoryId);
+        Optional<ConfigChangeHistoryPO> configChangeHistoryPOOptional =
+                configChangeHistoryRepository.findById(configHistoryId);
+        if (!configChangeHistoryPOOptional.isPresent()) {
+            logger.error(
+                    "[ConfigServiceImpl.modifyParametersCallback] ConfigChangeHistoryPO is not exist. ConfigChangeHistoryPO id is {}",
+                    configHistoryId);
             return;
         }
         InstancePO instancePO = instancePOOptional.get();
         ConfigChangeHistoryPO configChangeHistoryPO = configChangeHistoryPOOptional.get();
         OperationStatus operationStatus;
-        if(result){
+        if (result) {
             // 修改成功
             // 将实例状态变更为运行中
             // 将实例参数更新
             instancePO.setStatus(InstanceStatus.RUNNING);
             configChangeHistoryPO.setStatus(OperationStatus.SUCCESS);
-            List<ConfigChangeParamPO> configChangeParamPOList = configChangeParamRepository.listConfigChangeParamByHistoryId(configHistoryId);
+            List<ConfigChangeParamPO> configChangeParamPOList =
+                    configChangeParamRepository.listConfigChangeParamByHistoryId(configHistoryId);
             List<ConfigInstanceParamPO> configInstanceParamPOList = configInstanceParamRepository.listByInstanceId(id);
             List<ConfigInstanceParamPO> changedConfigInstanceParamPOList = new ArrayList<>();
-            for(ConfigChangeParamPO configChangeParamPO: configChangeParamPOList){
-                for(ConfigInstanceParamPO configInstanceParamPO: configInstanceParamPOList){
-                    if(configChangeParamPO.getParamName().equals(configInstanceParamPO.getName())){
+            for (ConfigChangeParamPO configChangeParamPO : configChangeParamPOList) {
+                for (ConfigInstanceParamPO configInstanceParamPO : configInstanceParamPOList) {
+                    if (configChangeParamPO.getParamName().equals(configInstanceParamPO.getName())) {
                         configInstanceParamPO.setValue(configChangeParamPO.getTargetValue());
                         changedConfigInstanceParamPOList.add(configInstanceParamPO);
                     }
@@ -200,7 +222,7 @@ public class ConfigServiceImpl implements ConfigService {
             }
             configInstanceParamRepository.saveAll(changedConfigInstanceParamPOList);
             operationStatus = OperationStatus.SUCCESS;
-        }else {
+        } else {
             // 修改失败
             instancePO.setStatus(InstanceStatus.CONFIG_CHANGE_FAILED);
             configChangeHistoryPO.setStatus(OperationStatus.FAILED);
@@ -212,8 +234,10 @@ public class ConfigServiceImpl implements ConfigService {
         configChangeHistoryRepository.save(configChangeHistoryPO);
         InstanceDTO instanceDTO = new InstanceDTO();
         BeanUtil.copyNotNullProperties(instancePO, instanceDTO);
-        //String projectId = instanceService.getProjectIdByNamespace(instanceDTO.getClusterId(), instanceDTO.getNamespace());
-        websocketService.sendMsgToUser(instanceDTO, OperationDTO.builder().name(OperationName.CONFIG_CHANGE).status(operationStatus).build());
+        // String projectId = instanceService.getProjectIdByNamespace(instanceDTO.getClusterId(),
+        // instanceDTO.getNamespace());
+        websocketService.sendMsgToUser(instanceDTO,
+                OperationDTO.builder().name(OperationName.CONFIG_CHANGE).status(operationStatus).build());
 
     }
 
@@ -227,8 +251,10 @@ public class ConfigServiceImpl implements ConfigService {
     @Override
     public PageInfo<List<ConfigChangeHistoryVO>> listHistory(String instanceId, int pageNo, int pageSize) {
         Specification<ConfigChangeHistoryPO> specification = new Specification<ConfigChangeHistoryPO>() {
+
             @Override
-            public Predicate toPredicate(Root<ConfigChangeHistoryPO> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+            public Predicate toPredicate(Root<ConfigChangeHistoryPO> root, CriteriaQuery<?> query,
+                    CriteriaBuilder criteriaBuilder) {
                 Predicate deletedPredicate = criteriaBuilder.equal(root.get("isDeleted"), false);
                 Predicate instancePredicate = criteriaBuilder.equal(root.get("instanceId"), instanceId);
                 Predicate resultPredicate = criteriaBuilder.and(deletedPredicate, instancePredicate);
@@ -245,7 +271,8 @@ public class ConfigServiceImpl implements ConfigService {
             BeanUtil.copyNotNullProperties(configChangeHistoryPO, configChangeHistoryVO);
             configChangeHistoryVOS.add(configChangeHistoryVO);
         }
-        return PageInfo.<List<ConfigChangeHistoryVO>>builder().pageNo(pageNo).pageSize(pageSize).totalCount(page.getTotalElements()).data(configChangeHistoryVOS).build();
+        return PageInfo.<List<ConfigChangeHistoryVO>>builder().pageNo(pageNo).pageSize(pageSize)
+                .totalCount(page.getTotalElements()).data(configChangeHistoryVOS).build();
     }
 
     /**
@@ -255,10 +282,11 @@ public class ConfigServiceImpl implements ConfigService {
      * @return
      */
     @Override
-    public List<ConfigChangeVO> listConfigChangeByHistory(String id, String configChangeHistoryId){
-        List<ConfigChangeParamPO> configChangeParamPOList = configChangeParamRepository.listConfigChangeParamByHistoryId(configChangeHistoryId);
+    public List<ConfigChangeVO> listConfigChangeByHistory(String id, String configChangeHistoryId) {
+        List<ConfigChangeParamPO> configChangeParamPOList =
+                configChangeParamRepository.listConfigChangeParamByHistoryId(configChangeHistoryId);
         List<ConfigChangeVO> configChangeParamVOList = new ArrayList<>();
-        for(ConfigChangeParamPO configChangeParamPO: configChangeParamPOList){
+        for (ConfigChangeParamPO configChangeParamPO : configChangeParamPOList) {
             ConfigChangeVO configChangeParamVO = new ConfigChangeVO();
             BeanUtil.copyNotNullProperties(configChangeParamPO, configChangeParamVO);
             configChangeParamVOList.add(configChangeParamVO);

@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.operator.watcher;
 
 import com.highgo.platform.apiserver.service.K8sClusterService;
@@ -18,11 +35,11 @@ import java.net.InetAddress;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 /**
  * watcher工厂类
  */
 public abstract class WatcherFactoryImpl implements WatcherFactory {
+
     private static final Logger logger = LoggerFactory.getLogger(WatcherFactoryImpl.class);
     /**
      * 已启动watcher的集群缓存
@@ -40,7 +57,6 @@ public abstract class WatcherFactoryImpl implements WatcherFactory {
 
     @Autowired
     private HighAvailabilityService highAvailabilityService;
-
 
     /**
      * 在所有集群上启动watcher
@@ -60,7 +76,9 @@ public abstract class WatcherFactoryImpl implements WatcherFactory {
                 .stream()
                 .map(K8sClusterInfoPO::getClusterId)
                 .collect(Collectors.toList());
-        logger.info("[WatcherFactoryImpl.refresh] before refresh, clusterId in clusterIdListDB: {}, clusterWatcherCache:{}", Arrays.toString(clusterIdListDB.toArray()), Arrays.toString(clusterWatcherCache.keySet().toArray()));
+        logger.info(
+                "[WatcherFactoryImpl.refresh] before refresh, clusterId in clusterIdListDB: {}, clusterWatcherCache:{}",
+                Arrays.toString(clusterIdListDB.toArray()), Arrays.toString(clusterWatcherCache.keySet().toArray()));
         // 从缓存中移除取消ping不通的集群
 
         List<String> unReachableClusters = k8sClusterInfoPOList
@@ -80,24 +98,29 @@ public abstract class WatcherFactoryImpl implements WatcherFactory {
                     }
                 })
                 .collect(Collectors.toList());
-        logger.info("[WatcherFactoryImpl.refresh] remove cluster from cache,remove cluster list:{},cache cluster list:{}", Arrays.toString(unReachableClusters.toArray()), Arrays.toString(clusterWatcherCache.keySet().toArray()));
+        logger.info(
+                "[WatcherFactoryImpl.refresh] remove cluster from cache,remove cluster list:{},cache cluster list:{}",
+                Arrays.toString(unReachableClusters.toArray()),
+                Arrays.toString(clusterWatcherCache.keySet().toArray()));
 
-        //for (Iterator<Map.Entry<String, SharedInformerFactory>> it = clusterWatcherCache.entrySet().iterator(); it.hasNext(); ) {
-        //    Map.Entry<String, SharedInformerFactory> item = it.next();
-        //    String clusterId = item.getKey();
-        //    if (!clusterIdListDB.contains(clusterId)) {
-        //        SharedInformerFactory sharedInformerFactory = item.getValue();
-        //        sharedInformerFactory.stopAllRegisteredInformers();
-        //        it.remove();
-        //    }
-        //}
+        // for (Iterator<Map.Entry<String, SharedInformerFactory>> it = clusterWatcherCache.entrySet().iterator();
+        // it.hasNext(); ) {
+        // Map.Entry<String, SharedInformerFactory> item = it.next();
+        // String clusterId = item.getKey();
+        // if (!clusterIdListDB.contains(clusterId)) {
+        // SharedInformerFactory sharedInformerFactory = item.getValue();
+        // sharedInformerFactory.stopAllRegisteredInformers();
+        // it.remove();
+        // }
+        // }
         // 添加新纳管的集群
         for (K8sClusterInfoPO k8sClusterInfoPO : k8sClusterInfoPOList) {
             if (!clusterWatcherCache.containsKey(k8sClusterInfoPO.getClusterId())) {
                 startWatcherById(k8sClusterInfoPO.getClusterId());
             }
         }
-        logger.info("[WatcherFactoryImpl.refresh] after refresh, clusterWatcherCache:{}", Arrays.toString(clusterWatcherCache.keySet().toArray()));
+        logger.info("[WatcherFactoryImpl.refresh] after refresh, clusterWatcherCache:{}",
+                Arrays.toString(clusterWatcherCache.keySet().toArray()));
 
     }
 
@@ -107,43 +130,54 @@ public abstract class WatcherFactoryImpl implements WatcherFactory {
         try {
             if (electLeader.isLeader) {
 
-
                 KubernetesClient kubernetesClient = null;
                 try {
                     kubernetesClient = k8sClientConfiguration.getAdminKubernetesClientById(clusterId);
                 } catch (Exception e) {
                     logger.error("[WatcherFactoryImpl.startWatcherById] The client failed to connect to k8s");
-                    logger.error("[WatcherFactoryImpl.startWatcherById] Skip starting watcher of k8s {}",clusterId);
+                    logger.error("[WatcherFactoryImpl.startWatcherById] Skip starting watcher of k8s {}", clusterId);
                     return false;
                 }
 
                 // 是leader 启动watcher
-                logger.info("[WatcherFactoryImpl.startWatcherById] I am leader, checking cluster watcher was started? clusterId {}", clusterId);
+                logger.info(
+                        "[WatcherFactoryImpl.startWatcherById] I am leader, checking cluster watcher was started? clusterId {}",
+                        clusterId);
                 if (!clusterWatcherCache.containsKey(clusterId)) {
                     SharedInformerFactory sharedInformerFactory = kubernetesClient.informers();
                     registerInformers(kubernetesClient, sharedInformerFactory, clusterId);
                     sharedInformerFactory.startAllRegisteredInformers();
                     clusterWatcherCache.put(clusterId, sharedInformerFactory);
-                    logger.info("[WatcherFactoryImpl.startWatcherById] new cluster, start watcher success. cluster id {}", clusterId);
+                    logger.info(
+                            "[WatcherFactoryImpl.startWatcherById] new cluster, start watcher success. cluster id {}",
+                            clusterId);
                 } else {
                     SharedInformerFactory sharedInformerFactory = kubernetesClient.informers();
-                    SharedIndexInformer<DatabaseCluster> existingSharedIndexInformer = sharedInformerFactory.getExistingSharedIndexInformer(DatabaseCluster.class);
-                    if(!existingSharedIndexInformer.isRunning() || !existingSharedIndexInformer.isWatching()){
-                        logger.info("[WatcherFactoryImpl.startWatcherById] watcher already started, but not working, now reboot. cluster id {}", clusterId);
+                    SharedIndexInformer<DatabaseCluster> existingSharedIndexInformer =
+                            sharedInformerFactory.getExistingSharedIndexInformer(DatabaseCluster.class);
+                    if (!existingSharedIndexInformer.isRunning() || !existingSharedIndexInformer.isWatching()) {
+                        logger.info(
+                                "[WatcherFactoryImpl.startWatcherById] watcher already started, but not working, now reboot. cluster id {}",
+                                clusterId);
                         registerInformers(kubernetesClient, sharedInformerFactory, clusterId);
                         sharedInformerFactory.startAllRegisteredInformers();
                         clusterWatcherCache.put(clusterId, sharedInformerFactory);
-                    }else{
-                        logger.info("[WatcherFactoryImpl.startWatcherById] watcher already started, no need start agin. cluster id {}", clusterId);
+                    } else {
+                        logger.info(
+                                "[WatcherFactoryImpl.startWatcherById] watcher already started, no need start agin. cluster id {}",
+                                clusterId);
                     }
                 }
             } else {
                 // 不是leader，转发到leader节点启动watcher
-                logger.info("[WatcherFactoryImpl.startWatcherById] I am not leader, rerequest to leader node to start watcher? clusterId {}", clusterId);
+                logger.info(
+                        "[WatcherFactoryImpl.startWatcherById] I am not leader, rerequest to leader node to start watcher? clusterId {}",
+                        clusterId);
                 relust = highAvailabilityService.startWatcherByClusterIdOnMaster(clusterId);
             }
         } catch (Exception e) {
-            logger.error("[WatcherFactoryImpl.startWatcherById] watcher factory start watcher failed. cluster id: {}", clusterId, e);
+            logger.error("[WatcherFactoryImpl.startWatcherById] watcher factory start watcher failed. cluster id: {}",
+                    clusterId, e);
             relust = false;
         }
         return relust;
@@ -152,7 +186,8 @@ public abstract class WatcherFactoryImpl implements WatcherFactory {
     @Override
     public synchronized boolean stopWatcherById(String clusterId) {
         if (!clusterWatcherCache.containsKey(clusterId)) {
-            logger.warn("[WatcherFactoryImpl.stopWatcherById] watcher is not exist on cluster {}, no need to stop it.", clusterId);
+            logger.warn("[WatcherFactoryImpl.stopWatcherById] watcher is not exist on cluster {}, no need to stop it.",
+                    clusterId);
             return true;
         }
         SharedInformerFactory sharedInformerFactory = clusterWatcherCache.get(clusterId);
@@ -164,7 +199,8 @@ public abstract class WatcherFactoryImpl implements WatcherFactory {
 
     @Override
     public void stopAllWatcher() {
-        for (Iterator<Map.Entry<String, SharedInformerFactory>> it = clusterWatcherCache.entrySet().iterator(); it.hasNext(); ) {
+        for (Iterator<Map.Entry<String, SharedInformerFactory>> it = clusterWatcherCache.entrySet().iterator(); it
+                .hasNext();) {
             Map.Entry<String, SharedInformerFactory> item = it.next();
             SharedInformerFactory sharedInformerFactory = item.getValue();
             sharedInformerFactory.stopAllRegisteredInformers();
@@ -182,5 +218,6 @@ public abstract class WatcherFactoryImpl implements WatcherFactory {
      *
      * @param sharedInformerFactory
      */
-    public abstract void registerInformers(KubernetesClient kubernetesClient, SharedInformerFactory sharedInformerFactory, String clusterId);
+    public abstract void registerInformers(KubernetesClient kubernetesClient,
+            SharedInformerFactory sharedInformerFactory, String clusterId);
 }

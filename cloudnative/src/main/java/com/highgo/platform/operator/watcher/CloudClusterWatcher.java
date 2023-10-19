@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.operator.watcher;
 
 import com.highgo.cloud.constant.OperatorConstant;
@@ -29,7 +46,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +56,7 @@ import java.util.concurrent.TimeUnit;
 public class CloudClusterWatcher {
 
     private static final Logger logger = LoggerFactory.getLogger(CloudClusterWatcher.class);
-//    private static CloudClusterWatcher cloudClusterWatcher;
+    // private static CloudClusterWatcher cloudClusterWatcher;
     private KubernetesClient kubernetesClient;
     private InstanceService instanceService;
     private OperatorInstanceService operatorInstanceService;
@@ -59,13 +75,14 @@ public class CloudClusterWatcher {
     @Value("${cluster.instanceIdName}")
     private String instanceIdName;
 
-//    @PostConstruct
-//    public void init() {
-//        cloudClusterWatcher = this;
-//    }
+    // @PostConstruct
+    // public void init() {
+    // cloudClusterWatcher = this;
+    // }
 
     public ResourceEventHandler initResourceEventHandler() {
         ResourceEventHandler resourceEventHandler = new ResourceEventHandler<DatabaseCluster>() {
+
             /**
              * Called when an object is added.
              *
@@ -80,15 +97,17 @@ public class CloudClusterWatcher {
                 Map<String, String> labelMap = matedata.getLabels();
                 String instanceId = "";
                 String operateName = "";
-                if(labelMap != null){
+                if (labelMap != null) {
                     instanceId = labelMap.get(instanceIdName);
                     operateName = labelMap.get(OperatorConstant.OPERATE_LABEL);
-                    //clusterId = labelMap.get(CommonConstant.CLUSTER_ID);
+                    // clusterId = labelMap.get(CommonConstant.CLUSTER_ID);
                 }
 
-                logger.info("[ClusterWatcher.onAdd]  cr name is 【{}】, namespace is {}, clusterId is {}, resourceVersion is {}, operate name is {}", crName, namespace, clusterId, resourceVersion, operateName);
+                logger.info(
+                        "[ClusterWatcher.onAdd]  cr name is 【{}】, namespace is {}, clusterId is {}, resourceVersion is {}, operate name is {}",
+                        crName, namespace, clusterId, resourceVersion, operateName);
                 if (StringUtils.isEmpty(instanceId) || labelMap == null) {
-                    //反向解析
+                    // 反向解析
                     InstancePO instancePO = new InstancePO();
                     InstanceDTO instanceDTO = crService.getInstanceVOFromCR(highgoDBCluster);
                     instanceDTO.setId(instancePO.getId());
@@ -101,10 +120,12 @@ public class CloudClusterWatcher {
                 if (resourceVersionDB == null || resourceVersionDB < resourceVersion) {
                     // resourceVersion不存在 或者 实时resourceVersion > 数据库中保存的，执行更新操作
                     instanceService.updateResourseVersion(instanceId, resourceVersion);
-                    logger.info("[ClusterWatcher.onAdd] resource version is updated. crName is 【{}】, namespace is {}, instanceId is {}, resourceVersion is {}, resourceVersionDB is {}, operator name is {}",
+                    logger.info(
+                            "[ClusterWatcher.onAdd] resource version is updated. crName is 【{}】, namespace is {}, instanceId is {}, resourceVersion is {}, resourceVersionDB is {}, operator name is {}",
                             crName, namespace, instanceId, resourceVersion, resourceVersionDB, operateName);
                 } else {
-                    logger.warn("[ClusterWatcher.onAdd] resource version is not updated. crName is 【{}】, namespace is {}, instanceId is {}, resourceVersion is {}, resourceVersionDB is {}, operator name is {}",
+                    logger.warn(
+                            "[ClusterWatcher.onAdd] resource version is not updated. crName is 【{}】, namespace is {}, instanceId is {}, resourceVersion is {}, resourceVersionDB is {}, operator name is {}",
                             crName, namespace, instanceId, resourceVersion, resourceVersionDB, operateName);
                 }
             }
@@ -144,29 +165,39 @@ public class CloudClusterWatcher {
                 }
                 // 获取数据库中实例状态
                 InstanceStatus instanceStatus = instanceService.getInstanceStatus(instanceId);
-                logger.info("[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {}, newVersion {}, oldversion {} dbversion {}, node num {}, node ready num {}, isCrready {}, instanceStatus {}, operate {}",
-                        crName, namespace, clusterId, instanceId, resourceVersion, resourceVersionOld, resourceVersionDB, nodeNum, nodeReadyNum, isCrReady, instanceStatus, operateName);
+                logger.info(
+                        "[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {}, newVersion {}, oldversion {} dbversion {}, node num {}, node ready num {}, isCrready {}, instanceStatus {}, operate {}",
+                        crName, namespace, clusterId, instanceId, resourceVersion, resourceVersionOld,
+                        resourceVersionDB, nodeNum, nodeReadyNum, isCrReady, instanceStatus, operateName);
                 if (InstanceStatus.DELETED.equals(instanceStatus)) {
-                    logger.warn("[ClusterWatcher.onUpdate] instance was deleted, no need update. cr name 【{}】, namespace {}, clusterId {}, instanceId {}", crName, namespace, clusterId, instanceId);
+                    logger.warn(
+                            "[ClusterWatcher.onUpdate] instance was deleted, no need update. cr name 【{}】, namespace {}, clusterId {}, instanceId {}",
+                            crName, namespace, clusterId, instanceId);
                     return;
                 }
                 InstanceDTO instanceDTO = instanceService.getDTO(instanceId);
                 operateTimeoutHandler(instanceDTO, newCluster);
                 if (resourceVersion < resourceVersionDB) {
                     // 已处理的事件
-                    logger.info("[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {}, resource version[{}] < resourve version db[{}]", crName, namespace, clusterId, instanceId, resourceVersion, resourceVersionDB);
+                    logger.info(
+                            "[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {}, resource version[{}] < resourve version db[{}]",
+                            crName, namespace, clusterId, instanceId, resourceVersion, resourceVersionDB);
                     return;
                 }
                 instanceService.updateResourseVersion(instanceId, resourceVersion); // 更新表resourceversion
                 if (resourceVersion == resourceVersionDB) {
                     operatorCommonService.saveEvent(kubernetesClient, instanceId, namespace, crName, nodeReadyNum);
-                    logger.info("[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {}, resource version[{}] = resourve version db[{}]", crName, namespace, clusterId, instanceId, resourceVersion, resourceVersionDB);
+                    logger.info(
+                            "[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {}, resource version[{}] = resourve version db[{}]",
+                            crName, namespace, clusterId, instanceId, resourceVersion, resourceVersionDB);
                 } else {
                     // resource version > resource version db
                     instanceService.updateResourseVersion(instanceId, resourceVersion); // 更新表resourceversion
                     operatorCommonService.saveEvent(kubernetesClient, instanceId, namespace, crName, nodeReadyNum);
                     // 判断事件类型，执行对应逻辑
-                    logger.info("[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {}, resource version[{}] > resourve version db[{}]", crName, namespace, clusterId, instanceId, resourceVersion, resourceVersionDB);
+                    logger.info(
+                            "[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {}, resource version[{}] > resourve version db[{}]",
+                            crName, namespace, clusterId, instanceId, resourceVersion, resourceVersionDB);
 
                     newUpdateEventHandler(isCrReady, nodeReadyNum, instanceStatus, newCluster, oldCluster);
                     backupEventHandler(instanceDTO, newCluster);
@@ -190,16 +221,16 @@ public class CloudClusterWatcher {
                 String namespace = matedata.getNamespace();
                 Map<String, String> labelMap = matedata.getLabels();
                 String instanceId = labelMap.get(instanceIdName);
-                logger.info("[ClusterWatcher.onDelete] cr is deleted! cr name 【{}】, namespae {}, instanceId {}", crName, namespace, instanceId);
+                logger.info("[ClusterWatcher.onDelete] cr is deleted! cr name 【{}】, namespae {}, instanceId {}", crName,
+                        namespace, instanceId);
                 instanceService.deleteInstanceCallback(instanceId, true);
             }
         };
         return resourceEventHandler;
     }
 
-
-
-    private void newUpdateEventHandler(boolean isCrReady, Integer nodeReadyNum, InstanceStatus instanceStatus, DatabaseCluster newDatabaseCluster, DatabaseCluster oldDatabaseCluster) {
+    private void newUpdateEventHandler(boolean isCrReady, Integer nodeReadyNum, InstanceStatus instanceStatus,
+            DatabaseCluster newDatabaseCluster, DatabaseCluster oldDatabaseCluster) {
         ObjectMeta matedata = newDatabaseCluster.getMetadata();
         String crName = matedata.getName();
         String namespace = matedata.getNamespace();
@@ -213,92 +244,133 @@ public class CloudClusterWatcher {
             switch (instanceStatus) {
                 case CREATING:
                 case CREATE_FAILED:
-                    logger.info("[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {}, creating --> running ", crName, namespace, clusterId, instanceId);
-                    List<InstanceNetworkDTO> networkDTOList = operatorSvcService.getInstanceNetworkDTOList(kubernetesClient, instanceId, namespace, crName);
-                    instanceService.createInstanceCallback(instanceId, networkDTOList, originInstanceId, originBackupId, true);
-                    operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster, OperatorConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
+                    logger.info(
+                            "[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {}, creating --> running ",
+                            crName, namespace, clusterId, instanceId);
+                    List<InstanceNetworkDTO> networkDTOList = operatorSvcService
+                            .getInstanceNetworkDTOList(kubernetesClient, instanceId, namespace, crName);
+                    instanceService.createInstanceCallback(instanceId, networkDTOList, originInstanceId, originBackupId,
+                            true);
+                    operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster,
+                            OperatorConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
                     users
                             .stream()
-                            .forEach(u -> operatorUserService.resetPassword(clusterId, namespace, crName, u.getName(), CommonUtil.unBase64(extraMetaService.findExtraMetaByInstanceIdAndName(instanceId, OperatorConstant.PASSWORD).get().getValue())));
+                            .forEach(u -> operatorUserService.resetPassword(clusterId, namespace, crName, u.getName(),
+                                    CommonUtil.unBase64(extraMetaService
+                                            .findExtraMetaByInstanceIdAndName(instanceId, OperatorConstant.PASSWORD)
+                                            .get().getValue())));
                     extraMetaService.deleteByInstanceIdAndName(instanceId, OperatorConstant.PASSWORD);
                     break;
                 case UPGRADING:
-                    if (nodeReadyNum.equals(oldReadyNum) || !operatorInstanceService.isAllPodRebuild(clusterId, namespace, crName, instanceId)) {
+                    if (nodeReadyNum.equals(oldReadyNum)
+                            || !operatorInstanceService.isAllPodRebuild(clusterId, namespace, crName, instanceId)) {
                         // pod数量无变化，说明operator还未开始执行任务
                         // 非所有pod已经重建，不做处理
                         break;
                     }
-                    logger.info("[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {} upgrading --> running", crName, namespace, clusterId, instanceId);
+                    logger.info(
+                            "[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {} upgrading --> running",
+                            crName, namespace, clusterId, instanceId);
                     instanceService.modifyInstanceCallback(instanceId, true);
-                    operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster, OperatorConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
+                    operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster,
+                            OperatorConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
                     break;
                 case AUTO_SCALING:
-                    if (nodeReadyNum.equals(oldReadyNum) || !operatorInstanceService.isAllPodRebuild(clusterId, namespace, crName, instanceId)) {
+                    if (nodeReadyNum.equals(oldReadyNum)
+                            || !operatorInstanceService.isAllPodRebuild(clusterId, namespace, crName, instanceId)) {
                         // pod数量无变化，说明operator还未开始执行任务
                         // 非所有pod已经重建，不做处理
                         break;
                     }
-                    logger.info("[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {} autoscaling --> running", crName, namespace, clusterId, instanceId);
+                    logger.info(
+                            "[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {} autoscaling --> running",
+                            crName, namespace, clusterId, instanceId);
                     instanceService.updateInstanceStatus(instanceId, InstanceStatus.RUNNING);
-                    alertAutoScalingService.autoScalingOperatorCallBack(instanceId, AutoScalingStatus.SUCCESS, "autoscaling success");
-                    operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster, OperatorConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
+                    alertAutoScalingService.autoScalingOperatorCallBack(instanceId, AutoScalingStatus.SUCCESS,
+                            "autoscaling success");
+                    operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster,
+                            OperatorConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
                     break;
                 case UPGRADE_FLAVOR_FAILED:
                     if (nodeReadyNum.equals(oldReadyNum)) {
                         // pod数量无变化，说明operator还未开始执行任务
-                        logger.info("[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {} upgrade flavor failed break", crName, namespace, clusterId, instanceId);
+                        logger.info(
+                                "[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {} upgrade flavor failed break",
+                                crName, namespace, clusterId, instanceId);
                         break;
                     }
-                    logger.info("[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {} upgrading --> running", crName, namespace, clusterId, instanceId);
+                    logger.info(
+                            "[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {} upgrading --> running",
+                            crName, namespace, clusterId, instanceId);
                     instanceService.modifyInstanceCallback(instanceId, true);
-                    operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster, OperatorConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
+                    operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster,
+                            OperatorConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
                     break;
                 case RESTARTING:
                     if (nodeReadyNum.equals(oldReadyNum)) {
                         break;
                     }
-                    logger.info("[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {} restarting --> running", crName, namespace, clusterId, instanceId);
+                    logger.info(
+                            "[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {} restarting --> running",
+                            crName, namespace, clusterId, instanceId);
                     instanceService.restartInstanceCallback(instanceId, true);
-                    operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster, OperatorConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
+                    operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster,
+                            OperatorConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
                     break;
                 case RESTART_FAILED:
                     if (nodeReadyNum.equals(oldReadyNum)) {
-                        logger.info("[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {} restart failed break", crName, namespace, clusterId, instanceId);
+                        logger.info(
+                                "[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {} restart failed break",
+                                crName, namespace, clusterId, instanceId);
                         break;
                     }
-                    logger.info("[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {} restartfailed --> running", crName, namespace, clusterId, instanceId);
+                    logger.info(
+                            "[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {} restartfailed --> running",
+                            crName, namespace, clusterId, instanceId);
                     instanceService.restartInstanceCallback(instanceId, true);
-                    operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster, OperatorConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
+                    operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster,
+                            OperatorConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
                     break;
                 case CONFIG_CHANGING:
                     if (nodeReadyNum.equals(oldReadyNum)) {
                         break;
                     }
-                    logger.info("[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {} config_changing --> running", crName, namespace, clusterId, instanceId);
+                    logger.info(
+                            "[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {} config_changing --> running",
+                            crName, namespace, clusterId, instanceId);
                     break;
                 case ERROR:
-                    logger.info("[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {} error --> running", crName, namespace, clusterId, instanceId);
+                    logger.info(
+                            "[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {} error --> running",
+                            crName, namespace, clusterId, instanceId);
                     instanceService.updateInstanceStatus(instanceId, InstanceStatus.RUNNING);
-                    operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster, OperatorConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
+                    operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster,
+                            OperatorConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
                     break;
                 default:
-                    logger.info("[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {}, {} --> ", crName, namespace, clusterId, instanceId, instanceStatus);
+                    logger.info(
+                            "[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {}, {} --> ",
+                            crName, namespace, clusterId, instanceId, instanceStatus);
             }
         } else {
             switch (instanceStatus) {
                 case RUNNING:
                     // 常规运行中
-                    logger.warn("[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {}, running --> error", crName, namespace, clusterId, instanceId);
+                    logger.warn(
+                            "[ClusterWatcher.onUpdate] cr name 【{}】, namespace {}, clusterId {}, instanceId {}, running --> error",
+                            crName, namespace, clusterId, instanceId);
                     instanceService.updateInstanceStatus(instanceId, InstanceStatus.ERROR);
-                    operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster, OperatorConstant.OPERATE_LABEL, InstanceStatus.ERROR.name());
+                    operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster,
+                            OperatorConstant.OPERATE_LABEL, InstanceStatus.ERROR.name());
                     break;
                 default:
                     // 数据库已更新为操作中
-                    logger.info("[ClusterWatcher.onUpdate] cr is not ready yet. cr name 【{}】, namespace {}, clusterId {}, instanceId {}", crName, namespace, clusterId, instanceId);
+                    logger.info(
+                            "[ClusterWatcher.onUpdate] cr is not ready yet. cr name 【{}】, namespace {}, clusterId {}, instanceId {}",
+                            crName, namespace, clusterId, instanceId);
             }
         }
     }
-
 
     private void backupEventHandler(InstanceDTO instanceDTO, DatabaseCluster newDatabaseCluster) {
         // 备份事件
@@ -314,10 +386,13 @@ public class CloudClusterWatcher {
             return;
         }
         if (newPgbackrestStatus.getManualBackup().getFinished()) {
-            if (newPgbackrestStatus.getManualBackup().getSucceeded() != null && newPgbackrestStatus.getManualBackup().getSucceeded() > 0) {
-                operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster, OperatorConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
+            if (newPgbackrestStatus.getManualBackup().getSucceeded() != null
+                    && newPgbackrestStatus.getManualBackup().getSucceeded() > 0) {
+                operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster, OperatorConstant.OPERATE_LABEL,
+                        InstanceStatus.RUNNING.name());
             } else {
-                operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster, OperatorConstant.OPERATE_LABEL, InstanceStatus.ERROR.name());
+                operatorCommonService.applyCrLabel(kubernetesClient, newDatabaseCluster, OperatorConstant.OPERATE_LABEL,
+                        InstanceStatus.ERROR.name());
             }
         }
 
@@ -330,19 +405,21 @@ public class CloudClusterWatcher {
         operatorBackupsService.syncManualBackup(newManualBackupStatus);
     }
 
-    //private void autoBackupEventHandler(String instanceId, List<ScheduledBackupsStatus> newScheduledBackupsStatusList) {
-    //    if (newScheduledBackupsStatusList == null) {
-    //        return;
-    //    }
-    //    operatorBackupsService.syncAutoBackup(instanceId, newScheduledBackupsStatusList);
-    //}
+    // private void autoBackupEventHandler(String instanceId, List<ScheduledBackupsStatus>
+    // newScheduledBackupsStatusList) {
+    // if (newScheduledBackupsStatusList == null) {
+    // return;
+    // }
+    // operatorBackupsService.syncAutoBackup(instanceId, newScheduledBackupsStatusList);
+    // }
 
-    private void restoreEventHandler(String instanceId, DatabaseCluster databaseCluster, InstanceStatus instanceStatus) {
+    private void restoreEventHandler(String instanceId, DatabaseCluster databaseCluster,
+            InstanceStatus instanceStatus) {
         if (!InstanceStatus.RESTORING.equals(instanceStatus)) {
             // 当前实例不是恢复中状态，restorehandler不进行处理
             return;
         }
-        if (databaseCluster.getStatus() == null ||  databaseCluster.getStatus().getPgbackrest().getRestore() == null) {
+        if (databaseCluster.getStatus() == null || databaseCluster.getStatus().getPgbackrest().getRestore() == null) {
             return;
         }
         RestoreStatus restore = databaseCluster.getStatus().getPgbackrest().getRestore();
@@ -356,41 +433,49 @@ public class CloudClusterWatcher {
         // 如果都是空或者数据相同，视为相同
         if (restoreRecord != null) {
             if (((restoreRecord.getStartTime() == null && restore.getStartTime() == null)
-                    || (restoreRecord.getStartTime() !=null && restoreRecord.getStartTime().equals(restore.getStartTime())))
+                    || (restoreRecord.getStartTime() != null
+                            && restoreRecord.getStartTime().equals(restore.getStartTime())))
                     && ((restoreRecord.getCompletionTime() == null && restore.getCompletionTime() == null)
-                    || (restoreRecord.getCompletionTime() !=null && restoreRecord.getCompletionTime().equals(restore.getCompletionTime())))) {
+                            || (restoreRecord.getCompletionTime() != null
+                                    && restoreRecord.getCompletionTime().equals(restore.getCompletionTime())))) {
                 return;
             }
         }
-        if (restore.getFailed() != null  && restore.getFailed() > 0) {
+        if (restore.getFailed() != null && restore.getFailed() > 0) {
             operatorRestoreService.restoreCallback(kubernetesClient, instanceId, restore, restoreRecord);
-            operatorCommonService.applyCrLabel(kubernetesClient, databaseCluster, OperatorConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
+            operatorCommonService.applyCrLabel(kubernetesClient, databaseCluster, OperatorConstant.OPERATE_LABEL,
+                    InstanceStatus.RUNNING.name());
         }
 
-        if (restore.getFinished() !=null && !restore.getFinished()) {
+        if (restore.getFinished() != null && !restore.getFinished()) {
             // 恢复未完成
             return;
         }
-        //if (restore.getId().startsWith("~pgo-bootstrap")) {
-        //    // 恢复到新实例，newUpdateEventHandler中的CREATING处回调callback
-        //    return;
-        //}
+        // if (restore.getId().startsWith("~pgo-bootstrap")) {
+        // // 恢复到新实例，newUpdateEventHandler中的CREATING处回调callback
+        // return;
+        // }
 
-        //String originInstanceId = highgoDBCluster.getMetadata().getLabels().get(OperatorConstant.ORIGIN_INSTANCE_ID);
-        //String originBackupId = highgoDBCluster.getMetadata().getLabels().get(OperatorConstant.ORIGIN_BACKUP_ID);
-        //String namespace = highgoDBCluster.getMetadata().getNamespace();
-        //String name = highgoDBCluster.getMetadata().getName();
-        //List<User> users = highgoDBCluster.getSpec().getUsers();
-        //users
-        //        .stream()
-        //        .forEach(u -> operatorUserService.resetPassword(clusterId, namespace, name, u.getName(), CommonUtils.unBase64(extraMetaService.findExtraMetaByInstanceIdAndName(instanceId, OperatorConstant.PASSWORD).get().getValue())));
+        // String originInstanceId = highgoDBCluster.getMetadata().getLabels().get(OperatorConstant.ORIGIN_INSTANCE_ID);
+        // String originBackupId = highgoDBCluster.getMetadata().getLabels().get(OperatorConstant.ORIGIN_BACKUP_ID);
+        // String namespace = highgoDBCluster.getMetadata().getNamespace();
+        // String name = highgoDBCluster.getMetadata().getName();
+        // List<User> users = highgoDBCluster.getSpec().getUsers();
+        // users
+        // .stream()
+        // .forEach(u -> operatorUserService.resetPassword(clusterId, namespace, name, u.getName(),
+        // CommonUtils.unBase64(extraMetaService.findExtraMetaByInstanceIdAndName(instanceId,
+        // OperatorConstant.PASSWORD).get().getValue())));
         //
-        //extraMetaService.deleteByInstanceIdAndName(instanceId, OperatorConstant.PASSWORD);
-        //List<InstanceNetworkDTO> networkDTOList = operatorSvcService.getInstanceNetworkDTOList(kubernetesClient, instanceId, namespace, name);
+        // extraMetaService.deleteByInstanceIdAndName(instanceId, OperatorConstant.PASSWORD);
+        // List<InstanceNetworkDTO> networkDTOList = operatorSvcService.getInstanceNetworkDTOList(kubernetesClient,
+        // instanceId, namespace, name);
         operatorRestoreService.restoreCallback(kubernetesClient, instanceId, restore, restoreRecord);
-        //instanceService.createInstanceCallback(instanceId, networkDTOList, originInstanceId, originBackupId, restore.getFinished() && restore.getSucceeded() > 0);
-        //instanceService.createInstanceHgadminCallback(instanceId);
-        operatorCommonService.applyCrLabel(kubernetesClient, databaseCluster, OperatorConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
+        // instanceService.createInstanceCallback(instanceId, networkDTOList, originInstanceId, originBackupId,
+        // restore.getFinished() && restore.getSucceeded() > 0);
+        // instanceService.createInstanceHgadminCallback(instanceId);
+        operatorCommonService.applyCrLabel(kubernetesClient, databaseCluster, OperatorConstant.OPERATE_LABEL,
+                InstanceStatus.RUNNING.name());
     }
 
     /**
@@ -402,23 +487,24 @@ public class CloudClusterWatcher {
      * @author: highgo-lucunqiao
      * @since JDK 1.8
      */
-    private void operateTimeoutHandler(InstanceDTO instanceDTO, DatabaseCluster databaseCluster){
+    private void operateTimeoutHandler(InstanceDTO instanceDTO, DatabaseCluster databaseCluster) {
         ObjectMeta matedata = databaseCluster.getMetadata();
         Map<String, String> labelMap = matedata.getLabels();
         String instanceId = labelMap.get(instanceIdName);
         String originInstanceId = labelMap.get(OperatorConstant.ORIGIN_INSTANCE_ID);
         String originBackupId = labelMap.get(OperatorConstant.ORIGIN_BACKUP_ID);
         InstanceStatus instanceStatus = instanceDTO.getStatus();
-        if(CommonUtil.getUTCDate().getTime() - instanceDTO.getUpdatedAt().getTime() < TimeUnit.MINUTES.toMillis(10)){
+        if (CommonUtil.getUTCDate().getTime() - instanceDTO.getUpdatedAt().getTime() < TimeUnit.MINUTES.toMillis(10)) {
             return;
         }
         switch (instanceStatus) {
             case CREATING:
-                instanceService.createInstanceCallback(instanceDTO.getId(), new ArrayList<>(), originInstanceId, originBackupId, false);
+                instanceService.createInstanceCallback(instanceDTO.getId(), new ArrayList<>(), originInstanceId,
+                        originBackupId, false);
                 break;
             case BACKUPING:
-                //TODO   暂时不处理备份， 不确定用户备份需要时间
-                //operatorBackupsService.backupTimeoutHandler(instanceId);
+                // TODO 暂时不处理备份， 不确定用户备份需要时间
+                // operatorBackupsService.backupTimeoutHandler(instanceId);
                 break;
             case UPGRADING:
                 instanceService.modifyInstanceCallback(instanceId, false);

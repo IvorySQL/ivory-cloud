@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.operator.service.impl;
 
 import com.highgo.cloud.constant.DBConstant;
@@ -46,8 +63,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class CrServiceImpl implements CrService {
-    private static final Logger logger = LoggerFactory.getLogger(CrServiceImpl.class);
 
+    private static final Logger logger = LoggerFactory.getLogger(CrServiceImpl.class);
 
     @Resource
     InstanceService instanceService;
@@ -76,13 +93,13 @@ public class CrServiceImpl implements CrService {
     private OperatorUserService operatorUserService;
     @Resource
     private DatabaseCluster databaseCluster;
-    
+
     @Value("${cluster.instanceIdName}")
     private String instanceIdName;
-    
+
     @Value("${cluster.clusterId}")
     private String clusterId;
-    
+
     @Value("${cluster.prometheusFilter}")
     private String prometheusFilter;
 
@@ -107,7 +124,8 @@ public class CrServiceImpl implements CrService {
     @Override
     public boolean createCr(InstanceDTO instanceDTO) {
         if (isCrExist(instanceDTO.getClusterId(), instanceDTO.getNamespace(), instanceDTO.getName())) {
-            logger.error("[CrServiceImpl.createCr] cr is exist, will not create and apply. clusterid is {}, namespace is {} name is {}",
+            logger.error(
+                    "[CrServiceImpl.createCr] cr is exist, will not create and apply. clusterid is {}, namespace is {} name is {}",
                     instanceDTO.getClusterId(), instanceDTO.getNamespace(), instanceDTO.getName());
             return false;
         }
@@ -123,8 +141,8 @@ public class CrServiceImpl implements CrService {
     @Override
     public boolean applyCr(InstanceDTO instanceDTO) {
         // 若出现异常，抛到上层，终止创建实例的事务
-//        DatabaseCluster databaseCluster = new DatabaseCluster();
-        //matedata
+        // DatabaseCluster databaseCluster = new DatabaseCluster();
+        // matedata
         ObjectMeta matedata = new ObjectMeta();
         matedata.setName(instanceDTO.getName());
         // label
@@ -134,10 +152,12 @@ public class CrServiceImpl implements CrService {
         labelsMap.put(clusterId, instanceDTO.getClusterId());
         labelsMap.put(prometheusFilter, instanceDTO.getCreatorName() + instanceDTO.getCreator());
 
-        //表明是恢复出来的新实例
-        if (!StringUtils.isEmpty(instanceDTO.getOriginalInstanceId()) && !StringUtils.isEmpty(instanceDTO.getOriginalBackupId()) ){
+        // 表明是恢复出来的新实例
+        if (!StringUtils.isEmpty(instanceDTO.getOriginalInstanceId())
+                && !StringUtils.isEmpty(instanceDTO.getOriginalBackupId())) {
             InstanceDTO originInstanceDTO = instanceService.getDTO(instanceDTO.getOriginalInstanceId());
-            if (!originInstanceDTO.getNamespace().equals(instanceDTO.getNamespace()) || !originInstanceDTO.getClusterId().equals(instanceDTO.getClusterId()) ){
+            if (!originInstanceDTO.getNamespace().equals(instanceDTO.getNamespace())
+                    || !originInstanceDTO.getClusterId().equals(instanceDTO.getClusterId())) {
                 throw new InstanceException(InstanceError.RESTORE_NOT_IN_NAMESPACE);
             }
         }
@@ -155,7 +175,8 @@ public class CrServiceImpl implements CrService {
         databaseCluster.setSpec(databaseClusterSpec);
         // create
         KubernetesClient k8sClient = k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
-        k8sClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).createOrReplace(databaseCluster);
+        k8sClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
+                .createOrReplace(databaseCluster);
         return true;
     }
 
@@ -169,7 +190,8 @@ public class CrServiceImpl implements CrService {
     @Override
     public boolean isCrExist(String clusterId, String namespace, String crName) {
         KubernetesClient k8sClient = k8sClientConfiguration.getAdminKubernetesClientById(clusterId);
-        DatabaseCluster databaseCluster = k8sClient.customResources(DatabaseCluster.class).inNamespace(namespace).withName(crName).get();
+        DatabaseCluster databaseCluster =
+                k8sClient.customResources(DatabaseCluster.class).inNamespace(namespace).withName(crName).get();
         if (databaseCluster == null) {
             return false;
         } else {
@@ -185,16 +207,21 @@ public class CrServiceImpl implements CrService {
      */
     @Override
     public boolean patchCrResource(InstanceDTO instanceDTO) {
-        KubernetesClient kubernetesClient = k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
-        DatabaseCluster databaseCluster = kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).get();
+        KubernetesClient kubernetesClient =
+                k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
+        DatabaseCluster databaseCluster = kubernetesClient.customResources(DatabaseCluster.class)
+                .inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).get();
         if (null != instanceDTO.getMemory()) {
-            databaseCluster.getSpec().getInstances().get(0).getResources().getLimits().setMemory(instanceDTO.getMemory() + "Gi");
+            databaseCluster.getSpec().getInstances().get(0).getResources().getLimits()
+                    .setMemory(instanceDTO.getMemory() + "Gi");
         }
         if (null != instanceDTO.getCpu()) {
-            databaseCluster.getSpec().getInstances().get(0).getResources().getLimits().setCpu(String.valueOf(instanceDTO.getCpu()));
+            databaseCluster.getSpec().getInstances().get(0).getResources().getLimits()
+                    .setCpu(String.valueOf(instanceDTO.getCpu()));
         }
         databaseCluster.getMetadata().getLabels().put(OperatorConstant.OPERATE_LABEL, InstanceStatus.UPGRADING.name());
-        kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).patch(databaseCluster);
+        kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
+                .withName(instanceDTO.getName()).patch(databaseCluster);
         return true;
     }
 
@@ -206,39 +233,46 @@ public class CrServiceImpl implements CrService {
      */
     @Override
     public boolean patchCrStorage(InstanceDTO instanceDTO) {
-        KubernetesClient kubernetesClient = k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
-        DatabaseCluster databaseCluster = kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).get();
+        KubernetesClient kubernetesClient =
+                k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
+        DatabaseCluster databaseCluster = kubernetesClient.customResources(DatabaseCluster.class)
+                .inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).get();
         databaseCluster.getMetadata().getLabels().put(OperatorConstant.OPERATE_LABEL, InstanceStatus.EXTENDING.name());
-        databaseCluster.getSpec().getInstances().get(0).getDataVolumeClaimSpec().getResources().getRequests().setStorage(instanceDTO.getStorage() + "Gi");
-        kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).patch(databaseCluster);
-        PersistentVolumeClaimList persistentVolumeClaimList = operatorCommonService.getPvcList(kubernetesClient, instanceDTO.getNamespace(), instanceDTO.getName());
+        databaseCluster.getSpec().getInstances().get(0).getDataVolumeClaimSpec().getResources().getRequests()
+                .setStorage(instanceDTO.getStorage() + "Gi");
+        kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
+                .withName(instanceDTO.getName()).patch(databaseCluster);
+        PersistentVolumeClaimList persistentVolumeClaimList =
+                operatorCommonService.getPvcList(kubernetesClient, instanceDTO.getNamespace(), instanceDTO.getName());
         int pvcNum = persistentVolumeClaimList.getItems().size();
         // 启动pvc watch
         Map<String, String> labelFilterMap = operatorCommonService.getLabelSelector(instanceDTO.getName());
-        kubernetesClient.persistentVolumeClaims().inNamespace(instanceDTO.getNamespace()).withLabels(labelFilterMap).watch(new Watcher<PersistentVolumeClaim>() {
-            private int readyPvcNum = 0;
+        kubernetesClient.persistentVolumeClaims().inNamespace(instanceDTO.getNamespace()).withLabels(labelFilterMap)
+                .watch(new Watcher<PersistentVolumeClaim>() {
 
-            @Override
-            public void eventReceived(Action action, PersistentVolumeClaim resource) {
-                String storage = resource.getStatus().getCapacity().get("storage").toString();
-                switch (action) {
-                    case MODIFIED:
-                        if (storage.equals(instanceDTO.getStorage() + "Gi")) {
-                            readyPvcNum += 1;
-                            if (readyPvcNum == pvcNum) {
-                                instanceService.extendInstanceCallback(instanceDTO.getId(), true);
-                                this.onClose();
-                            }
+                    private int readyPvcNum = 0;
+
+                    @Override
+                    public void eventReceived(Action action, PersistentVolumeClaim resource) {
+                        String storage = resource.getStatus().getCapacity().get("storage").toString();
+                        switch (action) {
+                            case MODIFIED:
+                                if (storage.equals(instanceDTO.getStorage() + "Gi")) {
+                                    readyPvcNum += 1;
+                                    if (readyPvcNum == pvcNum) {
+                                        instanceService.extendInstanceCallback(instanceDTO.getId(), true);
+                                        this.onClose();
+                                    }
+                                }
+                            default:
                         }
-                    default:
-                }
-            }
+                    }
 
-            @Override
-            public void onClose(WatcherException cause) {
-                logger.info("pvc watch closed. instanceId {}", instanceDTO.getId());
-            }
-        });
+                    @Override
+                    public void onClose(WatcherException cause) {
+                        logger.info("pvc watch closed. instanceId {}", instanceDTO.getId());
+                    }
+                });
         return true;
     }
 
@@ -251,7 +285,8 @@ public class CrServiceImpl implements CrService {
     @Override
     public boolean deleteCr(InstanceDTO instanceDTO) {
         KubernetesClient k8sClient = k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
-        k8sClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).delete();
+        k8sClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
+                .withName(instanceDTO.getName()).delete();
         return true;
     }
 
@@ -263,10 +298,13 @@ public class CrServiceImpl implements CrService {
      */
     @Override
     public boolean deleteAllPod(InstanceDTO instanceDTO) {
-        KubernetesClient kubernetesClient = k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
-        DatabaseCluster databaseCluster = kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).get();
+        KubernetesClient kubernetesClient =
+                k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
+        DatabaseCluster databaseCluster = kubernetesClient.customResources(DatabaseCluster.class)
+                .inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).get();
         databaseCluster.getMetadata().getLabels().put(OperatorConstant.OPERATE_LABEL, InstanceStatus.RESTARTING.name());
-        kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).patch(databaseCluster);
+        kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
+                .withName(instanceDTO.getName()).patch(databaseCluster);
         Map<String, String> labelFilterMap = operatorCommonService.getLabelSelector(instanceDTO.getName());
         kubernetesClient.pods().inNamespace(instanceDTO.getNamespace()).withLabels(labelFilterMap).delete();
         return true;
@@ -274,54 +312,66 @@ public class CrServiceImpl implements CrService {
 
     @Override
     public boolean restartDatabase(InstanceDTO instanceDTO) {
-        KubernetesClient kubernetesClient = k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
-        DatabaseCluster databaseCluster = kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).get();
+        KubernetesClient kubernetesClient =
+                k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
+        DatabaseCluster databaseCluster = kubernetesClient.customResources(DatabaseCluster.class)
+                .inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).get();
         databaseCluster.getMetadata().getLabels().put(OperatorConstant.OPERATE_LABEL, InstanceStatus.RESTARTING.name());
         Map<String, String> annotations = new HashMap<String, String>();
         annotations.put(OperatorConstant.DATABASE_RESTART, "$(date)");
         databaseCluster.getMetadata().setAnnotations(annotations);
-        kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).patch(databaseCluster);
+        kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
+                .withName(instanceDTO.getName()).patch(databaseCluster);
         return true;
     }
 
     @Override
     public boolean nodeportSwitch(InstanceDTO instanceDTO) {
-        KubernetesClient kubernetesClient = k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
-        DatabaseCluster databaseCluster = kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).get();
+        KubernetesClient kubernetesClient =
+                k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
+        DatabaseCluster databaseCluster = kubernetesClient.customResources(DatabaseCluster.class)
+                .inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).get();
         if (SwitchStatus.ON.equals(instanceDTO.getNodePortSwitch())) {
             databaseCluster.getSpec().getService().setType(OperatorConstant.NODEPORT);
-            kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).patch(databaseCluster);
-            io.fabric8.kubernetes.api.model.Service service = kubernetesClient.services().inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName() + "-ha").get();
-            kubernetesClient.services().inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName() + "-ha").watch(new Watcher<io.fabric8.kubernetes.api.model.Service>() {
-                @Override
-                public void eventReceived(Action action, io.fabric8.kubernetes.api.model.Service resource) {
-                    Integer nodeport = resource.getSpec().getPorts().get(0).getNodePort();
-                    if (nodeport != null) {
-                        instanceService.openNodeportSwitchCallback(instanceDTO.getId(), nodeport, null, true);
-                        this.onClose();
-                    }
-                }
+            kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
+                    .withName(instanceDTO.getName()).patch(databaseCluster);
+            io.fabric8.kubernetes.api.model.Service service = kubernetesClient.services()
+                    .inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName() + "-ha").get();
+            kubernetesClient.services().inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName() + "-ha")
+                    .watch(new Watcher<io.fabric8.kubernetes.api.model.Service>() {
 
-                @Override
-                public void onClose(WatcherException cause) {
-                }
-            });
+                        @Override
+                        public void eventReceived(Action action, io.fabric8.kubernetes.api.model.Service resource) {
+                            Integer nodeport = resource.getSpec().getPorts().get(0).getNodePort();
+                            if (nodeport != null) {
+                                instanceService.openNodeportSwitchCallback(instanceDTO.getId(), nodeport, null, true);
+                                this.onClose();
+                            }
+                        }
+
+                        @Override
+                        public void onClose(WatcherException cause) {
+                        }
+                    });
         } else {
             databaseCluster.getSpec().getService().setType(OperatorConstant.CLUSTER_IP);
-            kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).patch(databaseCluster);
-            kubernetesClient.services().inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName() + "-ha").watch(new Watcher<io.fabric8.kubernetes.api.model.Service>() {
-                @Override
-                public void eventReceived(Action action, io.fabric8.kubernetes.api.model.Service resource) {
-                    if (OperatorConstant.CLUSTER_IP.equalsIgnoreCase(resource.getSpec().getType())) {
-                        instanceService.closeNodeportSwitchCallback(instanceDTO.getId(), true);
-                        this.onClose();
-                    }
-                }
+            kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
+                    .withName(instanceDTO.getName()).patch(databaseCluster);
+            kubernetesClient.services().inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName() + "-ha")
+                    .watch(new Watcher<io.fabric8.kubernetes.api.model.Service>() {
 
-                @Override
-                public void onClose(WatcherException cause) {
-                }
-            });
+                        @Override
+                        public void eventReceived(Action action, io.fabric8.kubernetes.api.model.Service resource) {
+                            if (OperatorConstant.CLUSTER_IP.equalsIgnoreCase(resource.getSpec().getType())) {
+                                instanceService.closeNodeportSwitchCallback(instanceDTO.getId(), true);
+                                this.onClose();
+                            }
+                        }
+
+                        @Override
+                        public void onClose(WatcherException cause) {
+                        }
+                    });
         }
         return true;
     }
@@ -336,93 +386,101 @@ public class CrServiceImpl implements CrService {
     public boolean createBackup(BackupDTO backupDTO) {
 
         InstanceDTO instanceDTO = instanceService.getDTO(backupDTO.getInstanceId());
-        KubernetesClient kubernetesClient = k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
+        KubernetesClient kubernetesClient =
+                k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
 
         if (!operatorBackupsService.isBackupInit(kubernetesClient, instanceDTO.getNamespace(), instanceDTO.getName())) {
             throw new BackupException(BackupError.WAIT_BACKUP_INIT);
         }
 
-        io.fabric8.kubernetes.client.dsl.Resource<DatabaseCluster> highgoDBClusterResource = kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName());
+        io.fabric8.kubernetes.client.dsl.Resource<DatabaseCluster> highgoDBClusterResource =
+                kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
+                        .withName(instanceDTO.getName());
         DatabaseCluster databaseCluster = highgoDBClusterResource.get();
 
-        //状态  BACKUPING备份中
+        // 状态 BACKUPING备份中
         databaseCluster.getMetadata().getLabels().put(OperatorConstant.OPERATE_LABEL, InstanceStatus.BACKUPING.name());
 
         Map<String, String> annotations = new HashMap<String, String>();
         annotations.put(crBackupAnnotation, backupDTO.getId());
         databaseCluster.getMetadata().setAnnotations(annotations);
-        kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).patch(databaseCluster);
+        kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
+                .withName(instanceDTO.getName()).patch(databaseCluster);
         return true;
 
-        //DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss");
-        //String now = dateFormatter.format(LocalDateTime.now());
-        //Map<String, String> annotations = highgoDBCluster.getMetadata().getAnnotations();
-        //if(annotations == null){
-        //    Map<String,String> backupAnnotation = new HashMap();
-        //    backupAnnotation.put(CommonConstant.CR_BACKUP_ANNOTATION,now);
-        //    highgoDBCluster.getMetadata().setAnnotations(backupAnnotation);
-        //}else{
-        //    annotations.put(CommonConstant.CR_BACKUP_ANNOTATION,now);
-        //}
-        //logger.info("Start backup, time:{} ,instanceId:{}", now, instanceDTO.getId());
-        //highgoDBClusterResource.patch(highgoDBCluster);
+        // DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss");
+        // String now = dateFormatter.format(LocalDateTime.now());
+        // Map<String, String> annotations = highgoDBCluster.getMetadata().getAnnotations();
+        // if(annotations == null){
+        // Map<String,String> backupAnnotation = new HashMap();
+        // backupAnnotation.put(CommonConstant.CR_BACKUP_ANNOTATION,now);
+        // highgoDBCluster.getMetadata().setAnnotations(backupAnnotation);
+        // }else{
+        // annotations.put(CommonConstant.CR_BACKUP_ANNOTATION,now);
+        // }
+        // logger.info("Start backup, time:{} ,instanceId:{}", now, instanceDTO.getId());
+        // highgoDBClusterResource.patch(highgoDBCluster);
         //
-        //Map<String, String> labelFilterMap = new HashMap<>();
-        //labelFilterMap.put(CommonConstant.CLUSTER_NAME_LABEL, instanceDTO.getName());
-        //labelFilterMap.put(CommonConstant.CR_BACKUP_ANNOTATION, "manual");
+        // Map<String, String> labelFilterMap = new HashMap<>();
+        // labelFilterMap.put(CommonConstant.CLUSTER_NAME_LABEL, instanceDTO.getName());
+        // labelFilterMap.put(CommonConstant.CR_BACKUP_ANNOTATION, "manual");
         //
-        //kubernetesClient
-        //        .batch()
-        //        .jobs()
-        //        .inNamespace(instanceDTO.getNamespace())
-        //        .withLabels(labelFilterMap)
-        //        //.withName(instanceDTO.getName() + "-backup")
-        //        .watch(new Watcher<Job>() {
-        //            @Override
-        //            public void eventReceived(Action action, Job job) {
-        //                io.fabric8.kubernetes.client.dsl.Resource<HighgoDBCluster> highgoDBClusterResource = kubernetesClient.customResources(HighgoDBCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName());
-        //                HighgoDBCluster highgodb = highgoDBClusterResource.get();
-        //                Map<String, String> jobAnnotations = job.getMetadata().getAnnotations();
-        //                JobStatus status = job.getStatus();
-        //                if (jobAnnotations != null && now.equals(jobAnnotations.get(CommonConstant.CR_BACKUP_ANNOTATION))) {
-        //                    if(status != null && !StringUtils.isEmpty(status.getCompletionTime())){
-        //                        //成功
-        //                        if(CommonConstant.JOB_COMPLETE.equalsIgnoreCase(status.getConditions().get(0).getType())){
+        // kubernetesClient
+        // .batch()
+        // .jobs()
+        // .inNamespace(instanceDTO.getNamespace())
+        // .withLabels(labelFilterMap)
+        // //.withName(instanceDTO.getName() + "-backup")
+        // .watch(new Watcher<Job>() {
+        // @Override
+        // public void eventReceived(Action action, Job job) {
+        // io.fabric8.kubernetes.client.dsl.Resource<HighgoDBCluster> highgoDBClusterResource =
+        // kubernetesClient.customResources(HighgoDBCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName());
+        // HighgoDBCluster highgodb = highgoDBClusterResource.get();
+        // Map<String, String> jobAnnotations = job.getMetadata().getAnnotations();
+        // JobStatus status = job.getStatus();
+        // if (jobAnnotations != null && now.equals(jobAnnotations.get(CommonConstant.CR_BACKUP_ANNOTATION))) {
+        // if(status != null && !StringUtils.isEmpty(status.getCompletionTime())){
+        // //成功
+        // if(CommonConstant.JOB_COMPLETE.equalsIgnoreCase(status.getConditions().get(0).getType())){
         //
-        //                            //TODO  lcq获取本次备份时间
+        // //TODO lcq获取本次备份时间
         //
-        //                            logger.info("Watch backup, backup successed, time:{}, instanceId:{}", now, instanceDTO.getId());
-        //                            operatorCommonService.applyCrLabel(kubernetesClient, highgodb, CommonConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
-        //                            backupService.createBackupCallback(backupDTO.getId(), now, true);
-        //                            this.onClose();
-        //                        }
+        // logger.info("Watch backup, backup successed, time:{}, instanceId:{}", now, instanceDTO.getId());
+        // operatorCommonService.applyCrLabel(kubernetesClient, highgodb, CommonConstant.OPERATE_LABEL,
+        // InstanceStatus.RUNNING.name());
+        // backupService.createBackupCallback(backupDTO.getId(), now, true);
+        // this.onClose();
+        // }
         //
-        //                        //失败
-        //                        if(CommonConstant.JOB_FAILED.equalsIgnoreCase(status.getConditions().get(0).getType())){
-        //                            logger.info("Watch backup, backup failed, time:{}, instanceId:{}", now, instanceDTO.getId());
-        //                            operatorCommonService.applyCrLabel(kubernetesClient, highgodb, CommonConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
-        //                            backupService.createBackupCallback(backupDTO.getId(), now, false);
-        //                            this.onClose();
-        //                        }
-        //                    }
+        // //失败
+        // if(CommonConstant.JOB_FAILED.equalsIgnoreCase(status.getConditions().get(0).getType())){
+        // logger.info("Watch backup, backup failed, time:{}, instanceId:{}", now, instanceDTO.getId());
+        // operatorCommonService.applyCrLabel(kubernetesClient, highgodb, CommonConstant.OPERATE_LABEL,
+        // InstanceStatus.RUNNING.name());
+        // backupService.createBackupCallback(backupDTO.getId(), now, false);
+        // this.onClose();
+        // }
+        // }
         //
-        //                    //失败
-        //                    if(status != null
-        //                            && status.getConditions().size() > 0
-        //                            && CommonConstant.JOB_FAILED.equalsIgnoreCase(status.getConditions().get(0).getType())){
-        //                        logger.info("Watch backup, backup failed, time:{}, instanceId:{}", now, instanceDTO.getId());
-        //                        operatorCommonService.applyCrLabel(kubernetesClient, highgodb, CommonConstant.OPERATE_LABEL, InstanceStatus.RUNNING.name());
-        //                        backupService.createBackupCallback(backupDTO.getId(), now, false);
-        //                        this.onClose();
-        //                    }
-        //                }
-        //            }
+        // //失败
+        // if(status != null
+        // && status.getConditions().size() > 0
+        // && CommonConstant.JOB_FAILED.equalsIgnoreCase(status.getConditions().get(0).getType())){
+        // logger.info("Watch backup, backup failed, time:{}, instanceId:{}", now, instanceDTO.getId());
+        // operatorCommonService.applyCrLabel(kubernetesClient, highgodb, CommonConstant.OPERATE_LABEL,
+        // InstanceStatus.RUNNING.name());
+        // backupService.createBackupCallback(backupDTO.getId(), now, false);
+        // this.onClose();
+        // }
+        // }
+        // }
         //
-        //            @Override
-        //            public void onClose(WatcherException cause) {
-        //            }
-        //        });
-        //return true;
+        // @Override
+        // public void onClose(WatcherException cause) {
+        // }
+        // });
+        // return true;
     }
 
     /**
@@ -454,10 +512,14 @@ public class CrServiceImpl implements CrService {
 
         List<ConfigInstanceParamDTO> configInstanceParamDTOS = instanceDTO.getConfigInstanceParamDTOS();
 
-        KubernetesClient kubernetesClient = k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
-        io.fabric8.kubernetes.client.dsl.Resource<DatabaseCluster> highgoDBClusterResource = kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName());
+        KubernetesClient kubernetesClient =
+                k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
+        io.fabric8.kubernetes.client.dsl.Resource<DatabaseCluster> highgoDBClusterResource =
+                kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
+                        .withName(instanceDTO.getName());
         DatabaseCluster databaseCluster = highgoDBClusterResource.get();
-        Map<String, String> runningParams = databaseCluster.getSpec().getPatroni().getDynamicConfiguration().getPostgresql().getParameters();
+        Map<String, String> runningParams =
+                databaseCluster.getSpec().getPatroni().getDynamicConfiguration().getPostgresql().getParameters();
 
         Map<String, List<ConfigInstanceParamDTO>> changeParams = configInstanceParamDTOS
                 .stream()
@@ -470,8 +532,9 @@ public class CrServiceImpl implements CrService {
         });
 
         highgoDBClusterResource.patch(databaseCluster);
-        //lcq TODO 修改参数
+        // lcq TODO 修改参数
         highgoDBClusterResource.watch(new Watcher<DatabaseCluster>() {
+
             @Override
             public void eventReceived(Action action, DatabaseCluster resource) {
 
@@ -482,7 +545,6 @@ public class CrServiceImpl implements CrService {
 
             }
         });
-
 
         configService.modifyParametersCallback(instanceDTO.getId(), instanceDTO.getConfigChangeHistoryId(), true);
         return false;
@@ -500,26 +562,33 @@ public class CrServiceImpl implements CrService {
         InstanceDTO instanceDTO = new InstanceDTO();
         ObjectMeta metadata = databaseCluster.getMetadata();
         Map<String, String> labelMap = metadata.getLabels();
-        if(labelMap != null){
+        if (labelMap != null) {
             instanceDTO.setClusterId(labelMap.get(clusterId));
             instanceDTO.setId(labelMap.get(instanceIdName));
-            instanceDTO.setDescription(StringUtils.isEmpty(labelMap.get(OperatorConstant.DESCRIPTION_NAME)) ? OperatorConstant.DEFAULT_CR_DESCRIPTION : labelMap.get(OperatorConstant.DESCRIPTION_NAME));
-            instanceDTO.setPassword(StringUtils.isEmpty(labelMap.get(OperatorConstant.PASSWORD)) ? OperatorConstant.DEFAULT_PASSWORD : labelMap.get(OperatorConstant.PASSWORD));
-        }else{
-            //反向解析的
+            instanceDTO.setDescription(StringUtils.isEmpty(labelMap.get(OperatorConstant.DESCRIPTION_NAME))
+                    ? OperatorConstant.DEFAULT_CR_DESCRIPTION
+                    : labelMap.get(OperatorConstant.DESCRIPTION_NAME));
+            instanceDTO.setPassword(
+                    StringUtils.isEmpty(labelMap.get(OperatorConstant.PASSWORD)) ? OperatorConstant.DEFAULT_PASSWORD
+                            : labelMap.get(OperatorConstant.PASSWORD));
+        } else {
+            // 反向解析的
             instanceDTO.setDescription(OperatorConstant.DEFAULT_CR_DESCRIPTION);
             instanceDTO.setPassword(OperatorConstant.DEFAULT_PASSWORD);
         }
         instanceDTO.setName(metadata.getName());
         instanceDTO.setNamespace(metadata.getNamespace());
         DatabaseClusterSpec spec = databaseCluster.getSpec();
-        if(DBConstant.IVORY_PG_KERNEL_VERSION == spec.getPostgresVersion()){
+        if (DBConstant.IVORY_PG_KERNEL_VERSION == spec.getPostgresVersion()) {
             instanceDTO.setVersion(IvoryVersion.IVORY23.getKey());
         }
         instanceDTO.setType(spec.getInstances().get(0).getReplicas() > 1 ? InstanceType.HA : InstanceType.ALONE);
-        instanceDTO.setCpu(Integer.valueOf(spec.getInstances().get(0).getResources().getLimits().getCpu().replace("c", "")));
-        instanceDTO.setMemory(Integer.valueOf(spec.getInstances().get(0).getResources().getLimits().getCpu().replace("Gi", "")));
-        instanceDTO.setStorage(Integer.valueOf(spec.getInstances().get(0).getDataVolumeClaimSpec().getResources().getRequests().getStorage().replace("Gi", "")));
+        instanceDTO.setCpu(
+                Integer.valueOf(spec.getInstances().get(0).getResources().getLimits().getCpu().replace("c", "")));
+        instanceDTO.setMemory(
+                Integer.valueOf(spec.getInstances().get(0).getResources().getLimits().getCpu().replace("Gi", "")));
+        instanceDTO.setStorage(Integer.valueOf(spec.getInstances().get(0).getDataVolumeClaimSpec().getResources()
+                .getRequests().getStorage().replace("Gi", "")));
         instanceDTO.setStorageClass(spec.getInstances().get(0).getDataVolumeClaimSpec().getStorageClassName());
         instanceDTO.setAdmin(spec.getUsers().get(0).getName());
         return instanceDTO;
@@ -527,9 +596,11 @@ public class CrServiceImpl implements CrService {
 
     @Override
     public Pod getMasterPod(InstanceDTO instanceDTO) {
-        KubernetesClient kubernetesClient = k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
+        KubernetesClient kubernetesClient =
+                k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
         Map<String, String> labelFilterMap = operatorCommonService.getLabelSelector(instanceDTO.getName());
-        List<Pod> items = kubernetesClient.pods().inNamespace(instanceDTO.getNamespace()).withLabels(labelFilterMap).list().getItems();
+        List<Pod> items = kubernetesClient.pods().inNamespace(instanceDTO.getNamespace()).withLabels(labelFilterMap)
+                .list().getItems();
         return items
                 .stream()
                 .filter(p -> p.getMetadata().getAnnotations().get("status").contains("\"role\":\"master\""))
@@ -541,20 +612,26 @@ public class CrServiceImpl implements CrService {
     public boolean restore(InstanceDTO instanceDTO) {
         // update pgbackrest.restore
         Restore restore = operatorRestoreService.genPgbackuprestRestore(instanceDTO);
-        KubernetesClient kubernetesClient = k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
-        DatabaseCluster databaseCluster = kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).get();
-        //状态  RESTORING恢复中
+        KubernetesClient kubernetesClient =
+                k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
+        DatabaseCluster databaseCluster = kubernetesClient.customResources(DatabaseCluster.class)
+                .inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).get();
+        // 状态 RESTORING恢复中
         databaseCluster.getMetadata().getLabels().put(OperatorConstant.OPERATE_LABEL, InstanceStatus.RESTORING.name());
         databaseCluster.getSpec().getBackups().getPgbackrest().setRestore(restore);
-        kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).patch(databaseCluster);
+        kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
+                .withName(instanceDTO.getName()).patch(databaseCluster);
 
         // set annotation
-        databaseCluster = kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).get();
+        databaseCluster = kubernetesClient.customResources(DatabaseCluster.class)
+                .inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).get();
         Map<String, String> annotations = new HashMap<>();
         // pgbackrest-restore 使用uuid+backupid的方式，否则仅用backupid，用户重复恢复同一个备份不生效
-        annotations.put(crRestoreAnnotation, String.format("%s:%s", instanceDTO.getOriginalBackupId(), CommonUtil.uuid()));
+        annotations.put(crRestoreAnnotation,
+                String.format("%s:%s", instanceDTO.getOriginalBackupId(), CommonUtil.uuid()));
         databaseCluster.getMetadata().setAnnotations(annotations);
-        kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).patch(databaseCluster);
+        kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
+                .withName(instanceDTO.getName()).patch(databaseCluster);
         return true;
     }
 
@@ -565,8 +642,9 @@ public class CrServiceImpl implements CrService {
         Map<String, String> labelFilterMap = new HashMap<>();
         labelFilterMap.put(clusterNameLabel, dto.getName());
         labelFilterMap.put(clusterRoleLabel, OperatorConstant.PGADMIN);
-        List<io.fabric8.kubernetes.api.model.Service> items = kubernetesClient.services().inNamespace(dto.getNamespace()).withLabels(labelFilterMap).list().getItems();
-        if(CollectionUtils.isEmpty(items)){
+        List<io.fabric8.kubernetes.api.model.Service> items = kubernetesClient.services()
+                .inNamespace(dto.getNamespace()).withLabels(labelFilterMap).list().getItems();
+        if (CollectionUtils.isEmpty(items)) {
             throw new RuntimeException("Service of " + instanceId + " pgadmin does not exist.");
         }
         return items
@@ -585,8 +663,11 @@ public class CrServiceImpl implements CrService {
      * @return
      */
     public boolean patchCrUsers(InstanceDTO instanceDTO, DatabaseUserVO databaseUserVO) {
-        KubernetesClient kubernetesClient = k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
-        io.fabric8.kubernetes.client.dsl.Resource<DatabaseCluster> highgoDBClusterResource = kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName());
+        KubernetesClient kubernetesClient =
+                k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
+        io.fabric8.kubernetes.client.dsl.Resource<DatabaseCluster> highgoDBClusterResource =
+                kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
+                        .withName(instanceDTO.getName());
         DatabaseCluster databaseCluster = highgoDBClusterResource.get();
         List<String> userNames = databaseCluster
                 .getSpec()
@@ -595,8 +676,8 @@ public class CrServiceImpl implements CrService {
                 .map(User::getName)
                 .collect(Collectors.toList());
 
-        if(userNames.contains(databaseUserVO.getName())){
-            //TODO 返回 or 抛异常  重名
+        if (userNames.contains(databaseUserVO.getName())) {
+            // TODO 返回 or 抛异常 重名
         }
 
         List<User> users = databaseCluster.getSpec().getUsers();

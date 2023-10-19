@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.operator.service;
 
 import com.highgo.platform.operator.cr.DatabaseCluster;
@@ -27,7 +44,8 @@ public interface OperatorCommonService {
      * @param labelName
      * @param labelValue
      */
-    public void applyCrLabel(KubernetesClient kubernetesClient, DatabaseCluster databaseCluster, String labelName, String labelValue);
+    public void applyCrLabel(KubernetesClient kubernetesClient, DatabaseCluster databaseCluster, String labelName,
+            String labelValue);
 
     /**
      * 更新、创建label
@@ -35,7 +53,8 @@ public interface OperatorCommonService {
      * @param kubernetesClient
      * @param labelMap
      */
-    public void applyCrLabel(KubernetesClient kubernetesClient, DatabaseCluster databaseCluster, Map<String, String> labelMap);
+    public void applyCrLabel(KubernetesClient kubernetesClient, DatabaseCluster databaseCluster,
+            Map<String, String> labelMap);
 
     /**
      * 获取实例的event信息并入库
@@ -44,7 +63,8 @@ public interface OperatorCommonService {
      * @param namespace
      * @param crName
      */
-    public void saveEvent(KubernetesClient kubernetesClient, String instanceId, String namespace, String crName, Integer nodeReadyNum);
+    public void saveEvent(KubernetesClient kubernetesClient, String instanceId, String namespace, String crName,
+            Integer nodeReadyNum);
 
     /**
      * 获取pod列表

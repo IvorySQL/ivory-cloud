@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.apiserver.controller;
 
 import com.highgo.platform.apiserver.model.vo.request.CreateClusterVO;
@@ -21,7 +38,7 @@ import java.util.List;
 @Validated
 @RestController
 @RequestMapping("${common.request-path-prefix}/${common.version}")
-@Api(value = "k8s集群信息", tags = { "k8s集群信息接口" })
+@Api(value = "k8s集群信息", tags = {"k8s集群信息接口"})
 public class K8sClusterController {
 
     @Resource(name = "k8sClusterService")
@@ -45,7 +62,7 @@ public class K8sClusterController {
      */
     @ApiOperation(value = "添加k8s集群", notes = "", tags = {"OpenAPI"})
     @RequestMapping(value = "/clusters/add", method = RequestMethod.POST)
-    public ClusterInfoVO insertCluster(@RequestBody @Validated CreateClusterVO createClusterVO){
+    public ClusterInfoVO insertCluster(@RequestBody @Validated CreateClusterVO createClusterVO) {
         return k8sClusterService.insertCluster(createClusterVO);
     }
 
@@ -56,7 +73,7 @@ public class K8sClusterController {
      */
     @ApiOperation(value = "删除k8s集群", notes = "", tags = {"OpenAPI"})
     @RequestMapping(value = "/clusters/{clusterId}", method = RequestMethod.DELETE)
-    public ActionResponse delCluster(@PathVariable String clusterId){
+    public ActionResponse delCluster(@PathVariable String clusterId) {
         return k8sClusterService.delCluster(clusterId);
     }
 
@@ -67,7 +84,7 @@ public class K8sClusterController {
      */
     @ApiOperation(value = "更新k8s集群", notes = "", tags = {"OpenAPI"})
     @RequestMapping(value = "/clusters/update", method = RequestMethod.POST)
-    public ClusterInfoVO updateCluster(@RequestBody @Validated CreateClusterVO createClusterVO){
+    public ClusterInfoVO updateCluster(@RequestBody @Validated CreateClusterVO createClusterVO) {
         return k8sClusterService.updateCluster(createClusterVO);
     }
 
@@ -78,7 +95,7 @@ public class K8sClusterController {
      */
     @ApiOperation(value = "获取k8s集群下的namespace", notes = "", tags = {"OpenAPI"})
     @RequestMapping(value = "/clusters/{clusterId}/namespace", method = RequestMethod.GET)
-    public List<Namespace> getNamespace(@PathVariable String clusterId){
+    public List<Namespace> getNamespace(@PathVariable String clusterId) {
         return k8sClusterService.getNamespace(clusterId);
     }
 
@@ -89,7 +106,7 @@ public class K8sClusterController {
      */
     @ApiOperation(value = "所有k8s集群资源统计", notes = "", tags = {"OpenAPI"})
     @RequestMapping(value = "/clusters/{userId}/resource", method = RequestMethod.GET)
-    public List<K8sResourceCountVO> countResource(@PathVariable("userId") String userId){
+    public List<K8sResourceCountVO> countResource(@PathVariable("userId") String userId) {
         return k8sClusterService.countResource(userId);
     }
 

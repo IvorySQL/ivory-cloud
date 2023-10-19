@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.operator.service.impl;
 
 import com.highgo.cloud.constant.OperatorConstant;
@@ -38,7 +55,6 @@ public class HighAvailabilityImpl implements HighAvailabilityService {
     @Autowired
     private K8sClientConfiguration k8sClientConfiguration;
 
-
     /**
      * 在master节点启动指定clusterid的watcher
      *
@@ -48,20 +64,26 @@ public class HighAvailabilityImpl implements HighAvailabilityService {
     @Override
     public boolean startWatcherByClusterIdOnMaster(String clusterId) {
         String podIp = getMasterIp();
-        String getConfigUrl = String.format("http://%s:%s/%s/v1/watcher/action/start", podIp, serverPort, requestPathPrefix);
-        //TODO lcq
+        String getConfigUrl =
+                String.format("http://%s:%s/%s/v1/watcher/action/start", podIp, serverPort, requestPathPrefix);
+        // TODO lcq
         HttpHeaders headers = new HttpHeaders();
-        //HttpHeaders headers = iamService.getCommonHeaders();
+        // HttpHeaders headers = iamService.getCommonHeaders();
         ClusterVO clusterVO = new ClusterVO();
         clusterVO.setClusterId(clusterId);
         HttpEntity httpEntity = new HttpEntity(clusterVO, headers);
-        ResponseEntity<String> responseEntity = restTemplate.exchange(getConfigUrl, HttpMethod.POST, httpEntity, String.class);
+        ResponseEntity<String> responseEntity =
+                restTemplate.exchange(getConfigUrl, HttpMethod.POST, httpEntity, String.class);
         int statuscode = responseEntity.getStatusCode().value();
         if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
-            logger.error("[HighAvailabilityImpl.startWatcherByClusterIdOnMaster] request master node start watcher error, status code is {}. masterip is {}, clusterid is {}", statuscode, podIp, clusterId);
+            logger.error(
+                    "[HighAvailabilityImpl.startWatcherByClusterIdOnMaster] request master node start watcher error, status code is {}. masterip is {}, clusterid is {}",
+                    statuscode, podIp, clusterId);
             return false;
-        }else{
-            logger.info("[HighAvailabilityImpl.startWatcherByClusterIdOnMaster] request master node start watcher success, status code is {}. masterip is {}, clusterid is {}", statuscode, podIp, clusterId);
+        } else {
+            logger.info(
+                    "[HighAvailabilityImpl.startWatcherByClusterIdOnMaster] request master node start watcher success, status code is {}. masterip is {}, clusterid is {}",
+                    statuscode, podIp, clusterId);
             return true;
         }
     }
@@ -79,12 +101,19 @@ public class HighAvailabilityImpl implements HighAvailabilityService {
             namespace = "highgo";
         }
         KubernetesClient kubernetesClient = k8sClientConfiguration.getDefaultClient();
-        ConfigMap configMap = kubernetesClient.configMaps().inNamespace(namespace).withName(serviceName + "-leader").get();
-        Assert.notNull(configMap, String.format("[HighAvailabilityImpl.getMasterIp] can not find configMap %s in namespace %s", serviceName + "-leader", namespace));
+        ConfigMap configMap =
+                kubernetesClient.configMaps().inNamespace(namespace).withName(serviceName + "-leader").get();
+        Assert.notNull(configMap,
+                String.format("[HighAvailabilityImpl.getMasterIp] can not find configMap %s in namespace %s",
+                        serviceName + "-leader", namespace));
         Map<String, String> dataMap = configMap.getData();
-        Assert.notNull(dataMap, String.format("[HighAvailabilityImpl.getMasterIp] config %s in namespace %s data is empty.", serviceName + "-leader", namespace));
+        Assert.notNull(dataMap,
+                String.format("[HighAvailabilityImpl.getMasterIp] config %s in namespace %s data is empty.",
+                        serviceName + "-leader", namespace));
         String podIp = configMap.getData().get(OperatorConstant.PODIP);
-        Assert.notNull(dataMap, String.format("[HighAvailabilityImpl.getMasterIp] config %s in namespace %s data  can not find key %s.", serviceName + "-leader", namespace, OperatorConstant.PODIP));
+        Assert.notNull(dataMap,
+                String.format("[HighAvailabilityImpl.getMasterIp] config %s in namespace %s data  can not find key %s.",
+                        serviceName + "-leader", namespace, OperatorConstant.PODIP));
         return podIp;
     }
 }
