@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.apiserver.service.impl;
 
 import com.highgo.cloud.constant.InstanceAllowConstant;
@@ -76,18 +93,20 @@ public class BackupServiceImpl implements BackupService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public BackupVO createBackup(String instanceId, CreateBackupVO createBackupParam) {
-        //1 校验是否有权限
+        // 1 校验是否有权限
         InstanceDTO instanceDTO = instanceService.beforeOperateInstance(instanceId);
         if (!InstanceAllowConstant.ALLOW_BACKUP_INSTANCE_STATUS.contains(instanceDTO.getStatus())) {
             throw new InstanceException(InstanceError.INSTANCE_NOT_ALLOW_OPERATE);
         }
-        //2 备份入库
+        // 2 备份入库
         BackupDTO backupDTO = createBackupRecord(instanceId, createBackupParam);
-        //3 operator创建备份
+        // 3 operator创建备份
         BackupVO backupVO = new BackupVO();
         BeanUtil.copyNotNullProperties(backupDTO, backupVO);
         crService.createBackup(backupDTO);
-        logger.info("[BackupServiceImpl.createBackup] create backup manual job success. instanceId is {} backupId is {}", instanceId, backupDTO.getId());
+        logger.info(
+                "[BackupServiceImpl.createBackup] create backup manual job success. instanceId is {} backupId is {}",
+                instanceId, backupDTO.getId());
         return backupVO;
     }
 
@@ -109,7 +128,9 @@ public class BackupServiceImpl implements BackupService {
             // 触发备份逻辑时且实例是正常运行中时，同步修改实例状态为备份中。(实例为中间状态时保留原始状态)
             instanceService.updateInstanceStatus(instanceId, InstanceStatus.BACKUPING);
         }
-        logger.info("[BackupServiceImpl.createBackup] create backup job success. instanceId is {} backupId is {} method is {}", instanceId, backupPO.getId(), createBackupParam.getBackupMethod());
+        logger.info(
+                "[BackupServiceImpl.createBackup] create backup job success. instanceId is {} backupId is {} method is {}",
+                instanceId, backupPO.getId(), createBackupParam.getBackupMethod());
         return backupDTO;
     }
 
@@ -136,13 +157,17 @@ public class BackupServiceImpl implements BackupService {
             operationStatus = OperationStatus.FAILED;
         }
         backupRepository.save(backupPO);
-        logger.info("[BackupServiceImpl.createBackupCallback] create backup manual callback success. instanceId is {} backupId is {} filename is {}", backupPO.getInstanceId(), backupPO.getId(), filename);
+        logger.info(
+                "[BackupServiceImpl.createBackupCallback] create backup manual callback success. instanceId is {} backupId is {} filename is {}",
+                backupPO.getInstanceId(), backupPO.getId(), filename);
         InstanceDTO instanceDTO = instanceService.getDTO(backupPO.getInstanceId());
         if (InstanceStatus.BACKUPING.equals(instanceDTO.getStatus())) {
             instanceService.updateInstanceStatus(instanceDTO.getId(), InstanceStatus.RUNNING);
         }
-        //String projectId = instanceService.getProjectIdByNamespace(instanceDTO.getClusterId(), instanceDTO.getNamespace());
-        websocketService.sendMsgToUser(instanceDTO, OperationDTO.builder().name(OperationName.CREATE_BACKUP).status(operationStatus).build());
+        // String projectId = instanceService.getProjectIdByNamespace(instanceDTO.getClusterId(),
+        // instanceDTO.getNamespace());
+        websocketService.sendMsgToUser(instanceDTO,
+                OperationDTO.builder().name(OperationName.CREATE_BACKUP).status(operationStatus).build());
     }
 
     /**
@@ -166,15 +191,18 @@ public class BackupServiceImpl implements BackupService {
             operationStatus = OperationStatus.FAILED;
         }
         backupRepository.save(backupPO);
-        logger.info("[BackupServiceImpl.createBackupCallback] create backup manual callback success. instanceId is {} backupId is {}", backupPO.getInstanceId(), backupPO.getId());
+        logger.info(
+                "[BackupServiceImpl.createBackupCallback] create backup manual callback success. instanceId is {} backupId is {}",
+                backupPO.getInstanceId(), backupPO.getId());
         InstanceDTO instanceDTO = instanceService.getDTO(backupPO.getInstanceId());
         if (InstanceStatus.BACKUPING.equals(instanceDTO.getStatus())) {
             instanceService.updateInstanceStatus(instanceDTO.getId(), InstanceStatus.RUNNING);
         }
-        //String projectId = instanceService.getProjectIdByNamespace(instanceDTO.getClusterId(), instanceDTO.getNamespace());
-        websocketService.sendMsgToUser(instanceDTO, OperationDTO.builder().name(OperationName.CREATE_BACKUP).status(operationStatus).build());
+        // String projectId = instanceService.getProjectIdByNamespace(instanceDTO.getClusterId(),
+        // instanceDTO.getNamespace());
+        websocketService.sendMsgToUser(instanceDTO,
+                OperationDTO.builder().name(OperationName.CREATE_BACKUP).status(operationStatus).build());
     }
-
 
     /**
      * 查询备份策略
@@ -205,7 +233,8 @@ public class BackupServiceImpl implements BackupService {
         Optional<BackupPolicyPO> backupPolicyPOOptional = backupPolicyRepository.findByInstanceId(instanceDTO.getId());
         BackupPolicyPO backupPolicyPO = backupPolicyPOOptional.get();
         // 没有变更直接return
-        if (StringUtils.isEmpty(modifyBackupPolicyParam.getBackupPeriod()) && modifyBackupPolicyParam.getStartTime() == null &&
+        if (StringUtils.isEmpty(modifyBackupPolicyParam.getBackupPeriod())
+                && modifyBackupPolicyParam.getStartTime() == null &&
                 modifyBackupPolicyParam.getBackupMode() == null && modifyBackupPolicyParam.getBackupType() == null) {
             BackupPolicyVO backupPolicyVO = new BackupPolicyVO();
             BeanUtil.copyNotNullProperties(backupPolicyPO, backupPolicyVO);
@@ -222,7 +251,9 @@ public class BackupServiceImpl implements BackupService {
         backupPolicyRepository.save(backupPolicyPO);
         BackupPolicyVO backupPolicyVO = new BackupPolicyVO();
         BeanUtil.copyNotNullProperties(backupPolicyPO, backupPolicyVO);
-        logger.info("[BackupServiceImpl.modifyBackupPolicy] modify backup policy success. instanceId is {} backupPolicyVO is {} ", id, backupPolicyVO.toString());
+        logger.info(
+                "[BackupServiceImpl.modifyBackupPolicy] modify backup policy success. instanceId is {} backupPolicyVO is {} ",
+                id, backupPolicyVO.toString());
         return backupPolicyVO;
     }
 
@@ -248,7 +279,9 @@ public class BackupServiceImpl implements BackupService {
         BackupPolicyDTO backupPolicyDTO = new BackupPolicyDTO();
         BeanUtil.copyNotNullProperties(backupPolicyPO, backupPolicyDTO);
         crService.applyBackupPolicy(backupPolicyDTO);
-        logger.info("[BackupServiceImpl.modifyBackupSwitch] modify auto backup switch. instanceId is {} switch status is {}", id, backupPolicyDTO.getStatus().name());
+        logger.info(
+                "[BackupServiceImpl.modifyBackupSwitch] modify auto backup switch. instanceId is {} switch status is {}",
+                id, backupPolicyDTO.getStatus().name());
         return ActionResponse.actionSuccess();
     }
 
@@ -263,6 +296,7 @@ public class BackupServiceImpl implements BackupService {
     @Override
     public PageInfo<List<BackupVO>> listBackup(int pageNo, int pageSize, String instanceId, String filter) {
         Specification<BackupPO> specification = new Specification<BackupPO>() {
+
             @Override
             public Predicate toPredicate(Root<BackupPO> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
                 Predicate deletedPredicate = criteriaBuilder.equal(root.get("isDeleted"), false);
@@ -289,7 +323,8 @@ public class BackupServiceImpl implements BackupService {
             BeanUtil.copyNotNullProperties(backupPO, backupVO);
             backupVOS.add(backupVO);
         }
-        return PageInfo.<List<BackupVO>>builder().pageNo(pageNo).pageSize(pageSize).totalCount(page.getTotalElements()).data(backupVOS).build();
+        return PageInfo.<List<BackupVO>>builder().pageNo(pageNo).pageSize(pageSize).totalCount(page.getTotalElements())
+                .data(backupVOS).build();
     }
 
     /**
@@ -316,7 +351,8 @@ public class BackupServiceImpl implements BackupService {
         BeanUtil.copyNotNullProperties(backupPO, backupDTO);
         backupRepository.save(backupPO);
         crService.deleteBackup(backupDTO);
-        logger.info("[BackupServiceImpl.deleteBackup] delete backup job success. instanceId is {} backupid is {}", id, backupId);
+        logger.info("[BackupServiceImpl.deleteBackup] delete backup job success. instanceId is {} backupid is {}", id,
+                backupId);
         return ActionResponse.actionSuccess();
     }
 
@@ -345,10 +381,14 @@ public class BackupServiceImpl implements BackupService {
         }
         backupPO.setDeletedAt(CommonUtil.getUTCDate());
         backupRepository.save(backupPO);
-        logger.info("[BackupServiceImpl.deleteBackupCallback] delete backup callback success. backupid is {} status is {}", backupId, backupPO.getStatus());
+        logger.info(
+                "[BackupServiceImpl.deleteBackupCallback] delete backup callback success. backupid is {} status is {}",
+                backupId, backupPO.getStatus());
         InstanceDTO instanceDTO = instanceService.getDTO(backupPO.getInstanceId());
-        //String projectId = instanceService.getProjectIdByNamespace(instanceDTO.getClusterId(), instanceDTO.getNamespace());
-        websocketService.sendMsgToUser(instanceDTO, OperationDTO.builder().name(OperationName.DELETE_BACKUP).status(operationStatus).build());
+        // String projectId = instanceService.getProjectIdByNamespace(instanceDTO.getClusterId(),
+        // instanceDTO.getNamespace());
+        websocketService.sendMsgToUser(instanceDTO,
+                OperationDTO.builder().name(OperationName.DELETE_BACKUP).status(operationStatus).build());
     }
 
     @Override
@@ -426,7 +466,7 @@ public class BackupServiceImpl implements BackupService {
     }
 
     @Override
-    public void updateBackupStatus(String backupId, BackupStatus backupStatus){
+    public void updateBackupStatus(String backupId, BackupStatus backupStatus) {
         backupRepository.updateStatus(backupId, CommonUtil.getUTCDate(), backupStatus);
     }
 

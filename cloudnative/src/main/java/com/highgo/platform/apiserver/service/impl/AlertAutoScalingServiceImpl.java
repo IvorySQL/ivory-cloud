@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.apiserver.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -102,37 +119,43 @@ public class AlertAutoScalingServiceImpl implements AlertAutoScalingService {
                 .filter(a -> a.getStatus().equals("firing"))
                 .collect(Collectors.toList());
 
-        for(AlertMessage.Alerts a : alerts){
+        for (AlertMessage.Alerts a : alerts) {
             String instanceId = a.getLabels().getInstanceId();
             InstanceDTO instance = instanceService.getDTO(instanceId);
 
-            //1.判断自动弹性伸缩开关是否开启
-            AutoScalingSwitchPO autoScalingswitch = autoScalingSwitchRepository.findByUserIdAndClusterIdAndIsDeleted(instance.getCreator(), instance.getClusterId(), false);
-            if(autoScalingswitch == null || SwitchStatus.OFF.equals(autoScalingswitch.getAutoscalingSwitch())){
-                log.warn("[AlertAutoScalingServiceImpl.alertAutoScaling] Not processed,autoscaling switch is off,instanceId: {}, cluterId: {}, userId: {}", instanceId,instance.getClusterId(),instance.getCreator());
+            // 1.判断自动弹性伸缩开关是否开启
+            AutoScalingSwitchPO autoScalingswitch = autoScalingSwitchRepository
+                    .findByUserIdAndClusterIdAndIsDeleted(instance.getCreator(), instance.getClusterId(), false);
+            if (autoScalingswitch == null || SwitchStatus.OFF.equals(autoScalingswitch.getAutoscalingSwitch())) {
+                log.warn(
+                        "[AlertAutoScalingServiceImpl.alertAutoScaling] Not processed,autoscaling switch is off,instanceId: {}, cluterId: {}, userId: {}",
+                        instanceId, instance.getClusterId(), instance.getCreator());
                 return;
             }
 
-            //2.检查弹性伸缩处理时间
+            // 2.检查弹性伸缩处理时间
             if (!checkInstanceAutoScaling(instanceId, a)) {
                 return;
             }
 
-            //3.本次告警信息log入库
+            // 3.本次告警信息log入库
             AutoScalingHistoryDTO autoScalingHistoryDTO = getAutoScalingHistoryDTOFromAlertMessage(a);
             AutoScalingHistoryPO autoScalingHistoryPO = new AutoScalingHistoryPO();
             BeanUtil.copyNotNullProperties(autoScalingHistoryDTO, autoScalingHistoryPO);
             autoScalingHistoryPO = autoScalingHistoryRepository.save(autoScalingHistoryPO);
             BeanUtil.copyNotNullProperties(autoScalingHistoryPO, autoScalingHistoryDTO);
 
-            //4.告警信息处理
+            // 4.告警信息处理
             if (InstanceAllowConstant.ALLOW_AUTOSCALING_STATUS.contains(instance.getStatus())) {
-                //自动弹性伸缩异步处理
+                // 自动弹性伸缩异步处理
                 asyncTask.alertAutoScaling(autoScalingHistoryDTO);
             } else {
-                //不允许自动伸缩的状态，不处理
-                autoScalingCallBack(autoScalingHistoryDTO.getId(), AutoScalingStatus.NOTPROCESS, "Not processed,instance status is not allow autoscaling,status: " + instance.getStatus());
-                log.warn("[AlertAutoScalingServiceImpl.alertAutoScaling] Not processed,instance status is not allow autoscaling,instanceId: {},status: {}", instanceId, instance.getStatus());
+                // 不允许自动伸缩的状态，不处理
+                autoScalingCallBack(autoScalingHistoryDTO.getId(), AutoScalingStatus.NOTPROCESS,
+                        "Not processed,instance status is not allow autoscaling,status: " + instance.getStatus());
+                log.warn(
+                        "[AlertAutoScalingServiceImpl.alertAutoScaling] Not processed,instance status is not allow autoscaling,instanceId: {},status: {}",
+                        instanceId, instance.getStatus());
             }
 
         }
@@ -149,9 +172,11 @@ public class AlertAutoScalingServiceImpl implements AlertAutoScalingService {
      */
     private boolean checkInstanceAutoScaling(String instanceId, AlertMessage.Alerts a) {
         AlertMessage.Alerts.Labels labels = a.getLabels();
-        List<AutoScalingHistoryPO> autoScalingHistoryPOS = autoScalingHistoryRepository.findByInstanceIdAndSameAutoScaling(instanceId, AutoScalingType.valueOf(labels.getType().toUpperCase()), AutoScalingOperation.valueOf(labels.getAutoscaling().toUpperCase()) , PageRequest.of(0,1));
-        if(CollectionUtils.isEmpty(autoScalingHistoryPOS)){
-            //没有历史记录，允许处理
+        List<AutoScalingHistoryPO> autoScalingHistoryPOS = autoScalingHistoryRepository
+                .findByInstanceIdAndSameAutoScaling(instanceId, AutoScalingType.valueOf(labels.getType().toUpperCase()),
+                        AutoScalingOperation.valueOf(labels.getAutoscaling().toUpperCase()), PageRequest.of(0, 1));
+        if (CollectionUtils.isEmpty(autoScalingHistoryPOS)) {
+            // 没有历史记录，允许处理
             return true;
         }
         AutoScalingHistoryPO autoScalingHistoryPO = autoScalingHistoryPOS.get(0);
@@ -160,9 +185,11 @@ public class AlertAutoScalingServiceImpl implements AlertAutoScalingService {
         Date createdAt = autoScalingHistoryDTO.getCreatedAt();
         Date utcDate = CommonUtil.getUTCDate();
 
-        if(utcDate.getTime() - createdAt.getTime() < TimeUnit.MINUTES.toMillis(2)){
-            //2分钟内不允许重复处理
-            log.warn("[AlertAutoScalingServiceImpl.alertAutoScaling] Not processed,The instance received the same autoscaling request within 5 minutes,instanceId: {}", instanceId);
+        if (utcDate.getTime() - createdAt.getTime() < TimeUnit.MINUTES.toMillis(2)) {
+            // 2分钟内不允许重复处理
+            log.warn(
+                    "[AlertAutoScalingServiceImpl.alertAutoScaling] Not processed,The instance received the same autoscaling request within 5 minutes,instanceId: {}",
+                    instanceId);
             return false;
         }
         return true;
@@ -182,7 +209,8 @@ public class AlertAutoScalingServiceImpl implements AlertAutoScalingService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void autoScalingOperatorCallBack(String instanceId, AutoScalingStatus status, String operatorLog) {
-        List<AutoScalingHistoryPO> autoScalingHistoryPOS = autoScalingHistoryRepository.findByInstanceIdAndStatusOrderByCreatedAtDesc(instanceId, AutoScalingStatus.PROCESSING);
+        List<AutoScalingHistoryPO> autoScalingHistoryPOS = autoScalingHistoryRepository
+                .findByInstanceIdAndStatusOrderByCreatedAtDesc(instanceId, AutoScalingStatus.PROCESSING);
         if (!CollectionUtils.isEmpty(autoScalingHistoryPOS)) {
             autoScalingHistoryPOS.forEach(autoScalingHistoryPO -> {
                 autoScalingHistoryPO.setStatus(status);
@@ -218,9 +246,10 @@ public class AlertAutoScalingServiceImpl implements AlertAutoScalingService {
 
     @Override
     public AutoScalingSwitchDTO getAutoScalingSwitchDTO(String userId, String clusterId) {
-        AutoScalingSwitchPO autoScalingSwitchPO = autoScalingSwitchRepository.findByUserIdAndClusterIdAndIsDeleted(userId, clusterId, false);
-        if(autoScalingSwitchPO == null){
-           throw new AutoScalingException(AutoScalingError.AUTOSCALINGSWITCH_NOT_EXIST);
+        AutoScalingSwitchPO autoScalingSwitchPO =
+                autoScalingSwitchRepository.findByUserIdAndClusterIdAndIsDeleted(userId, clusterId, false);
+        if (autoScalingSwitchPO == null) {
+            throw new AutoScalingException(AutoScalingError.AUTOSCALINGSWITCH_NOT_EXIST);
         }
         AutoScalingSwitchDTO autoScalingSwitchDTO = new AutoScalingSwitchDTO();
         BeanUtil.copyNotNullProperties(autoScalingSwitchPO, autoScalingSwitchDTO);
@@ -243,11 +272,12 @@ public class AlertAutoScalingServiceImpl implements AlertAutoScalingService {
 
     private void checkAlertRule(String userId, String clusterId, SwitchStatus switchStatus) {
 
-        if(SwitchStatus.OFF.equals(switchStatus)){
-            //关闭自动弹性伸缩开关，不校验告警规则
+        if (SwitchStatus.OFF.equals(switchStatus)) {
+            // 关闭自动弹性伸缩开关，不校验告警规则
             return;
         }
-        List<AutoScalingAlertRulePO> autoScalingAlertRulePOList = autoScalingAlertRuleRepository.findByClusterIdAndUserIdAndIsDeleted(clusterId, userId, false);
+        List<AutoScalingAlertRulePO> autoScalingAlertRulePOList =
+                autoScalingAlertRuleRepository.findByClusterIdAndUserIdAndIsDeleted(clusterId, userId, false);
     }
 
     @Override
@@ -260,9 +290,10 @@ public class AlertAutoScalingServiceImpl implements AlertAutoScalingService {
 
     @Override
     public List<AutoScalingAlertRuleVO> getAutoScalingAlertRule(String userId, String clusterId) {
-        List<AutoScalingAlertRulePO> autoScalingAlertRulePOList = autoScalingAlertRuleRepository.findByClusterIdAndUserIdAndIsDeleted(clusterId, userId, false);
+        List<AutoScalingAlertRulePO> autoScalingAlertRulePOList =
+                autoScalingAlertRuleRepository.findByClusterIdAndUserIdAndIsDeleted(clusterId, userId, false);
         List<AutoScalingAlertRuleVO> autoScalingAlertRuleVOList = new ArrayList<>();
-        for(AutoScalingAlertRulePO autoScalingAlertRulePO : autoScalingAlertRulePOList){
+        for (AutoScalingAlertRulePO autoScalingAlertRulePO : autoScalingAlertRulePOList) {
             AutoScalingAlertRuleVO autoScalingAlertRuleVO = new AutoScalingAlertRuleVO();
             BeanUtil.copyNotNullProperties(autoScalingAlertRulePO, autoScalingAlertRuleVO);
             autoScalingAlertRuleVOList.add(autoScalingAlertRuleVO);
@@ -274,7 +305,7 @@ public class AlertAutoScalingServiceImpl implements AlertAutoScalingService {
     public void initAutoScalingAlertRule(String userId, String clusterId) {
 
         List<AutoScalingAlertRulePO> autoScalingAlertRulePOList = new ArrayList<>();
-        //解析xml，生成规则
+        // 解析xml，生成规则
         parseRuleXml(autoScalingAlertRulePOList);
         Date utcDate = CommonUtil.getUTCDate();
         autoScalingAlertRulePOList.forEach(
@@ -282,8 +313,7 @@ public class AlertAutoScalingServiceImpl implements AlertAutoScalingService {
                     autoScalingAlertRulePO.setUserId(userId);
                     autoScalingAlertRulePO.setClusterId(clusterId);
                     autoScalingAlertRulePO.setCreatedAt(utcDate);
-                }
-        );
+                });
         autoScalingAlertRuleRepository.saveAll(autoScalingAlertRulePOList);
     }
 
@@ -291,9 +321,10 @@ public class AlertAutoScalingServiceImpl implements AlertAutoScalingService {
     @Transactional(rollbackFor = Exception.class)
     public List<AutoScalingAlertRuleVO> AutoScalingAlertRule(List<ModifyAlertRuleVO> modifyAlertRuleVOs) {
         List<AutoScalingAlertRuleDTO> autoScalingAlertRuleDTOList = new ArrayList<>();
-        for(ModifyAlertRuleVO m : modifyAlertRuleVOs){
-            Optional<AutoScalingAlertRulePO> autoScalingAlertRulePOOptional = autoScalingAlertRuleRepository.findById(m.getId());
-            if(autoScalingAlertRulePOOptional.isPresent()){
+        for (ModifyAlertRuleVO m : modifyAlertRuleVOs) {
+            Optional<AutoScalingAlertRulePO> autoScalingAlertRulePOOptional =
+                    autoScalingAlertRuleRepository.findById(m.getId());
+            if (autoScalingAlertRulePOOptional.isPresent()) {
                 AutoScalingAlertRulePO autoScalingAlertRulePO = autoScalingAlertRulePOOptional.get();
                 autoScalingAlertRulePO.setThreshold(m.getThreshold());
                 autoScalingAlertRulePO.setDuration(m.getDuration());
@@ -304,7 +335,7 @@ public class AlertAutoScalingServiceImpl implements AlertAutoScalingService {
                 autoScalingAlertRuleDTOList.add(autoScalingAlertRuleDTO);
             }
         }
-        //修改alertmanager规则
+        // 修改alertmanager规则
         configAlertManagerRule(autoScalingAlertRuleDTOList);
 
         return autoScalingAlertRuleDTOList
@@ -337,20 +368,20 @@ public class AlertAutoScalingServiceImpl implements AlertAutoScalingService {
      */
     private void configAlertManagerRule(List<AutoScalingAlertRuleDTO> autoScalingAlertRuleDTOList) {
         try {
-            //1.获取集群master连接信息
+            // 1.获取集群master连接信息
             AutoScalingAlertRuleDTO autoScalingAlertRuleDTO = autoScalingAlertRuleDTOList.get(0);
             String clusterId = autoScalingAlertRuleDTO.getClusterId();
             K8sClusterInfoPO k8sClusterInfoPO = k8sClusterService.getInfoByClusterId(clusterId);
             K8sClusterInfoDTO k8sClusterInfoDTO = new K8sClusterInfoDTO();
             BeanUtil.copyNotNullProperties(k8sClusterInfoPO, k8sClusterInfoDTO);
             ServerConnectVO server = SshUtil.getServerConnectVO(k8sClusterInfoDTO);
-            //2.生成需要修改的告警规则 如：  CPUHigh*90*60   MemoryLow*50*60
+            // 2.生成需要修改的告警规则 如： CPUHigh*90*60 MemoryLow*50*60
             List<String> ruleStrList = autoScalingAlertRuleDTOList
                     .stream()
                     .map(a -> a.getAlertName() + "*" + a.getThreshold() + "*" + a.getDuration())
                     .collect(Collectors.toList());
 
-            //3.调用脚本，修改用户目录下的alertmanager-rules-config.yaml文件中，告警规则
+            // 3.调用脚本，修改用户目录下的alertmanager-rules-config.yaml文件中，告警规则
             int userId = autoScalingAlertRuleDTO.getUserId();
             List<User> users = accountRepository.listByUserIdAndClusterId(userId, clusterId);
             MonitorUserDto userDTO = new MonitorUserDto();
@@ -366,16 +397,16 @@ public class AlertAutoScalingServiceImpl implements AlertAutoScalingService {
             String result = SshUtil.remoteExeCommand(server);
             log.info("configAlertManagerRule result: {}", result);
 
-            //4.删除alertmanager pod 重新读取规则
+            // 4.删除alertmanager pod 重新读取规则
             Map<String, String> labelFilterMap = new HashMap<>();
             labelFilterMap.put(OperatorConstant.MONITOR_LABEL_KEY, OperatorConstant.MONITOR_LABEL_VALUE);
             labelFilterMap.put(OperatorConstant.MONITOR_NAME_LABEL, prometheusName);
-            k8sClientConfiguration.getAdminKubernetesClientById(clusterId).pods().inNamespace(userDTO.getNamespace()).withLabels(labelFilterMap).delete();
+            k8sClientConfiguration.getAdminKubernetesClientById(clusterId).pods().inNamespace(userDTO.getNamespace())
+                    .withLabels(labelFilterMap).delete();
         } catch (Exception e) {
             throw new AutoScalingException(AutoScalingError.CONFIG_ALERTMANAGER_FAILED);
         }
     }
-
 
     /**
      * description: 解析xml，生成autoscaling alert规则
@@ -401,7 +432,7 @@ public class AlertAutoScalingServiceImpl implements AlertAutoScalingService {
 
             for (int i = 0; i < firstChildNodes.getLength(); i++) {
                 if (firstChildNodes.item(i) instanceof Element) {
-                    //获取子元素
+                    // 获取子元素
                     Element child = (Element) firstChildNodes.item(i);
                     // 获取子元素属性和值
                     log.info("init alert rule name: {}, id: {}", child.getAttribute("name"), child.getAttribute("id"));
@@ -454,6 +485,5 @@ public class AlertAutoScalingServiceImpl implements AlertAutoScalingService {
                 .createdAt(CommonUtil.getUTCDate())
                 .build();
     }
-
 
 }

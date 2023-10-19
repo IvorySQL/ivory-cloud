@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.apiserver.service.impl;
 
 import com.highgo.cloud.util.SshUtil;
@@ -54,8 +71,9 @@ public class K8sClusterServiceImpl implements K8sClusterService {
     @Autowired
     K8sClientConfiguration k8sClientConfiguration;
 
-    //k8s 默认的命名空间
-    private final List<String> kubeNamespaces = new ArrayList<>(Arrays.asList("kube-node-lease","kube-flannel","kube-public","kube-system"));
+    // k8s 默认的命名空间
+    private final List<String> kubeNamespaces =
+            new ArrayList<>(Arrays.asList("kube-node-lease", "kube-flannel", "kube-public", "kube-system"));
 
     private List<String> processingIps = new ArrayList<>();
 
@@ -80,24 +98,24 @@ public class K8sClusterServiceImpl implements K8sClusterService {
 
     }
 
-    ///**
+    /// **
     // * 通过集群id，查询集群配置信息并入库
     // *
     // * @param clusterId
     // */
-    //@Override
-    //public void saveClusterInfo(String clusterId) {
-    //    Optional<K8sClusterInfoPO> clusterConfigOptional = k8sClusterInfoRepository.findByClusterId(clusterId);
-    //    if(!clusterConfigOptional.isPresent()){
-    //        K8sClusterInfoDTO k8sClusterInfoDTO = hcpService.getClusterInfoByClusterId(clusterId);
-    //        k8sClusterInfoDTO.setConfig(hcpService.getClusterConfig(clusterId));
-    //        K8sClusterInfoPO k8sClusterInfoPO = new K8sClusterInfoPO();
-    //        k8sClusterInfoPO.setCreatedAt(CommonUtils.getUTCDate());
-    //        BeanUtils.copyNotNullProperties(k8sClusterInfoDTO, k8sClusterInfoPO);
-    //        saveK8sCluster(k8sClusterInfoPO);
-    //        logger.info("K8sClusterServiceImpl.saveClusterConfigById. save cluster config success. clusterId:{}",clusterId);
-    //    }
-    //}
+    // @Override
+    // public void saveClusterInfo(String clusterId) {
+    // Optional<K8sClusterInfoPO> clusterConfigOptional = k8sClusterInfoRepository.findByClusterId(clusterId);
+    // if(!clusterConfigOptional.isPresent()){
+    // K8sClusterInfoDTO k8sClusterInfoDTO = hcpService.getClusterInfoByClusterId(clusterId);
+    // k8sClusterInfoDTO.setConfig(hcpService.getClusterConfig(clusterId));
+    // K8sClusterInfoPO k8sClusterInfoPO = new K8sClusterInfoPO();
+    // k8sClusterInfoPO.setCreatedAt(CommonUtils.getUTCDate());
+    // BeanUtils.copyNotNullProperties(k8sClusterInfoDTO, k8sClusterInfoPO);
+    // saveK8sCluster(k8sClusterInfoPO);
+    // logger.info("K8sClusterServiceImpl.saveClusterConfigById. save cluster config success. clusterId:{}",clusterId);
+    // }
+    // }
 
     /**
      * 查询已纳管的集群列表
@@ -124,39 +142,44 @@ public class K8sClusterServiceImpl implements K8sClusterService {
 
     }
 
-    ///**
+    /// **
     // * 从CNP平台查询纳管的集群保存入库，并删除未纳管的集群
     // */
-    //@Override
-    //public void saveAllK8sCluster() {
-    //    List<String> clusterIdListSaved = k8sClusterInfoRepository.listClusterId();
-    //    List<String> clusterIdListForCNP = hcpService.listClusterId();
-    //    logger.info("[K8sClusterServiceImpl.saveAllK8sCluster] clusters in db is {}", Arrays.toString(clusterIdListSaved.toArray()));
-    //    logger.info("[K8sClusterServiceImpl.saveAllK8sCluster] clusters from hcp is {}", Arrays.toString(clusterIdListForCNP.toArray()));
-    //    // 保存新增加的集群 clusterIdListForCNP - clusterIdListSaved
-    //    List<String> subtrClusterIdListForCNP = clusterIdListForCNP.stream().filter(clusterId -> !clusterIdListSaved.contains(clusterId)).collect(Collectors.toList());
-    //    for(String clusterId: subtrClusterIdListForCNP){
-    //        try{
-    //            saveClusterInfo(clusterId);
-    //        }catch (Exception e){
-    //            logger.error("[K8sClusterServiceImpl.saveAllK8sCluster] save cluster info error! cluster id is {}", clusterId);
-    //            logger.error("[K8sClusterServiceImpl.saveAllK8sCluster] save cluster info error.", e);
-    //        }
-    //    }
-    //    // 删除移除的集群 clusterIdListSaved - clusterIdListForCNP
-    //    List<String> subtrClusterIdListSaved = clusterIdListSaved.stream().filter(clusterId -> !clusterIdListForCNP.contains(clusterId)).collect(Collectors.toList());
-    //    Date date = CommonUtils.getUTCDate();
-    //    for(String clusterId: subtrClusterIdListSaved){
-    //        k8sClusterInfoRepository.deleteByClusterId(clusterId, date);
-    //        logger.info("[K8sClusterServiceImpl.saveAllK8sCluster] delete cluster success. {}", clusterId);
-    //    }
-    //}
+    // @Override
+    // public void saveAllK8sCluster() {
+    // List<String> clusterIdListSaved = k8sClusterInfoRepository.listClusterId();
+    // List<String> clusterIdListForCNP = hcpService.listClusterId();
+    // logger.info("[K8sClusterServiceImpl.saveAllK8sCluster] clusters in db is {}",
+    /// Arrays.toString(clusterIdListSaved.toArray()));
+    // logger.info("[K8sClusterServiceImpl.saveAllK8sCluster] clusters from hcp is {}",
+    /// Arrays.toString(clusterIdListForCNP.toArray()));
+    // // 保存新增加的集群 clusterIdListForCNP - clusterIdListSaved
+    // List<String> subtrClusterIdListForCNP = clusterIdListForCNP.stream().filter(clusterId ->
+    /// !clusterIdListSaved.contains(clusterId)).collect(Collectors.toList());
+    // for(String clusterId: subtrClusterIdListForCNP){
+    // try{
+    // saveClusterInfo(clusterId);
+    // }catch (Exception e){
+    // logger.error("[K8sClusterServiceImpl.saveAllK8sCluster] save cluster info error! cluster id is {}", clusterId);
+    // logger.error("[K8sClusterServiceImpl.saveAllK8sCluster] save cluster info error.", e);
+    // }
+    // }
+    // // 删除移除的集群 clusterIdListSaved - clusterIdListForCNP
+    // List<String> subtrClusterIdListSaved = clusterIdListSaved.stream().filter(clusterId ->
+    /// !clusterIdListForCNP.contains(clusterId)).collect(Collectors.toList());
+    // Date date = CommonUtils.getUTCDate();
+    // for(String clusterId: subtrClusterIdListSaved){
+    // k8sClusterInfoRepository.deleteByClusterId(clusterId, date);
+    // logger.info("[K8sClusterServiceImpl.saveAllK8sCluster] delete cluster success. {}", clusterId);
+    // }
+    // }
 
     @Override
     public K8sClusterInfoPO getInfoByClusterId(String clusterId) {
         Optional<K8sClusterInfoPO> clusterConfigOptional = k8sClusterInfoRepository.findByClusterId(clusterId);
-        if(!clusterConfigOptional.isPresent()){
-            logger.error("[K8sClusterServiceImpl.getInfoByClusterId] cluster info is not exist! clusterId is {}", clusterId);
+        if (!clusterConfigOptional.isPresent()) {
+            logger.error("[K8sClusterServiceImpl.getInfoByClusterId] cluster info is not exist! clusterId is {}",
+                    clusterId);
             return null;
         }
         return clusterConfigOptional.get();
@@ -170,7 +193,7 @@ public class K8sClusterServiceImpl implements K8sClusterService {
     @Override
     public Map<String, K8sClusterInfoPO> getK8sClusterMap() {
         Map<String, K8sClusterInfoPO> k8sClusterInfoPOMap = new HashMap<>();
-        for(K8sClusterInfoPO k8sClusterInfoPO:getK8sClusterList()){
+        for (K8sClusterInfoPO k8sClusterInfoPO : getK8sClusterList()) {
             k8sClusterInfoPOMap.put(k8sClusterInfoPO.getClusterId(), k8sClusterInfoPO);
         }
         return k8sClusterInfoPOMap;
@@ -194,14 +217,14 @@ public class K8sClusterServiceImpl implements K8sClusterService {
         if (processingIps.contains(createClusterVO.getServerUrl())) {
             logger.error("The master node ip {} address is in process.", createClusterVO.getServerUrl());
             throw new ClusterException(ClusterError.CLUSTER_MASTER_IP_IN_PROCESS);
-        }else{
+        } else {
             processingIps.add(createClusterVO.getServerUrl());
         }
 
         K8sClusterInfoDTO k8sClusterInfoDTO = new K8sClusterInfoDTO();
-        BeanUtil.copyNotNullProperties(createClusterVO,k8sClusterInfoDTO);
+        BeanUtil.copyNotNullProperties(createClusterVO, k8sClusterInfoDTO);
 
-        if(StringUtils.isEmpty(k8sClusterInfoDTO.getConfigPath())){
+        if (StringUtils.isEmpty(k8sClusterInfoDTO.getConfigPath())) {
             k8sClusterInfoDTO.setConfigPath(configPath);
         }
 
@@ -211,7 +234,7 @@ public class K8sClusterServiceImpl implements K8sClusterService {
                 .map(K8sClusterInfoPO::getServerUrl)
                 .collect(Collectors.toList());
 
-        if(serverUrls.contains(k8sClusterInfoDTO.getServerUrl())){
+        if (serverUrls.contains(k8sClusterInfoDTO.getServerUrl())) {
             processingIps.remove(k8sClusterInfoDTO.getServerUrl());
             logger.error("The master node ip {} address already exists.", k8sClusterInfoDTO.getServerUrl());
             throw new ClusterException(ClusterError.CLUSTER_MASTER_IP_CONFLICT_ERROR);
@@ -227,16 +250,17 @@ public class K8sClusterServiceImpl implements K8sClusterService {
 
         } catch (Exception e) {
             processingIps.remove(k8sClusterInfoDTO.getServerUrl());
-            logger.error("Failed to obtain the cluster config file.The cluster master ip is: {}",k8sClusterInfoDTO.getServerUrl());
+            logger.error("Failed to obtain the cluster config file.The cluster master ip is: {}",
+                    k8sClusterInfoDTO.getServerUrl());
             throw new ClusterException(ClusterError.CLUSTER_CONFIG_ERROR);
         }
 
         K8sClusterInfoPO k8sClusterInfoPO = new K8sClusterInfoPO();
-        BeanUtil.copyNotNullProperties(k8sClusterInfoDTO,k8sClusterInfoPO);
+        BeanUtil.copyNotNullProperties(k8sClusterInfoDTO, k8sClusterInfoPO);
         k8sClusterInfoRepository.save(k8sClusterInfoPO);
 
         ClusterInfoVO clusterInfoVO = new ClusterInfoVO();
-        BeanUtil.copyNotNullProperties(k8sClusterInfoPO,clusterInfoVO);
+        BeanUtil.copyNotNullProperties(k8sClusterInfoPO, clusterInfoVO);
         processingIps.remove(k8sClusterInfoDTO.getServerUrl());
         return clusterInfoVO;
     }
@@ -245,33 +269,35 @@ public class K8sClusterServiceImpl implements K8sClusterService {
     public ActionResponse delCluster(String clusterId) {
 
         List<InstancePO> instancePOList = instanceRepository.listByClusterId(clusterId);
-        if(!CollectionUtils.isEmpty(instancePOList)){
-            logger.error("The cluster still has instances and cannot be deleted.The cluster id is: {}",clusterId);
+        if (!CollectionUtils.isEmpty(instancePOList)) {
+            logger.error("The cluster still has instances and cannot be deleted.The cluster id is: {}", clusterId);
             throw new ClusterException(ClusterError.CLUSTER_NOT_ALLOW_ERROR);
         }
 
         Date now = CommonUtil.getUTCDate();
-        k8sClusterInfoRepository.deleteByClusterId(clusterId,now);
+        k8sClusterInfoRepository.deleteByClusterId(clusterId, now);
         return ActionResponse.actionSuccess();
     }
 
     @Override
     public ClusterInfoVO updateCluster(CreateClusterVO createClusterVO) {
         K8sClusterInfoDTO k8sClusterInfoDTO = new K8sClusterInfoDTO();
-        BeanUtil.copyNotNullProperties(createClusterVO,k8sClusterInfoDTO);
+        BeanUtil.copyNotNullProperties(createClusterVO, k8sClusterInfoDTO);
 
-        if(StringUtils.isEmpty(k8sClusterInfoDTO.getConfigPath())){
+        if (StringUtils.isEmpty(k8sClusterInfoDTO.getConfigPath())) {
             k8sClusterInfoDTO.setConfigPath(configPath);
         }
         Optional<K8sClusterInfoPO> cluster = k8sClusterInfoRepository.findByClusterId(createClusterVO.getClusterId());
-        if(!cluster.isPresent()){
-            logger.error("[K8sClusterServiceImpl.updateCluster] cluster is not exits. clusterId is {}", createClusterVO.getClusterId());
+        if (!cluster.isPresent()) {
+            logger.error("[K8sClusterServiceImpl.updateCluster] cluster is not exits. clusterId is {}",
+                    createClusterVO.getClusterId());
             throw new ClusterException(ClusterError.CLUSTER_NOT_EXIST_ERROR);
         }
 
         List<InstancePO> instancePOList = instanceRepository.listByClusterId(createClusterVO.getClusterId());
-        if(!CollectionUtils.isEmpty(instancePOList)){
-            logger.error("The cluster still has instances and cannot be updated.The cluster id is: {}",createClusterVO.getClusterId());
+        if (!CollectionUtils.isEmpty(instancePOList)) {
+            logger.error("The cluster still has instances and cannot be updated.The cluster id is: {}",
+                    createClusterVO.getClusterId());
             throw new ClusterException(ClusterError.CLUSTER_NOT_ALLOW_ERROR);
         }
 
@@ -283,15 +309,16 @@ public class K8sClusterServiceImpl implements K8sClusterService {
             k8sClusterInfoDTO.setUpdatedAt(now);
 
         } catch (Exception e) {
-            logger.error("Failed to obtain the cluster config file.The cluster master ip is: {}",k8sClusterInfoDTO.getServerUrl());
+            logger.error("Failed to obtain the cluster config file.The cluster master ip is: {}",
+                    k8sClusterInfoDTO.getServerUrl());
             throw new ClusterException(ClusterError.CLUSTER_CONFIG_ERROR);
         }
 
         K8sClusterInfoPO k8sClusterInfoPO = cluster.get();
-        BeanUtil.copyNotNullProperties(k8sClusterInfoDTO,k8sClusterInfoPO);
+        BeanUtil.copyNotNullProperties(k8sClusterInfoDTO, k8sClusterInfoPO);
         K8sClusterInfoPO save = k8sClusterInfoRepository.save(k8sClusterInfoPO);
         ClusterInfoVO clusterInfoVO = new ClusterInfoVO();
-        BeanUtil.copyNotNullProperties(save,clusterInfoVO);
+        BeanUtil.copyNotNullProperties(save, clusterInfoVO);
 
         return clusterInfoVO;
     }
@@ -321,7 +348,7 @@ public class K8sClusterServiceImpl implements K8sClusterService {
         }
 
         try {
-            //校验config
+            // 校验config
             KubeConfigUtils.parseConfigFromString(result);
         } catch (Exception e) {
             logger.error("The configuration file for the master node {} is invalid.", k8sClusterInfoDTO.getServerUrl());
@@ -346,61 +373,60 @@ public class K8sClusterServiceImpl implements K8sClusterService {
     @Override
     public List<K8sResourceCountVO> countResource(String userId) {
         List<String> k8sclusterIds = k8sClusterInfoRepository.listClusterId();
-        //instance  按照clusterid分组
+        // instance 按照clusterid分组
         Map<String, List<InstanceDTO>> listInstanceMap = k8sclusterIds
                 .stream()
                 .map((k) -> {
-                    if("0".equals(userId)){
-                        //admin用户
+                    if ("0".equals(userId)) {
+                        // admin用户
                         return instanceRepository.listByClusterId(k);
-                    }else{
-                        //其他用户
-                        return instanceRepository.listByClusterIdUserId(k,userId);
+                    } else {
+                        // 其他用户
+                        return instanceRepository.listByClusterIdUserId(k, userId);
                     }
                 })
                 .flatMap(Collection::stream)
                 .map(i -> {
                     InstanceDTO instanceDTO = new InstanceDTO();
-                    BeanUtil.copyNotNullProperties(i,instanceDTO);
+                    BeanUtil.copyNotNullProperties(i, instanceDTO);
                     return instanceDTO;
                 })
                 .collect(Collectors.groupingBy(InstanceDTO::getClusterId));
 
         List<K8sResourceCountVO> k8sResourceCountVOList = new ArrayList<>();
 
-        listInstanceMap.forEach((k,v)->{
+        listInstanceMap.forEach((k, v) -> {
 
             String clusterName = k8sClusterInfoRepository.findByClusterId(k).get().getClusterName();
 
-            //运行中
+            // 运行中
             long runningCount = v
                     .stream()
                     .filter(i -> InstanceStatus.RUNNING.name().equalsIgnoreCase(i.getStatus().name()))
                     .count();
-            //错误
+            // 错误
             long errorCount = v
                     .stream()
                     .filter(i -> InstanceStatus.ERROR.name().equalsIgnoreCase(i.getStatus().name()))
                     .count();
-            //其他
+            // 其他
             long elseCount = v
                     .stream()
                     .filter(i -> !InstanceStatus.RUNNING.name().equalsIgnoreCase(i.getStatus().name()))
                     .filter(i -> !InstanceStatus.ERROR.name().equalsIgnoreCase(i.getStatus().name()))
                     .count();
-            //单机
+            // 单机
             long aloneCount = v
                     .stream()
                     .filter(i -> InstanceStatus.RUNNING.name().equalsIgnoreCase(i.getStatus().name()))
                     .filter(i -> i.getType().name().equalsIgnoreCase(InstanceType.ALONE.name()))
                     .count();
-            //高可用
+            // 高可用
             long haCount = v
                     .stream()
                     .filter(i -> InstanceStatus.RUNNING.name().equalsIgnoreCase(i.getStatus().name()))
                     .filter(i -> i.getType().name().equalsIgnoreCase(InstanceType.HA.name()))
                     .count();
-
 
             K8sResourceCountVO k8sResourceCountVO = K8sResourceCountVO
                     .builder()
@@ -416,9 +442,9 @@ public class K8sClusterServiceImpl implements K8sClusterService {
             k8sResourceCountVOList.add(k8sResourceCountVO);
         });
 
-        //加上没有资源的k8s环境
+        // 加上没有资源的k8s环境
         k8sclusterIds.removeAll(listInstanceMap.keySet());
-        for(String id : k8sclusterIds){
+        for (String id : k8sclusterIds) {
             String clusterName = k8sClusterInfoRepository.findByClusterId(id).get().getClusterName();
             K8sResourceCountVO k8sResourceCountVO = K8sResourceCountVO
                     .builder()
@@ -439,7 +465,7 @@ public class K8sClusterServiceImpl implements K8sClusterService {
 
     @Override
     public void createNamespace(String clusterId, String namespaceName) {
-        //创建namespace
+        // 创建namespace
         KubernetesClient kubernetesClient = k8sClientConfiguration.getAdminKubernetesClientById(clusterId);
         Namespace namespace = new NamespaceBuilder()
                 .withNewMetadata()
@@ -448,6 +474,5 @@ public class K8sClusterServiceImpl implements K8sClusterService {
                 .build();
         kubernetesClient.namespaces().createOrReplace(namespace);
     }
-
 
 }

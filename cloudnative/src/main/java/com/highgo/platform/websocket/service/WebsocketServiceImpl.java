@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.websocket.service;
 
 import com.highgo.platform.apiserver.model.dto.InstanceDTO;
@@ -18,9 +35,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 
-
 @Service
 public class WebsocketServiceImpl implements WebsocketService {
+
     private static final Logger logger = LoggerFactory.getLogger(WebsocketServiceImpl.class);
 
     private String websocketAddr;
@@ -32,14 +49,14 @@ public class WebsocketServiceImpl implements WebsocketService {
     @Qualifier(value = "dbRestTemplate")
     private RestTemplate restTemplate;
 
-
     @Override
     public void sendMessageToUser(WebsocketRequest message) {
         try {
             HttpHeaders headers = new HttpHeaders();
-            //headers.add("Authorization", "bearer " + KeycloakUtil.getKeyCloakToken());
+            // headers.add("Authorization", "bearer " + KeycloakUtil.getKeyCloakToken());
             HttpEntity<Object> httpEntity = new HttpEntity<>(message, headers);
-            ResponseEntity<String> response = restTemplate.exchange(URI.create(websocketAddr), HttpMethod.POST, httpEntity, String.class);
+            ResponseEntity<String> response =
+                    restTemplate.exchange(URI.create(websocketAddr), HttpMethod.POST, httpEntity, String.class);
             ObjectMapper mapper = new ObjectMapper();
             String websocketInfo = mapper.writeValueAsString(message);
             logger.warn("send websocket info is: [{}]", websocketInfo);
@@ -51,7 +68,7 @@ public class WebsocketServiceImpl implements WebsocketService {
 
     @Override
     public void sendMsgToUser(InstanceDTO instanceDTO, OperationDTO operationDTO) {
-        if(true){
+        if (true) {
             return;
         }
         WebsocketRequest wsRequest = new WebsocketRequest();

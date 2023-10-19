@@ -1,6 +1,22 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.operator.service.impl;
 
-import com.highgo.cloud.constant.OperatorConstant;
 import com.highgo.cloud.enums.BackupStatus;
 import com.highgo.platform.apiserver.model.dto.BackupDTO;
 import com.highgo.platform.apiserver.service.BackupService;
@@ -53,11 +69,11 @@ public class OperatorBackupServiceImpl implements OperatorBackupsService {
         pgbackrest.setManual(manual);
         Repo repoLocal = getRepoLocal(storage, storageClass);
         pgbackrest.setRepos(new ArrayList<>(Arrays.asList(repoLocal)));
-        //去掉保留天数设置
-//        Map<String,String> globalMap = new HashMap<>();
-//        globalMap.put("repo1-retention-full", "14");
-//        globalMap.put("repo1-retention-full-type", "time");
-//        highgoDBbackrest.setGlobal(globalMap);
+        // 去掉保留天数设置
+        // Map<String,String> globalMap = new HashMap<>();
+        // globalMap.put("repo1-retention-full", "14");
+        // globalMap.put("repo1-retention-full-type", "time");
+        // highgoDBbackrest.setGlobal(globalMap);
         backup.setPgbackrest(pgbackrest);
         return backup;
     }
@@ -77,28 +93,28 @@ public class OperatorBackupServiceImpl implements OperatorBackupsService {
         pgbackrest.setImage(backrestImage);
         // s3secret
         Map<String, String> configurationMap = new HashMap<>();
-        configurationMap.put("secret",s3SecretName);
+        configurationMap.put("secret", s3SecretName);
         pgbackrest.setConfiguration(new ArrayList<>(Arrays.asList(configurationMap)));
         // s3连接信息
         Repo repoS3 = geRepoS3(bucket, endpoint, region);
         pgbackrest.setRepos(new ArrayList<>(Arrays.asList(repoS3)));
         // global 仓库名称配置
         Map<String, String> globalMap = new HashMap<>();
-        globalMap.put(repoS3.getName()+"-path", "/pgbackupset/"+instanceName);
-//        globalMap.put("repo1-retention-full", "14");
-//        globalMap.put("repo1-retention-full-type", "time");
+        globalMap.put(repoS3.getName() + "-path", "/pgbackupset/" + instanceName);
+        // globalMap.put("repo1-retention-full", "14");
+        // globalMap.put("repo1-retention-full-type", "time");
         pgbackrest.setGlobal(globalMap);
         backup.setPgbackrest(pgbackrest);
         return backup;
     }
-
 
     @Override
     public Repo getRepoLocal(String storage, String storageClass) {
         Repo repo = new Repo();
         Volume volume = new Volume();
         VolumeClaimSpec volumeClaimSpec = new VolumeClaimSpec();
-        volumeClaimSpec.setResources(StorageResource.builder().requests(StorageRequests.builder().storage(storage).build()).build());
+        volumeClaimSpec.setResources(
+                StorageResource.builder().requests(StorageRequests.builder().storage(storage).build()).build());
         volumeClaimSpec.setStorageClassName(storageClass);
         volume.setVolumeClaimSpec(volumeClaimSpec);
         repo.setVolume(volume);
@@ -126,7 +142,8 @@ public class OperatorBackupServiceImpl implements OperatorBackupsService {
         labelMap.put(clusterNameLabel, instanceName);
         labelMap.put(crBackupAnnotation, "replica-create");
         JobList jobList = kubernetesClient.batch().jobs().inNamespace(namespace).withLabels(labelMap).list();
-        if (jobList.getItems().size() > 0 && jobList.getItems().get(0).getStatus().getSucceeded() != null && jobList.getItems().get(0).getStatus().getSucceeded() > 0) {
+        if (jobList.getItems().size() > 0 && jobList.getItems().get(0).getStatus().getSucceeded() != null
+                && jobList.getItems().get(0).getStatus().getSucceeded() > 0) {
             return true;
         } else {
             return false;
@@ -151,7 +168,9 @@ public class OperatorBackupServiceImpl implements OperatorBackupsService {
             return;
         }
 
-        log.info("ManualBackupStatus : {}, {} ,{}, {}, {}", newManualBackupStatus.getId(), newManualBackupStatus.getFinished(), newManualBackupStatus.getSucceeded(), newManualBackupStatus.getFailed(), newManualBackupStatus);
+        log.info("ManualBackupStatus : {}, {} ,{}, {}, {}", newManualBackupStatus.getId(),
+                newManualBackupStatus.getFinished(), newManualBackupStatus.getSucceeded(),
+                newManualBackupStatus.getFailed(), newManualBackupStatus);
         if (newManualBackupStatus.getFinished()) {
             if (newManualBackupStatus.getSucceeded() != null && newManualBackupStatus.getSucceeded() > 0) {
                 backupService.createBackupCallback(backupId, true);

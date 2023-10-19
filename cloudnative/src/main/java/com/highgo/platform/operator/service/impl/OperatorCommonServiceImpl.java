@@ -1,8 +1,24 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.operator.service.impl;
 
 import com.highgo.platform.apiserver.service.InstanceService;
 import com.highgo.platform.configuration.K8sClientConfiguration;
-import com.highgo.cloud.constant.OperatorConstant;
 import com.highgo.platform.operator.cr.DatabaseCluster;
 import com.highgo.platform.operator.cr.bean.common.StorageRequests;
 import com.highgo.platform.operator.cr.bean.common.StorageResource;
@@ -30,6 +46,7 @@ import java.util.Map;
 
 @Service
 public class OperatorCommonServiceImpl implements OperatorCommonService {
+
     private static final Logger logger = LoggerFactory.getLogger(OperatorCommonServiceImpl.class);
 
     @Autowired
@@ -68,12 +85,14 @@ public class OperatorCommonServiceImpl implements OperatorCommonService {
      * @param labelValue
      */
     @Override
-    public void applyCrLabel(KubernetesClient kubernetesClient, DatabaseCluster databaseCluster, String labelName, String labelValue) {
+    public void applyCrLabel(KubernetesClient kubernetesClient, DatabaseCluster databaseCluster, String labelName,
+            String labelValue) {
         ObjectMeta matedata = databaseCluster.getMetadata();
         Map<String, String> labelMap = matedata.getLabels();
         labelMap.put(labelName, labelValue);
         databaseCluster.getMetadata().setLabels(labelMap);
-        kubernetesClient.customResources(DatabaseCluster.class).inNamespace(databaseCluster.getMetadata().getNamespace()).replace(databaseCluster);
+        kubernetesClient.customResources(DatabaseCluster.class)
+                .inNamespace(databaseCluster.getMetadata().getNamespace()).replace(databaseCluster);
     }
 
     /**
@@ -83,7 +102,8 @@ public class OperatorCommonServiceImpl implements OperatorCommonService {
      * @param labelMapPatch
      */
     @Override
-    public void applyCrLabel(KubernetesClient kubernetesClient, DatabaseCluster databaseCluster, Map<String, String> labelMapPatch) {
+    public void applyCrLabel(KubernetesClient kubernetesClient, DatabaseCluster databaseCluster,
+            Map<String, String> labelMapPatch) {
         ObjectMeta matedata = databaseCluster.getMetadata();
         Map<String, String> labelMap = matedata.getLabels();
         for (String key : labelMapPatch.keySet()) {
@@ -101,16 +121,18 @@ public class OperatorCommonServiceImpl implements OperatorCommonService {
      * @param crName
      */
     @Override
-    public void saveEvent(KubernetesClient kubernetesClient, String instanceId, String namespace, String crName, Integer nodeReadyNum) {
+    public void saveEvent(KubernetesClient kubernetesClient, String instanceId, String namespace, String crName,
+            Integer nodeReadyNum) {
         // sts 事件
-//        logger.info("[OperatorCommonServiceImpl.saveEvent] crName 【{}】, namespace {}, instanceId {}, get event and save ...", crName, namespace, instanceId);
+        // logger.info("[OperatorCommonServiceImpl.saveEvent] crName 【{}】, namespace {}, instanceId {}, get event and
+        // save ...", crName, namespace, instanceId);
         saveStsEvent(kubernetesClient, instanceId, namespace, crName);
         savePodEvent(kubernetesClient, instanceId, namespace, crName);
         if (nodeReadyNum != null) {
             instanceService.updateNodeReadyNum(instanceId, nodeReadyNum);
-//            logger.info("[OperatorCommonServiceImpl.saveEvent] save node ready number success. namespace {}, crName 【{}】, instanceId {}, nodeReadyNum {}", namespace, crName, instanceId, nodeReadyNum);
+            // logger.info("[OperatorCommonServiceImpl.saveEvent] save node ready number success. namespace {}, crName
+            // 【{}】, instanceId {}, nodeReadyNum {}", namespace, crName, instanceId, nodeReadyNum);
         }
-
 
     }
 
@@ -119,18 +141,22 @@ public class OperatorCommonServiceImpl implements OperatorCommonService {
             Map<String, String> labelFilterMap = new HashMap<>();
             labelFilterMap.put(clusterNameLabel, crName);
             labelFilterMap.put(clusterDataLabel, "postgres");
-            StatefulSetList statefulSetList = kubernetesClient.apps().statefulSets().inNamespace(namespace).withLabels(labelFilterMap).list();
+            StatefulSetList statefulSetList =
+                    kubernetesClient.apps().statefulSets().inNamespace(namespace).withLabels(labelFilterMap).list();
             List<Event> stsEvents = new ArrayList<>();
             for (StatefulSet statefulSet : statefulSetList.getItems()) {
                 Map<String, String> stsFieldSelector = new HashMap<>();
                 stsFieldSelector.put("regarding.name", statefulSet.getMetadata().getName());
                 stsFieldSelector.put("regarding.kind", "StatefulSet");
-                stsEvents.addAll(kubernetesClient.events().v1beta1().events().inNamespace(namespace).withFields(stsFieldSelector).list().getItems());
+                stsEvents.addAll(kubernetesClient.events().v1beta1().events().inNamespace(namespace)
+                        .withFields(stsFieldSelector).list().getItems());
             }
             String lastStsEventTimeStamp = null;
             Event stsEvent = null;
             for (Event tempEvent : stsEvents) {
-                String tempStsEventTimeStamp = StringUtils.isEmpty(tempEvent.getDeprecatedLastTimestamp()) ? tempEvent.getEventTime().getTime() : tempEvent.getDeprecatedLastTimestamp();
+                String tempStsEventTimeStamp =
+                        StringUtils.isEmpty(tempEvent.getDeprecatedLastTimestamp()) ? tempEvent.getEventTime().getTime()
+                                : tempEvent.getDeprecatedLastTimestamp();
                 if (lastStsEventTimeStamp == null || tempStsEventTimeStamp.compareTo(lastStsEventTimeStamp) > 0) {
                     lastStsEventTimeStamp = tempStsEventTimeStamp;
                     stsEvent = tempEvent;
@@ -138,10 +164,13 @@ public class OperatorCommonServiceImpl implements OperatorCommonService {
             }
             if (stsEvent != null) {
                 instanceService.updateStsEvent(instanceId, stsEvent.getNote());
-//                logger.info("[OperatorCommonServiceImpl.saveStsEvent] save sts event success. namespace {}, crName {}, instanceId {}, statefulset event {}", namespace, crName, instanceId, stsEvent.getNote());
+                // logger.info("[OperatorCommonServiceImpl.saveStsEvent] save sts event success. namespace {}, crName
+                // {}, instanceId {}, statefulset event {}", namespace, crName, instanceId, stsEvent.getNote());
             }
         } catch (Exception e) {
-            logger.info("[OperatorCommonServiceImpl.saveStsEvent] save sts event faile. namespace {}, crName {}, instanceId {}", namespace, crName, instanceId);
+            logger.info(
+                    "[OperatorCommonServiceImpl.saveStsEvent] save sts event faile. namespace {}, crName {}, instanceId {}",
+                    namespace, crName, instanceId);
         }
 
     }
@@ -154,12 +183,15 @@ public class OperatorCommonServiceImpl implements OperatorCommonService {
                 Map<String, String> stsFieldSelector = new HashMap<>();
                 stsFieldSelector.put("regarding.name", pod.getMetadata().getName());
                 stsFieldSelector.put("regarding.kind", "Pod");
-                podEvents.addAll(kubernetesClient.events().v1beta1().events().inNamespace(namespace).withFields(stsFieldSelector).list().getItems());
+                podEvents.addAll(kubernetesClient.events().v1beta1().events().inNamespace(namespace)
+                        .withFields(stsFieldSelector).list().getItems());
             }
             String lastPodEventTimeStamp = null;
             Event podEvent = null;
             for (Event tempEvent : podEvents) {
-                String tempPodEventTimeStamp = StringUtils.isEmpty(tempEvent.getDeprecatedLastTimestamp()) ? tempEvent.getEventTime().getTime() : tempEvent.getDeprecatedLastTimestamp();
+                String tempPodEventTimeStamp =
+                        StringUtils.isEmpty(tempEvent.getDeprecatedLastTimestamp()) ? tempEvent.getEventTime().getTime()
+                                : tempEvent.getDeprecatedLastTimestamp();
                 if (lastPodEventTimeStamp == null || tempPodEventTimeStamp.compareTo(lastPodEventTimeStamp) > 0) {
                     lastPodEventTimeStamp = tempPodEventTimeStamp;
                     podEvent = tempEvent;
@@ -168,10 +200,13 @@ public class OperatorCommonServiceImpl implements OperatorCommonService {
             if (podEvent != null) {
                 String podEventStr = podEvent.getNote().split(":")[0];
                 instanceService.updatePodEvent(instanceId, podEventStr);
-//                logger.info("[OperatorCommonServiceImpl.savePodEvent] save pod event success. namespace {}, crName {}, instanceId {}, statefulset event {}", namespace, crName, instanceId, podEventStr);
+                // logger.info("[OperatorCommonServiceImpl.savePodEvent] save pod event success. namespace {}, crName
+                // {}, instanceId {}, statefulset event {}", namespace, crName, instanceId, podEventStr);
             }
         } catch (Exception e) {
-            logger.info("[OperatorCommonServiceImpl.savePodEvent] save pod event failed. namespace {}, crName {}, instanceId {}", namespace, crName, instanceId);
+            logger.info(
+                    "[OperatorCommonServiceImpl.savePodEvent] save pod event failed. namespace {}, crName {}, instanceId {}",
+                    namespace, crName, instanceId);
         }
 
     }
@@ -200,7 +235,8 @@ public class OperatorCommonServiceImpl implements OperatorCommonService {
     @Override
     public StatefulSetList getStsList(KubernetesClient kubernetesClient, String namespace, String crName) {
         Map<String, String> labelFilterMap = getLabelSelector(crName);
-        StatefulSetList statefulSetList = kubernetesClient.apps().statefulSets().inNamespace(namespace).withLabels(labelFilterMap).list();
+        StatefulSetList statefulSetList =
+                kubernetesClient.apps().statefulSets().inNamespace(namespace).withLabels(labelFilterMap).list();
         return statefulSetList;
     }
 
@@ -214,7 +250,8 @@ public class OperatorCommonServiceImpl implements OperatorCommonService {
     @Override
     public PersistentVolumeClaimList getPvcList(KubernetesClient kubernetesClient, String namespace, String crName) {
         Map<String, String> labelFilterMap = getLabelSelector(crName);
-        PersistentVolumeClaimList persistentVolumeClaimList = kubernetesClient.persistentVolumeClaims().inNamespace(namespace).withLabels(labelFilterMap).list();
+        PersistentVolumeClaimList persistentVolumeClaimList =
+                kubernetesClient.persistentVolumeClaims().inNamespace(namespace).withLabels(labelFilterMap).list();
         return persistentVolumeClaimList;
     }
 

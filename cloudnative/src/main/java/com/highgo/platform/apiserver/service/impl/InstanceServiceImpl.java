@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.apiserver.service.impl;
 
 import com.highgo.cloud.constant.InstanceAllowConstant;
@@ -115,10 +132,9 @@ public class InstanceServiceImpl implements InstanceService {
     @Autowired
     BackupService backupService;
 
-    //TODO lcq storageclass
-    //@Value("#{${common.storageClassLabels}}")
-    //private Map<String, String> storageClassLabels;
-
+    // TODO lcq storageclass
+    // @Value("#{${common.storageClassLabels}}")
+    // private Map<String, String> storageClassLabels;
 
     /**
      * 执行创建实例任务
@@ -132,7 +148,8 @@ public class InstanceServiceImpl implements InstanceService {
         // 权限校验
         InstanceDTO instanceDTO = new InstanceDTO();
         BeanUtil.copyNotNullProperties(createInstanceVO, instanceDTO);
-        if (isInstanceExistByClusterAndNamespaceAndName(instanceDTO.getClusterId(), instanceDTO.getNamespace(), instanceDTO.getName())) {
+        if (isInstanceExistByClusterAndNamespaceAndName(instanceDTO.getClusterId(), instanceDTO.getNamespace(),
+                instanceDTO.getName())) {
             throw new InstanceException(InstanceError.DUPLICATE_NAME);
         }
         // 获取开通实例的集群的配置信息并入库
@@ -142,7 +159,9 @@ public class InstanceServiceImpl implements InstanceService {
         instanceDTO = createInstance(instanceDTO);
         InstanceVO instanceVO = new InstanceVO();
         BeanUtil.copyNotNullProperties(instanceDTO, instanceVO);
-        logger.info("[InstanceServiceImpl.createInstance] create instance success. clusterId:{} namespace:{} name:{} instanceId:{}", instanceVO.getClusterId(), instanceVO.getNamespace(), instanceVO.getName(), instanceVO.getId());
+        logger.info(
+                "[InstanceServiceImpl.createInstance] create instance success. clusterId:{} namespace:{} name:{} instanceId:{}",
+                instanceVO.getClusterId(), instanceVO.getNamespace(), instanceVO.getName(), instanceVO.getId());
         return instanceVO;
     }
 
@@ -161,7 +180,9 @@ public class InstanceServiceImpl implements InstanceService {
         if (isInstanceExistByClusterAndNamespaceAndName(clusterId, namespace, name)) {
             // operator onadd事件触发回调方法时，判断实例已存在说明是ui创建的，不再创建实例。
             // 否则认为是k8s创建的cr，反向创建实例
-            logger.info("[InstanceServiceImpl.createInstance] instance is exists already, clusterId {}, namespace {}, name {}, instanceId {}", clusterId, namespace, name, instanceDTO.getId());
+            logger.info(
+                    "[InstanceServiceImpl.createInstance] instance is exists already, clusterId {}, namespace {}, name {}, instanceId {}",
+                    clusterId, namespace, name, instanceDTO.getId());
             return instanceDTO;
         }
 
@@ -217,7 +238,8 @@ public class InstanceServiceImpl implements InstanceService {
         // 实例所在集群上启动watcher
         watcherFactory.startWatcherById(instanceDTO.getClusterId());
         crService.createCr(instanceDTO);
-        logger.info("[InstanceServiceImpl.createInstance(InstanceDTO)] create instance success , instanceDTO is {}", instanceDTO.toString());
+        logger.info("[InstanceServiceImpl.createInstance(InstanceDTO)] create instance success , instanceDTO is {}",
+                instanceDTO.toString());
         return instanceDTO;
     }
 
@@ -226,10 +248,12 @@ public class InstanceServiceImpl implements InstanceService {
      */
     @Override
     @Transactional
-    public void createInstanceCallback(String instanceId, List<InstanceNetworkDTO> instanceNetworkDTOList, String originInstanceId, String originBackupId, boolean result) {
+    public void createInstanceCallback(String instanceId, List<InstanceNetworkDTO> instanceNetworkDTOList,
+            String originInstanceId, String originBackupId, boolean result) {
         Optional<InstancePO> instancePOOptional = instanceRepository.findById(instanceId);
         if (!instancePOOptional.isPresent()) {
-            logger.error("InstanceServiceImpl.createInstanceCallback. instance is not exist. instanceId is {}", instanceId);
+            logger.error("InstanceServiceImpl.createInstanceCallback. instance is not exist. instanceId is {}",
+                    instanceId);
             return;
         }
         InstancePO instancePO = instancePOOptional.get();
@@ -249,18 +273,26 @@ public class InstanceServiceImpl implements InstanceService {
                     backupPO.setUpdatedAt(CommonUtil.getUTCDate());
                     backupPO.setIsRestoring(false);
                     backupRepository.save(backupPO);
-                    logger.info("InstanceServiceImpl.createInstanceCallback. restore mode, backupPO's status is updated. backupid is {} status is {}", originBackupId, backupPO.getStatus());
+                    logger.info(
+                            "InstanceServiceImpl.createInstanceCallback. restore mode, backupPO's status is updated. backupid is {} status is {}",
+                            originBackupId, backupPO.getStatus());
                 }
             }
-            //websocketService.sendMsgToUser(instanceDTO, OperationDTO.builder().name(OperationName.CREATE_INSTANCE).status(OperationStatus.FAILED).build(), projectId);
-            logger.info("[InstanceServiceImpl.createInstanceCallback] create instace callback failed. instance id is {}", instanceId);
+            // websocketService.sendMsgToUser(instanceDTO,
+            // OperationDTO.builder().name(OperationName.CREATE_INSTANCE).status(OperationStatus.FAILED).build(),
+            // projectId);
+            logger.info(
+                    "[InstanceServiceImpl.createInstanceCallback] create instace callback failed. instance id is {}",
+                    instanceId);
             return;
         }
 
         // 创建实例成功
         instancePO.setStatus(InstanceStatus.RUNNING);
         instanceRepository.save(instancePO);
-        logger.info("InstanceServiceImpl.createInstanceCallback. instancepo status is updated, instanceid is {}, status is {}", instanceId, instancePO.getStatus());
+        logger.info(
+                "InstanceServiceImpl.createInstanceCallback. instancepo status is updated, instanceid is {}, status is {}",
+                instanceId, instancePO.getStatus());
         // 删除旧的网络信息
         instanceNetworkRepository.deleteByInstanceId(instanceId, CommonUtil.getUTCDate());
         K8sClusterInfoPO k8sClusterInfoPO = k8sClusterInfoRepository.findByClusterId(instancePO.getClusterId()).get();
@@ -285,13 +317,17 @@ public class InstanceServiceImpl implements InstanceService {
                 backupPO.setUpdatedAt(CommonUtil.getUTCDate());
                 backupPO.setIsRestoring(false);
                 backupRepository.save(backupPO);
-                logger.info("InstanceServiceImpl.createInstanceCallback. restore mode, backupPO's status is updated. backupid is {} status is {}", originBackupId, backupPO.getStatus());
+                logger.info(
+                        "InstanceServiceImpl.createInstanceCallback. restore mode, backupPO's status is updated. backupid is {} status is {}",
+                        originBackupId, backupPO.getStatus());
             }
         }
-        logger.info("[InstanceServiceImpl.createInstanceCallback] create instace callback success. instance id is {}", instanceId);
-        //websocketService.sendMsgToUser(instanceDTO, OperationDTO.builder().name(OperationName.CREATE_INSTANCE).status(OperationStatus.SUCCESS).build(), projectId);
+        logger.info("[InstanceServiceImpl.createInstanceCallback] create instace callback success. instance id is {}",
+                instanceId);
+        // websocketService.sendMsgToUser(instanceDTO,
+        // OperationDTO.builder().name(OperationName.CREATE_INSTANCE).status(OperationStatus.SUCCESS).build(),
+        // projectId);
     }
-
 
     /**
      * 执行删除实例任务
@@ -305,7 +341,9 @@ public class InstanceServiceImpl implements InstanceService {
     public ActionResponse deleteInstance(String id) {
         InstanceDTO instanceDTO = beforeOperateInstance(id);
         if (!InstanceAllowConstant.ALLOW_DELETE_INSTANCE_STATUS.contains(instanceDTO.getStatus())) {
-            logger.error("[InstanceServiceImpl.deleteInstance]. instance is not allow operate. instanceId is {} status is {}", id, instanceDTO.getStatus());
+            logger.error(
+                    "[InstanceServiceImpl.deleteInstance]. instance is not allow operate. instanceId is {} status is {}",
+                    id, instanceDTO.getStatus());
             throw new InstanceException(InstanceError.INSTANCE_NOT_ALLOW_OPERATE);
         }
         InstancePO instancePO = new InstancePO();
@@ -357,8 +395,9 @@ public class InstanceServiceImpl implements InstanceService {
         logger.info("[InstanceServiceImpl.deleteInstanceCallback] instance {} is deleted!", id);
         InstanceDTO instanceDTO = new InstanceDTO();
         BeanUtil.copyNotNullProperties(instancePO, instanceDTO);
-        //String projectId = getProjectIdByNamespace(instanceDTO.getClusterId(), instanceDTO.getNamespace());
-        websocketService.sendMsgToUser(instanceDTO, OperationDTO.builder().name(OperationName.DELETE_INSTANCE).status(operationStatus).build());
+        // String projectId = getProjectIdByNamespace(instanceDTO.getClusterId(), instanceDTO.getNamespace());
+        websocketService.sendMsgToUser(instanceDTO,
+                OperationDTO.builder().name(OperationName.DELETE_INSTANCE).status(operationStatus).build());
     }
 
     /**
@@ -419,26 +458,30 @@ public class InstanceServiceImpl implements InstanceService {
      * @return
      */
     @Override
-    public PageInfo<List<InstanceVO>> listByFilter(int userId , String filter, String clusterId, int pageNo, int pageSize) {
+    public PageInfo<List<InstanceVO>> listByFilter(int userId, String filter, String clusterId, int pageNo,
+            int pageSize) {
         Map<String, List<InstanceNetworkDTO>> instanceNetworkMap = getInstanceNetworkList();
         // pageNo 界面从第1页开始
         // Pageable 从第0页开始
-        //TODO lcq
-        //List<String> namespaces = cadService.getNamespaceByProject(projectId, clusterId);
+        // TODO lcq
+        // List<String> namespaces = cadService.getNamespaceByProject(projectId, clusterId);
         logger.info("[InstanceServiceImpl.listByFilter] clusterId:{} ", clusterId);
         Specification<InstancePO> specification = new Specification<InstancePO>() {
+
             @Override
-            public Predicate toPredicate(Root<InstancePO> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+            public Predicate toPredicate(Root<InstancePO> root, CriteriaQuery<?> query,
+                    CriteriaBuilder criteriaBuilder) {
                 Predicate deletedPredicate = criteriaBuilder.equal(root.get("isDeleted"), false);
                 Predicate userPredicate = criteriaBuilder.equal(root.get("creator"), String.valueOf(userId));
                 Predicate clusterPredicate = criteriaBuilder.equal(root.get("clusterId"), clusterId);
-                //Predicate namespacePredicate = root.get("namespace").in(namespaces);
+                // Predicate namespacePredicate = root.get("namespace").in(namespaces);
                 Predicate resultPredicate;
                 if (!StringUtils.isEmpty(filter)) {
                     Predicate idPredicate = criteriaBuilder.like(root.get("id"), "%" + filter + "%");
                     Predicate namePredicate = criteriaBuilder.like(root.get("name"), "%" + filter + "%");
                     Predicate filterPredicate = criteriaBuilder.or(idPredicate, namePredicate);
-                    resultPredicate = criteriaBuilder.and(deletedPredicate, clusterPredicate, userPredicate, filterPredicate);
+                    resultPredicate =
+                            criteriaBuilder.and(deletedPredicate, clusterPredicate, userPredicate, filterPredicate);
                 } else {
                     resultPredicate = criteriaBuilder.and(deletedPredicate, clusterPredicate, userPredicate);
                 }
@@ -458,10 +501,10 @@ public class InstanceServiceImpl implements InstanceService {
             instanceVOS.add(instanceVO);
         }
 
-        return PageInfo.<List<InstanceVO>>builder().pageNo(pageNo).pageSize(pageSize).totalCount(totalSize).data(instanceVOS).build();
+        return PageInfo.<List<InstanceVO>>builder().pageNo(pageNo).pageSize(pageSize).totalCount(totalSize)
+                .data(instanceVOS).build();
 
     }
-
 
     /**
      * 统计所有项目下实例数量
@@ -484,10 +527,11 @@ public class InstanceServiceImpl implements InstanceService {
                 createingNum += ((BigInteger) tmp[1]).intValue();
             } else if (InstanceAllowConstant.ERROR_INSTANCE_STATUS.contains((String) tmp[0])) {
                 errorNum += ((BigInteger) tmp[1]).intValue();
-            }  // 其他状态不做统计
+            } // 其他状态不做统计
 
         }
-        return InstanceCountVO.builder().errorCount(errorNum).runningCount(runningNum).startingCount(createingNum).build();
+        return InstanceCountVO.builder().errorCount(errorNum).runningCount(runningNum).startingCount(createingNum)
+                .build();
     }
 
     /**
@@ -502,14 +546,15 @@ public class InstanceServiceImpl implements InstanceService {
         int errorNum = 0;
         String countHql = "";
         Query countQuery = null;
-        if("0".equals(userId)){
-            //admin用户
+        if ("0".equals(userId)) {
+            // admin用户
             countHql = "SELECT t.status, count(1) from instance t where t.is_deleted = false group by t.status";
             countQuery = entityManager.createNativeQuery(countHql);
-        }else{
-            //普通用户
-            countHql = "SELECT t.status, count(1) from instance t where t.is_deleted = false and t.creator = :userId group by t.status";
-            countQuery = entityManager.createNativeQuery(countHql).setParameter("userId",userId);
+        } else {
+            // 普通用户
+            countHql =
+                    "SELECT t.status, count(1) from instance t where t.is_deleted = false and t.creator = :userId group by t.status";
+            countQuery = entityManager.createNativeQuery(countHql).setParameter("userId", userId);
         }
         List<Object> objects = countQuery.getResultList();
         for (Object obj : objects) {
@@ -524,9 +569,9 @@ public class InstanceServiceImpl implements InstanceService {
                 // 其他状态不做统计
             }
         }
-        return InstanceCountVO.builder().errorCount(errorNum).runningCount(runningNum).startingCount(createingNum).build();
+        return InstanceCountVO.builder().errorCount(errorNum).runningCount(runningNum).startingCount(createingNum)
+                .build();
     }
-
 
     /**
      * 查询用户下所有实例列表
@@ -540,7 +585,8 @@ public class InstanceServiceImpl implements InstanceService {
         for (InstancePO instancePO : instanceRepository.listByUserId(userId)) {
             InstanceVO instanceVO = new InstanceVO();
             BeanUtil.copyNotNullProperties(instancePO, instanceVO);
-            Optional<K8sClusterInfoPO> byClusterId = k8sClusterInfoRepository.findByClusterId(instancePO.getClusterId());
+            Optional<K8sClusterInfoPO> byClusterId =
+                    k8sClusterInfoRepository.findByClusterId(instancePO.getClusterId());
             byClusterId.ifPresent(k8sClusterInfoPO -> instanceVO.setClusterName(k8sClusterInfoPO.getClusterName()));
             instanceVO.setNetwork(instanceNetworkMap.get(instanceVO.getId()));
             instanceVOs.add(instanceVO);
@@ -557,7 +603,8 @@ public class InstanceServiceImpl implements InstanceService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ActionResponse modifyInstanceDescription(String id, ModifyInstanceDescriptionVO modifyInstanceDescriptionParam) {
+    public ActionResponse modifyInstanceDescription(String id,
+            ModifyInstanceDescriptionVO modifyInstanceDescriptionParam) {
         InstanceDTO instanceDTO = beforeOperateInstance(id);
         instanceDTO.setDescription(modifyInstanceDescriptionParam.getDescription());
         instanceDTO.setUpdatedAt(CommonUtil.getUTCDate());
@@ -565,7 +612,8 @@ public class InstanceServiceImpl implements InstanceService {
         InstancePO instancePO = new InstancePO();
         BeanUtil.copyNotNullProperties(instanceDTO, instancePO);
         instanceRepository.save(instancePO);
-        logger.info("[InstanceServiceImpl.modifyInstanceDescription] update instance description success,instanceId:{}", instanceDTO.getId());
+        logger.info("[InstanceServiceImpl.modifyInstanceDescription] update instance description success,instanceId:{}",
+                instanceDTO.getId());
         return ActionResponse.actionSuccess();
     }
 
@@ -580,7 +628,9 @@ public class InstanceServiceImpl implements InstanceService {
     public ActionResponse restartInstance(String id) {
         InstanceDTO instanceDTO = beforeOperateInstance(id);
         if (!InstanceAllowConstant.ALLOW_RESTART_INSTANCE_STATUS.contains(instanceDTO.getStatus())) {
-            logger.error("[InstanceServiceImpl.restartInstance]. instance is not allow operate. instanceId is {} status is {}", id, instanceDTO.getStatus());
+            logger.error(
+                    "[InstanceServiceImpl.restartInstance]. instance is not allow operate. instanceId is {} status is {}",
+                    id, instanceDTO.getStatus());
             throw new InstanceException(InstanceError.INSTANCE_NOT_ALLOW_OPERATE);
         }
         instanceDTO.setStatus(InstanceStatus.RESTARTING);
@@ -589,7 +639,8 @@ public class InstanceServiceImpl implements InstanceService {
         instancePO.setUpdatedAt(CommonUtil.getUTCDate());
         instanceRepository.save(instancePO);
         crService.restartDatabase(instanceDTO);
-        logger.info("[InstanceServiceImpl.restartInstance] started to restart instance,instanceId:{}", instanceDTO.getId());
+        logger.info("[InstanceServiceImpl.restartInstance] started to restart instance,instanceId:{}",
+                instanceDTO.getId());
         return ActionResponse.actionSuccess();
     }
 
@@ -606,8 +657,11 @@ public class InstanceServiceImpl implements InstanceService {
             return;
         }
         InstancePO instancePO = instancePOOptional.get();
-        if (!InstanceStatus.RESTARTING.equals(instancePO.getStatus()) && !InstanceStatus.RESTART_FAILED.equals(instancePO.getStatus())) {
-            logger.error("InstanceServiceImpl.restartInstanceCallback. instance's status is error. instanceId id {} status is {}", id, instancePO.getStatus());
+        if (!InstanceStatus.RESTARTING.equals(instancePO.getStatus())
+                && !InstanceStatus.RESTART_FAILED.equals(instancePO.getStatus())) {
+            logger.error(
+                    "InstanceServiceImpl.restartInstanceCallback. instance's status is error. instanceId id {} status is {}",
+                    id, instancePO.getStatus());
             return;
         }
         OperationStatus operationStatus;
@@ -620,11 +674,14 @@ public class InstanceServiceImpl implements InstanceService {
         }
         instancePO.setUpdatedAt(CommonUtil.getUTCDate());
         instanceRepository.save(instancePO);
-        logger.info("[InstanceServiceImpl.restartInstanceCallback] restart indtance callback, instanceid is {}, restart result is {}", id, result);
+        logger.info(
+                "[InstanceServiceImpl.restartInstanceCallback] restart indtance callback, instanceid is {}, restart result is {}",
+                id, result);
         InstanceDTO instanceDTO = new InstanceDTO();
         BeanUtil.copyNotNullProperties(instancePO, instanceDTO);
-        //String projectId = getProjectIdByNamespace(instanceDTO.getClusterId(), instanceDTO.getNamespace());
-        websocketService.sendMsgToUser(instanceDTO, OperationDTO.builder().name(OperationName.RESTART_INSTANCE).status(operationStatus).build());
+        // String projectId = getProjectIdByNamespace(instanceDTO.getClusterId(), instanceDTO.getNamespace());
+        websocketService.sendMsgToUser(instanceDTO,
+                OperationDTO.builder().name(OperationName.RESTART_INSTANCE).status(operationStatus).build());
     }
 
     /**
@@ -640,7 +697,9 @@ public class InstanceServiceImpl implements InstanceService {
 
         InstanceDTO instanceDTO = beforeOperateInstance(id);
         if (!InstanceAllowConstant.ALLOW_MODIFY_INSTANCE_STATUS.contains(instanceDTO.getStatus())) {
-            logger.error("[InstanceServiceImpl.modifyInstance]. instance is not allow operate. instanceId is {} status is {}", id, instanceDTO.getStatus());
+            logger.error(
+                    "[InstanceServiceImpl.modifyInstance]. instance is not allow operate. instanceId is {} status is {}",
+                    id, instanceDTO.getStatus());
             throw new InstanceException(InstanceError.INSTANCE_NOT_ALLOW_OPERATE);
         }
         if (modifyClassParam.getCpu() == null && modifyClassParam.getMemory() == null) {
@@ -660,7 +719,7 @@ public class InstanceServiceImpl implements InstanceService {
             if (modifyClassParam.getMemory() < instanceDTO.getMemory()) {
                 throw new InstanceException(InstanceError.INSTANCE_NOT_ALLOW_DEMOTE);
             }
-            if (modifyClassParam.getMemory().equals(instanceDTO.getMemory()) && isCpuEqual ) {
+            if (modifyClassParam.getMemory().equals(instanceDTO.getMemory()) && isCpuEqual) {
                 return ActionResponse.actionSuccess();
             }
             instanceDTO.setMemory(modifyClassParam.getMemory());
@@ -671,7 +730,8 @@ public class InstanceServiceImpl implements InstanceService {
         BeanUtil.copyNotNullProperties(instanceDTO, instancePO);
         instanceRepository.save(instancePO);
         crService.patchCrResource(instanceDTO);
-        logger.info("[InstanceServiceImpl.modifyInstance]. modify instance, id {}, cpu {}, memory {}", id, modifyClassParam.getCpu(), modifyClassParam.getMemory());
+        logger.info("[InstanceServiceImpl.modifyInstance]. modify instance, id {}, cpu {}, memory {}", id,
+                modifyClassParam.getCpu(), modifyClassParam.getMemory());
         return ActionResponse.actionSuccess();
     }
 
@@ -688,8 +748,11 @@ public class InstanceServiceImpl implements InstanceService {
             return;
         }
         InstancePO instancePO = instancePOOptional.get();
-        if (!InstanceStatus.UPGRADING.equals(instancePO.getStatus()) && !InstanceStatus.UPGRADE_FLAVOR_FAILED.equals(instancePO.getStatus())) {
-            logger.error("InstanceServiceImpl.modifyInstanceCallback. instance's status is error. instanceId id {} status is {}", id, instancePO.getStatus());
+        if (!InstanceStatus.UPGRADING.equals(instancePO.getStatus())
+                && !InstanceStatus.UPGRADE_FLAVOR_FAILED.equals(instancePO.getStatus())) {
+            logger.error(
+                    "InstanceServiceImpl.modifyInstanceCallback. instance's status is error. instanceId id {} status is {}",
+                    id, instancePO.getStatus());
             return;
         }
         OperationStatus operationStatus;
@@ -705,8 +768,9 @@ public class InstanceServiceImpl implements InstanceService {
         logger.info("[InstanceServiceImpl.modifyInstanceCallback]. modify instance, id {}, result {}", id, result);
         InstanceDTO instanceDTO = new InstanceDTO();
         BeanUtil.copyNotNullProperties(instancePO, instanceDTO);
-        //String projectId = getProjectIdByNamespace(instanceDTO.getClusterId(), instanceDTO.getNamespace());
-        websocketService.sendMsgToUser(instanceDTO, OperationDTO.builder().name(OperationName.MODIFY_INSTANCE).status(operationStatus).build());
+        // String projectId = getProjectIdByNamespace(instanceDTO.getClusterId(), instanceDTO.getNamespace());
+        websocketService.sendMsgToUser(instanceDTO,
+                OperationDTO.builder().name(OperationName.MODIFY_INSTANCE).status(operationStatus).build());
     }
 
     /**
@@ -722,7 +786,9 @@ public class InstanceServiceImpl implements InstanceService {
 
         InstanceDTO instanceDTO = beforeOperateInstance(id);
         if (!InstanceAllowConstant.ALLOW_MODIFY_INSTANCE_STATUS.contains(instanceDTO.getStatus())) {
-            logger.error("[InstanceServiceImpl.extendInstance]. instance is not allow operate. instanceId is {} status is {}", id, instanceDTO.getStatus());
+            logger.error(
+                    "[InstanceServiceImpl.extendInstance]. instance is not allow operate. instanceId is {} status is {}",
+                    id, instanceDTO.getStatus());
             throw new InstanceException(InstanceError.INSTANCE_NOT_ALLOW_OPERATE);
         }
         if (modifyStorageParam.getStorageSize() <= instanceDTO.getStorage()) {
@@ -736,7 +802,8 @@ public class InstanceServiceImpl implements InstanceService {
         instancePO.setUpdatedAt(CommonUtil.getUTCDate());
         instanceRepository.save(instancePO);
         crService.patchCrStorage(instanceDTO);
-        logger.info("[InstanceServiceImpl.extendInstance]. instance id {}, storage {}", id, modifyStorageParam.getStorageSize());
+        logger.info("[InstanceServiceImpl.extendInstance]. instance id {}, storage {}", id,
+                modifyStorageParam.getStorageSize());
         return ActionResponse.actionSuccess();
     }
 
@@ -755,7 +822,9 @@ public class InstanceServiceImpl implements InstanceService {
         }
         InstancePO instancePO = instancePOOptional.get();
         if (!InstanceStatus.EXTENDING.equals(instancePO.getStatus())) {
-            logger.error("InstanceServiceImpl.extendInstanceCallback. instance's status is not extending. instanceId id {} status is {}", id, instancePO.getStatus());
+            logger.error(
+                    "InstanceServiceImpl.extendInstanceCallback. instance's status is not extending. instanceId id {} status is {}",
+                    id, instancePO.getStatus());
             return;
         }
         OperationStatus operationStatus;
@@ -771,8 +840,9 @@ public class InstanceServiceImpl implements InstanceService {
         logger.info("[InstanceServiceImpl.extendInstanceCallback]. instance id {}, result {}", id, result);
         InstanceDTO instanceDTO = new InstanceDTO();
         BeanUtil.copyNotNullProperties(instancePO, instanceDTO);
-        //String projectId = getProjectIdByNamespace(instanceDTO.getClusterId(), instanceDTO.getNamespace());
-        websocketService.sendMsgToUser(instanceDTO, OperationDTO.builder().name(OperationName.EXTEND_STORAGE).status(operationStatus).build());
+        // String projectId = getProjectIdByNamespace(instanceDTO.getClusterId(), instanceDTO.getNamespace());
+        websocketService.sendMsgToUser(instanceDTO,
+                OperationDTO.builder().name(OperationName.EXTEND_STORAGE).status(operationStatus).build());
     }
 
     /**
@@ -787,7 +857,9 @@ public class InstanceServiceImpl implements InstanceService {
     public ActionResponse modifyNodeportSwitch(String id, ModifySwitchVO modifySwitchVO) {
         InstanceDTO instanceDTO = beforeOperateInstance(id);
         if (!InstanceAllowConstant.ALLOW_MODIFY_INSTANCE_STATUS.contains(instanceDTO.getStatus())) {
-            logger.error("[InstanceServiceImpl.modifyNodeportSwitch]. instance is not allow operate. instanceId is {} status is {}", id, instanceDTO.getStatus());
+            logger.error(
+                    "[InstanceServiceImpl.modifyNodeportSwitch]. instance is not allow operate. instanceId is {} status is {}",
+                    id, instanceDTO.getStatus());
             throw new InstanceException(InstanceError.INSTANCE_NOT_ALLOW_OPERATE);
         }
         if (modifySwitchVO.getSwitchStatus().equals(instanceDTO.getNodePortSwitch())) {
@@ -805,7 +877,8 @@ public class InstanceServiceImpl implements InstanceService {
         instancePO.setUpdatedAt(CommonUtil.getUTCDate());
         instanceRepository.save(instancePO);
         crService.nodeportSwitch(instanceDTO);
-        logger.info("[InstanceServiceImpl.modifyNodeportSwitch]. instance id {}, switch {}", id, modifySwitchVO.getSwitchStatus());
+        logger.info("[InstanceServiceImpl.modifyNodeportSwitch]. instance id {}, switch {}", id,
+                modifySwitchVO.getSwitchStatus());
         return ActionResponse.actionSuccess();
     }
 
@@ -824,19 +897,22 @@ public class InstanceServiceImpl implements InstanceService {
         InstancePO instancePO = instancePOOptional.get();
         OperationStatus operationStatus;
         if (result) {
-            Optional<K8sClusterInfoPO> k8sClusterInfoPOOptional = k8sClusterInfoRepository.findByClusterId(instancePO.getClusterId());
+            Optional<K8sClusterInfoPO> k8sClusterInfoPOOptional =
+                    k8sClusterInfoRepository.findByClusterId(instancePO.getClusterId());
             K8sClusterInfoPO k8sClusterInfoPO = k8sClusterInfoPOOptional.get();
             String k8sIP = k8sClusterInfoPO.getServerUrl();
             instancePO.setStatus(InstanceStatus.RUNNING);
             instancePO.setNodePortSwitch(SwitchStatus.ON);
-            Optional<InstanceNetworkPO> instanceNetworkPORW = instanceNetworkRepository.findByIdAndType(id, NetworkType.RW);
+            Optional<InstanceNetworkPO> instanceNetworkPORW =
+                    instanceNetworkRepository.findByIdAndType(id, NetworkType.RW);
             if (instanceNetworkPORW.isPresent()) {
                 InstanceNetworkPO instanceNetworkPO = instanceNetworkPORW.get();
                 instanceNetworkPO.setNodeIp(k8sIP);
                 instanceNetworkPO.setNodePort(nodeportRW);
                 instanceNetworkRepository.save(instanceNetworkPO);
             }
-            Optional<InstanceNetworkPO> instanceNetworkPORO = instanceNetworkRepository.findByIdAndType(id, NetworkType.RO);
+            Optional<InstanceNetworkPO> instanceNetworkPORO =
+                    instanceNetworkRepository.findByIdAndType(id, NetworkType.RO);
             if (instanceNetworkPORO.isPresent()) {
                 InstanceNetworkPO instanceNetworkPO = instanceNetworkPORO.get();
                 instanceNetworkPO.setNodeIp(k8sIP);
@@ -854,8 +930,9 @@ public class InstanceServiceImpl implements InstanceService {
         logger.info("[InstanceServiceImpl.openNodeportSwitchCallback]. instance id {}, result {}", id, result);
         InstanceDTO instanceDTO = new InstanceDTO();
         BeanUtil.copyNotNullProperties(instancePO, instanceDTO);
-        //String projectId = getProjectIdByNamespace(instanceDTO.getClusterId(), instanceDTO.getNamespace());
-        websocketService.sendMsgToUser(instanceDTO, OperationDTO.builder().name(OperationName.OPEN_NODEPORT).status(operationStatus).build());
+        // String projectId = getProjectIdByNamespace(instanceDTO.getClusterId(), instanceDTO.getNamespace());
+        websocketService.sendMsgToUser(instanceDTO,
+                OperationDTO.builder().name(OperationName.OPEN_NODEPORT).status(operationStatus).build());
     }
 
     /**
@@ -867,7 +944,8 @@ public class InstanceServiceImpl implements InstanceService {
         // 从数据库删除port
         Optional<InstancePO> instancePOOptional = instanceRepository.findById(id);
         if (!instancePOOptional.isPresent()) {
-            logger.error("InstanceServiceImpl.closeNodeportSwitchCallback. instance is not exist. instanceId id {}", id);
+            logger.error("InstanceServiceImpl.closeNodeportSwitchCallback. instance is not exist. instanceId id {}",
+                    id);
             return;
         }
         InstancePO instancePO = instancePOOptional.get();
@@ -875,14 +953,16 @@ public class InstanceServiceImpl implements InstanceService {
         if (result) {
             instancePO.setStatus(InstanceStatus.RUNNING);
             instancePO.setNodePortSwitch(SwitchStatus.OFF);
-            Optional<InstanceNetworkPO> instanceNetworkPORWOptional = instanceNetworkRepository.findByIdAndType(id, NetworkType.RW);
+            Optional<InstanceNetworkPO> instanceNetworkPORWOptional =
+                    instanceNetworkRepository.findByIdAndType(id, NetworkType.RW);
             if (instanceNetworkPORWOptional.isPresent()) {
                 InstanceNetworkPO instanceNetworkPORW = instanceNetworkPORWOptional.get();
                 instanceNetworkPORW.setNodePort(null);
                 instanceNetworkPORW.setNodeIp(null);
                 instanceNetworkRepository.save(instanceNetworkPORW);
             }
-            Optional<InstanceNetworkPO> instanceNetworkPOROOptional = instanceNetworkRepository.findByIdAndType(id, NetworkType.RO);
+            Optional<InstanceNetworkPO> instanceNetworkPOROOptional =
+                    instanceNetworkRepository.findByIdAndType(id, NetworkType.RO);
             if (instanceNetworkPOROOptional.isPresent()) {
                 InstanceNetworkPO instanceNetworkPORO = instanceNetworkPOROOptional.get();
                 instanceNetworkPORO.setNodePort(null);
@@ -899,8 +979,9 @@ public class InstanceServiceImpl implements InstanceService {
         logger.info("[InstanceServiceImpl.closeNodeportSwitchCallback]. instance id {}, result {}", id, result);
         InstanceDTO instanceDTO = new InstanceDTO();
         BeanUtil.copyNotNullProperties(instancePO, instanceDTO);
-        //String projectId = getProjectIdByNamespace(instanceDTO.getClusterId(), instanceDTO.getNamespace());
-        websocketService.sendMsgToUser(instanceDTO, OperationDTO.builder().name(OperationName.CLOSE_NODEPORT).status(operationStatus).build());
+        // String projectId = getProjectIdByNamespace(instanceDTO.getClusterId(), instanceDTO.getNamespace());
+        websocketService.sendMsgToUser(instanceDTO,
+                OperationDTO.builder().name(OperationName.CLOSE_NODEPORT).status(operationStatus).build());
     }
 
     /**
@@ -915,7 +996,7 @@ public class InstanceServiceImpl implements InstanceService {
     @Override
     public InstanceDTO beforeOperateInstance(String instanceId) {
         InstanceDTO instanceDTO = getDTO(instanceId);
-        //checkInstanceAuth(instanceDTO.getClusterId(), projectId, instanceDTO.getNamespace());
+        // checkInstanceAuth(instanceDTO.getClusterId(), projectId, instanceDTO.getNamespace());
         return instanceDTO;
     }
 
@@ -931,7 +1012,8 @@ public class InstanceServiceImpl implements InstanceService {
         instanceDTO.setClusterId(verifyInstanceNameVO.getClusterId());
         instanceDTO.setNamespace(verifyInstanceNameVO.getNamespace());
         instanceDTO.setName(verifyInstanceNameVO.getName());
-        if (isInstanceExistByClusterAndNamespaceAndName(instanceDTO.getClusterId(), instanceDTO.getNamespace(), instanceDTO.getName())) {
+        if (isInstanceExistByClusterAndNamespaceAndName(instanceDTO.getClusterId(), instanceDTO.getNamespace(),
+                instanceDTO.getName())) {
             return ActionResponse.actionFailed();
         } else {
             return ActionResponse.actionSuccess();
@@ -1026,7 +1108,8 @@ public class InstanceServiceImpl implements InstanceService {
 
     @Override
     public void updateNodeEvent(String instanceId, int readyNum, String stsEvent, String podEvent) {
-        instanceEventRepository.updateEventByInstanceId(instanceId, readyNum, stsEvent, podEvent, CommonUtil.getUTCDate());
+        instanceEventRepository.updateEventByInstanceId(instanceId, readyNum, stsEvent, podEvent,
+                CommonUtil.getUTCDate());
     }
 
     /**
@@ -1053,7 +1136,7 @@ public class InstanceServiceImpl implements InstanceService {
      */
     @Override
     public void updateInstanceStatus(String instanceId, InstanceStatus instanceStatus) {
-        instanceRepository.updateStatusByInstanceId(instanceId, CommonUtil.getUTCDate(),instanceStatus);
+        instanceRepository.updateStatusByInstanceId(instanceId, CommonUtil.getUTCDate(), instanceStatus);
     }
 
     /**
@@ -1084,12 +1167,16 @@ public class InstanceServiceImpl implements InstanceService {
         KubernetesClient kubernetesClient = k8sClientConfiguration.getAdminKubernetesClientById(clusterId);
         Namespace namespace = kubernetesClient.namespaces().withName(namespaceStr).get();
         if (namespace == null) {
-            logger.error("[InstanceServiceImpl.getProjectIdByNamespace] namespace is not exist. clusterId {} namespace {}", clusterId, namespaceStr);
+            logger.error(
+                    "[InstanceServiceImpl.getProjectIdByNamespace] namespace is not exist. clusterId {} namespace {}",
+                    clusterId, namespaceStr);
             return null;
         }
         String projectId = namespace.getMetadata().getLabels().get("project_id");
         if (projectId == null) {
-            logger.error("[InstanceServiceImpl.getProjectIdByNamespace] namespace no label project_id, clusterId {} namespace {}", clusterId, namespaceStr);
+            logger.error(
+                    "[InstanceServiceImpl.getProjectIdByNamespace] namespace no label project_id, clusterId {} namespace {}",
+                    clusterId, namespaceStr);
         }
         return projectId;
     }
@@ -1116,17 +1203,18 @@ public class InstanceServiceImpl implements InstanceService {
         InstanceDTO dto = getDTO(instanceId);
 
         String pgadminPort = String.valueOf(dto.getExtraMeta().get(OperatorConstant.PGADMINPORT));
-        if(StringUtils.isEmpty(pgadminPort) || "null".equals(pgadminPort)){
+        if (StringUtils.isEmpty(pgadminPort) || "null".equals(pgadminPort)) {
             Integer port = createInstanceHgadminCallback(instanceId);
-            if(port != null){
+            if (port != null) {
                 pgadminPort = String.valueOf(port);
-            }else{
+            } else {
                 return ActionResponse.actionFailed("Service exception, please try again.");
             }
         }
         Optional<K8sClusterInfoPO> byClusterId = k8sClusterInfoRepository.findByClusterId(dto.getClusterId());
-        if(!byClusterId.isPresent()){
-            logger.error("[MonitorServiceImpl.createMonitor] cluster is not exits. clusterId is {}", dto.getClusterId());
+        if (!byClusterId.isPresent()) {
+            logger.error("[MonitorServiceImpl.createMonitor] cluster is not exits. clusterId is {}",
+                    dto.getClusterId());
             throw new ClusterException(ClusterError.CLUSTER_NOT_EXIST_ERROR);
         }
         String serverUrl = byClusterId.get().getServerUrl();
@@ -1135,11 +1223,13 @@ public class InstanceServiceImpl implements InstanceService {
 
     @Override
     public Integer createInstanceHgadminCallback(String instanceId) {
-        Optional<ExtraMetaPO> extraMetaByInstanceIdAndName = extraMetaService.findExtraMetaByInstanceIdAndName(instanceId, OperatorConstant.PGADMINPORT);
+        Optional<ExtraMetaPO> extraMetaByInstanceIdAndName =
+                extraMetaService.findExtraMetaByInstanceIdAndName(instanceId, OperatorConstant.PGADMINPORT);
         Integer port = crService.getHgadminPort(instanceId);
-        if(extraMetaByInstanceIdAndName.isPresent()){
-            extraMetaService.updateValueByNameAndInstanceId(instanceId, OperatorConstant.PGADMINPORT, String.valueOf(port));
-        }else{
+        if (extraMetaByInstanceIdAndName.isPresent()) {
+            extraMetaService.updateValueByNameAndInstanceId(instanceId, OperatorConstant.PGADMINPORT,
+                    String.valueOf(port));
+        } else {
             extraMetaService.saveExtraMeta(instanceId, OperatorConstant.PGADMINPORT, String.valueOf(port));
         }
         return port;
@@ -1173,10 +1263,13 @@ public class InstanceServiceImpl implements InstanceService {
      */
     public void validataBeforeRestore(InstanceDTO instanceDTO) {
         // 从其他实例的备份恢复
-        Optional<InstancePO> optionalInstancePOOriginal = instanceRepository.findById(instanceDTO.getOriginalInstanceId());
+        Optional<InstancePO> optionalInstancePOOriginal =
+                instanceRepository.findById(instanceDTO.getOriginalInstanceId());
         // 实例不存在或已删除
         if (!optionalInstancePOOriginal.isPresent() || optionalInstancePOOriginal.get().getIsDeleted()) {
-            logger.error("[InstanceServiceImpl.validataBeforeRestore] restore instance, origin instance is not exist, instance id is {}", instanceDTO.getOriginalInstanceId());
+            logger.error(
+                    "[InstanceServiceImpl.validataBeforeRestore] restore instance, origin instance is not exist, instance id is {}",
+                    instanceDTO.getOriginalInstanceId());
             throw new InstanceException(InstanceError.INSTANCE_NOT_EXIST);
         }
         InstancePO instancePOOrigin = optionalInstancePOOriginal.get();
@@ -1194,7 +1287,8 @@ public class InstanceServiceImpl implements InstanceService {
         if (!InstanceAllowConstant.ALLOW_RESTORE_BACKUP_STATUS.contains(backupPO.getStatus())) {
             throw new BackupException(BackupError.BACKUP_NOT_ALLOW_OPERATE);
         }
-        if (instancePOOrigin.getCpu() > instanceDTO.getCpu() || instancePOOrigin.getMemory() > instanceDTO.getMemory() ||
+        if (instancePOOrigin.getCpu() > instanceDTO.getCpu() || instancePOOrigin.getMemory() > instanceDTO.getMemory()
+                ||
                 instancePOOrigin.getStorage() > instanceDTO.getStorage()) {
             throw new InstanceException(InstanceError.INSTANCE_NOT_ALLOW_DEMOTE);
         }
@@ -1206,13 +1300,13 @@ public class InstanceServiceImpl implements InstanceService {
 
     }
 
-
     /**
      * 检查同名实例是否存在
      *
      * @return 存在-true 不存在-false
      */
-    public boolean isInstanceExistByClusterAndNamespaceAndName(String clusterId, String namespace, String instanceName) {
+    public boolean isInstanceExistByClusterAndNamespaceAndName(String clusterId, String namespace,
+            String instanceName) {
         if (instanceRepository.countByClusterAndNamespaceAndName(clusterId, namespace, instanceName) > 0) {
             return true;
         } else {

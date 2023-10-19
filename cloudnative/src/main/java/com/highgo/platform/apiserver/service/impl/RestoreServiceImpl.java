@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.apiserver.service.impl;
 
 import com.highgo.platform.apiserver.model.dto.BackupDTO;
@@ -19,6 +36,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RestoreServiceImpl implements RestoreService {
+
     private static final Logger logger = LoggerFactory.getLogger(RestoreServiceImpl.class);
 
     @Autowired
@@ -37,12 +55,12 @@ public class RestoreServiceImpl implements RestoreService {
      * @return
      */
     @Override
-    public ActionResponse restoreInstance(String id, RestoreInstanceVO restoreInstanceVO){
+    public ActionResponse restoreInstance(String id, RestoreInstanceVO restoreInstanceVO) {
         // 权限校验
         InstanceDTO instanceDTO = instanceService.beforeOperateInstance(id);
         // 查询backupdto
         BackupDTO backupDTO = backupService.getBackupByBackupId(restoreInstanceVO.getBackupId());
-        if(backupDTO == null){
+        if (backupDTO == null) {
             throw new BackupException(BackupError.BACKUP_NOT_EXIST);
         }
         // 设置实例状态恢复中
@@ -62,19 +80,19 @@ public class RestoreServiceImpl implements RestoreService {
      * @param result 恢复结果 成功-true 失败-false
      */
     @Override
-    public void restoreInstanceCallBack(String id, String originalBackupId, boolean result){
+    public void restoreInstanceCallBack(String id, String originalBackupId, boolean result) {
         // 设置实例状态 true-running false-restorefailed
         // 设置备份状态 true-restoresuccess false-restorefailed
         try {
-            Thread.sleep(1000*20);
+            Thread.sleep(1000 * 20);
         } catch (InterruptedException e) {
             logger.error("restoreInstanceCallBack sleep interrupted", e);
         }
         instanceService.updateInstanceStatus(id, InstanceStatus.RUNNING);
-        if(result){
+        if (result) {
             backupService.updateBackupStatus(originalBackupId, BackupStatus.RESTORED);
 
-        }else {
+        } else {
             backupService.updateBackupStatus(id, BackupStatus.RESTORE_FAILED);
         }
     }

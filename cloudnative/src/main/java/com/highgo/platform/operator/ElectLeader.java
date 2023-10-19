@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.operator;
 
 import com.highgo.cloud.constant.OperatorConstant;
@@ -26,6 +43,7 @@ import java.util.Map;
 
 @Component
 public class ElectLeader implements ApplicationRunner {
+
     private static final Logger logger = LoggerFactory.getLogger(ElectLeader.class);
 
     @Value("${common.serviceName}")
@@ -64,7 +82,8 @@ public class ElectLeader implements ApplicationRunner {
         Configuration.setDefaultApiClient(client);
 
         // 使用 IP 作为 Identity
-        String lockHolderIdentityName = System.getenv("HOSTNAME") != null ? System.getenv("HOSTNAME") : InetAddress.getLocalHost().getHostAddress();
+        String lockHolderIdentityName = System.getenv("HOSTNAME") != null ? System.getenv("HOSTNAME")
+                : InetAddress.getLocalHost().getHostAddress();
         // 创建 ConfigMap 锁
         ConfigMapLock lock = new ConfigMapLock(namespace, serviceName + "-leader", lockHolderIdentityName);
         // Leader 选举的配置
@@ -84,11 +103,13 @@ public class ElectLeader implements ApplicationRunner {
                     watcherFactory.initStart();
                     // 设置master节点podip到cm
                     KubernetesClient kubernetesClient = k8sClientConfiguration.getDefaultClient();
-                    ConfigMap configMap = kubernetesClient.configMaps().inNamespace(System.getenv().get("NAMESPACE")).withName(serviceName + "-leader").get();
+                    ConfigMap configMap = kubernetesClient.configMaps().inNamespace(System.getenv().get("NAMESPACE"))
+                            .withName(serviceName + "-leader").get();
                     Map<String, String> dataMap = new HashMap<>();
                     dataMap.put(OperatorConstant.PODIP, System.getenv().get("PODIP"));
                     configMap.setData(dataMap);
-                    kubernetesClient.configMaps().inNamespace(System.getenv().get("NAMESPACE")).withName(serviceName + "-leader").patch(configMap);
+                    kubernetesClient.configMaps().inNamespace(System.getenv().get("NAMESPACE"))
+                            .withName(serviceName + "-leader").patch(configMap);
                 },
                 () -> {
                     logger.info("[ElectServiceImpl.electLeader] I lost leader, {}", lockHolderIdentityName);
@@ -97,6 +118,4 @@ public class ElectLeader implements ApplicationRunner {
 
     }
 
-
 }
-

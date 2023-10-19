@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.apiserver.model.vo.request;
 
 import com.highgo.cloud.enums.InstanceType;
@@ -46,7 +63,9 @@ public class CreateInstanceVO implements Serializable {
     @NotBlank
     private String admin; // 管理员账户名称
 
-    //@Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d!%\\\"\\$\\+\\|\\^\\'\\{\\}\\[\\],/:;<=>?_~`]{8,32}$", message = "{param.instance_password.invalid}")
+    // @Pattern(regexp =
+    // "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d!%\\\"\\$\\+\\|\\^\\'\\{\\}\\[\\],/:;<=>?_~`]{8,32}$", message =
+    // "{param.instance_password.invalid}")
     @NotBlank
     @Pattern(regexp = "^(?=.*[\\!@#\\$%\\^&\\*\\(\\)])(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d\\!@#\\$%\\^&\\*\\(\\)]{8,32}$", message = "{param.instance_password.invalid}")
     private String password; // 管理员账户密码 8-32个字符，必须包含大小写字母和数字，支持英文特殊字符!"$%+,/:;<=>?[]^_`{}|~
@@ -68,10 +87,9 @@ public class CreateInstanceVO implements Serializable {
 
     private Map<String, Object> extraMeta;
 
-    private String creator; //创建的用户id
+    private String creator; // 创建的用户id
 
-    private String creatorName; //创建用户的名字
-
+    private String creatorName; // 创建用户的名字
 
     @Override
     public String toString() {
@@ -81,7 +99,7 @@ public class CreateInstanceVO implements Serializable {
         for (Field field : fields) {
             result.append(", ");
             try {
-                if("password".equals(field.getName())){
+                if ("password".equals(field.getName())) {
                     continue;
                 }
                 result.append(field.getName());

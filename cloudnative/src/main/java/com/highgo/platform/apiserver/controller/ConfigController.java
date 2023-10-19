@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.platform.apiserver.controller;
 
 import com.highgo.cloud.model.PageInfo;
@@ -24,8 +41,9 @@ import java.util.List;
 @Validated
 @RestController
 @RequestMapping("${common.request-path-prefix}/${common.version}")
-@Api(value = "数据库参数管理", tags = { "数据库参数管理接口" })
+@Api(value = "数据库参数管理", tags = {"数据库参数管理接口"})
 public class ConfigController {
+
     private static final Logger logger = LoggerFactory.getLogger(ConfigController.class);
 
     @Autowired
@@ -39,20 +57,24 @@ public class ConfigController {
 
     @ApiOperation(value = "修改参数", notes = "", tags = {"OpenAPI"})
     @RequestMapping(value = "/instances/{id}/parameters", method = RequestMethod.PUT)
-    public ActionResponse modifyParameters(@Validated @PathVariable String id, @RequestBody ModifyConfigChangeVO modifyConfigChangeParam) {
-        logger.info("[ConfigController.modifyParameters] instanceId is {}, modifyConfigChangeParam is {}", id, modifyConfigChangeParam.toString());
+    public ActionResponse modifyParameters(@Validated @PathVariable String id,
+            @RequestBody ModifyConfigChangeVO modifyConfigChangeParam) {
+        logger.info("[ConfigController.modifyParameters] instanceId is {}, modifyConfigChangeParam is {}", id,
+                modifyConfigChangeParam.toString());
         return configService.modifyParameters(id, modifyConfigChangeParam);
     }
 
     @ApiOperation(value = "参数修改历史分页", notes = "", tags = {"OpenAPI"})
     @RequestMapping(value = "/instances/{id}/parameters/history/{pageNo}/{pageSize}", method = RequestMethod.GET)
-    public PageInfo<List<ConfigChangeHistoryVO>> listInstance(@Validated @PathVariable String id, @PathVariable int pageNo, @PathVariable int pageSize) {
+    public PageInfo<List<ConfigChangeHistoryVO>> listInstance(@Validated @PathVariable String id,
+            @PathVariable int pageNo, @PathVariable int pageSize) {
         return configService.listHistory(id, pageNo, pageSize);
     }
 
     @ApiOperation(value = "指定修改历史的参数变更列表", notes = "", tags = {"OpenAPI"})
     @RequestMapping(value = "/instances/{instanceId}/parameters/history/{configChangeHistoryId}", method = RequestMethod.GET)
-    public List<ConfigChangeVO> listConfigChangeByHistory(@Validated @PathVariable String instanceId, @PathVariable String configChangeHistoryId){
+    public List<ConfigChangeVO> listConfigChangeByHistory(@Validated @PathVariable String instanceId,
+            @PathVariable String configChangeHistoryId) {
         return configService.listConfigChangeByHistory(instanceId, configChangeHistoryId);
     }
 }
