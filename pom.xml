@@ -23,7 +23,7 @@
         <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
         <spring-boot.version>2.3.5.RELEASE</spring-boot.version>
         <mapstruct.version>1.5.1.Final</mapstruct.version>
-        <lombok.version>1.18.16</lombok.version>
+        <lombok.version>1.18.20</lombok.version>
         <!-- the root directory of the project -->
         <root.dir>${project.basedir}</root.dir>
         <spotless.version>2.27.2</spotless.version>
