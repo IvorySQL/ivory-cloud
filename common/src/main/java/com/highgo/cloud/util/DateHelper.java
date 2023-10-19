@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.cloud.util;
 /**
  *
@@ -17,7 +34,7 @@ import java.util.*;
 @Slf4j
 public class DateHelper {
 
-    public final static String[] PATTERNS = new String[] {
+    public final static String[] PATTERNS = new String[]{
             "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
             "yyyy-MM-dd HH:mm:ss+zz",
             "yyyy-MM-dd HH:mm:sszz",
@@ -31,6 +48,7 @@ public class DateHelper {
             "yyyy",
     };
     private static class DatePattern {
+
         public String pattern;
         public TimeZone zone;
         public DatePattern(String pattern, TimeZone zone) {
@@ -79,7 +97,7 @@ public class DateHelper {
      * HH:mm:ss
      */
     public final static String TIME = "HH:mm";
-    
+
     /**
      * yyyy-MM-dd HH:mm:ss
      */
@@ -88,10 +106,10 @@ public class DateHelper {
     public static java.util.Date parseDate(String strdate) {
         java.util.Date date = null;
 
-        if(strdate != null && !strdate.equals("")) {
-            for(DatePattern p: P) {
+        if (strdate != null && !strdate.equals("")) {
+            for (DatePattern p : P) {
                 SimpleDateFormat dt = new SimpleDateFormat(p.pattern);
-                if(p.zone != null) {
+                if (p.zone != null) {
                     dt.setTimeZone(p.zone);
                 }
                 try {
@@ -131,7 +149,6 @@ public class DateHelper {
         return ndate;
     }
 
-
     /**
      * 比较两个时间， 若date1小于date2，返回true
      * @param date1
@@ -144,9 +161,9 @@ public class DateHelper {
         Calendar c2 = Calendar.getInstance();
         c1.setTime(date1);
         c2.setTime(date2);
-        if(c1.get(Calendar.HOUR_OF_DAY)<c2.get(Calendar.HOUR_OF_DAY) ||
-                (c1.get(Calendar.HOUR_OF_DAY)==c2.get(Calendar.HOUR_OF_DAY)
-                        && c1.get(Calendar.MINUTE)<=c2.get(Calendar.MINUTE))) {
+        if (c1.get(Calendar.HOUR_OF_DAY) < c2.get(Calendar.HOUR_OF_DAY) ||
+                (c1.get(Calendar.HOUR_OF_DAY) == c2.get(Calendar.HOUR_OF_DAY)
+                        && c1.get(Calendar.MINUTE) <= c2.get(Calendar.MINUTE))) {
             less = true;
         }
         return less;
@@ -188,7 +205,7 @@ public class DateHelper {
         Calendar c2 = Calendar.getInstance();
         c1.setTime(date1);
         c2.setTime(date2);
-        if(c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR)
+        if (c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR)
                 && c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH)
                 && c1.get(Calendar.DAY_OF_MONTH) == c2.get(Calendar.DAY_OF_MONTH)) {
             equals = true;
@@ -208,7 +225,7 @@ public class DateHelper {
         Calendar c2 = Calendar.getInstance();
         c1.setTime(date1);
         c2.setTime(date2);
-        if(c1.get(Calendar.HOUR_OF_DAY) == c2.get(Calendar.HOUR_OF_DAY)
+        if (c1.get(Calendar.HOUR_OF_DAY) == c2.get(Calendar.HOUR_OF_DAY)
                 && c1.get(Calendar.MINUTE) == c2.get(Calendar.MINUTE)) {
             equals = true;
         }
@@ -221,12 +238,12 @@ public class DateHelper {
         Calendar c2 = Calendar.getInstance();
         c1.setTime(date1);
         c2.setTime(date2);
-        c1.set(Calendar.SECOND,0);
-        c2.set(Calendar.SECOND,0);
+        c1.set(Calendar.SECOND, 0);
+        c2.set(Calendar.SECOND, 0);
         Date date3 = c1.getTime();
         Date date4 = c2.getTime();
-        long seconds = Math.abs(date3.getTime()-date4.getTime())/1000;
-        minutes = seconds/60;
+        long seconds = Math.abs(date3.getTime() - date4.getTime()) / 1000;
+        minutes = seconds / 60;
         return minutes;
     }
 
@@ -266,10 +283,10 @@ public class DateHelper {
         Calendar c = Calendar.getInstance();
         c.setTime(date);
         dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
-        if(dayOfWeek == 1) {
-            dayOfWeek=7;
+        if (dayOfWeek == 1) {
+            dayOfWeek = 7;
         } else {
-            dayOfWeek=dayOfWeek-1;
+            dayOfWeek = dayOfWeek - 1;
         }
         return dayOfWeek;
     }
@@ -300,11 +317,10 @@ public class DateHelper {
         return monthOfYear;
     }
 
-
     public static Date getNextNDate(Date date, int n) {
         Calendar c = Calendar.getInstance();
         c.setTime(getDate(getDay(date)));
-        c.set(Calendar.DAY_OF_MONTH, c.get(Calendar.DAY_OF_MONTH ) + n);
+        c.set(Calendar.DAY_OF_MONTH, c.get(Calendar.DAY_OF_MONTH) + n);
         return c.getTime();
     }
 
@@ -316,7 +332,7 @@ public class DateHelper {
      */
     public static int[] getTwoMonthDays(Date date1, Date date2) {
         int[] days = new int[2];
-        if(date1.compareTo(date2) >0) {
+        if (date1.compareTo(date2) > 0) {
             Date temp = date1;
             date1 = date2;
             date2 = temp;
@@ -341,7 +357,7 @@ public class DateHelper {
         if (date1 == null || date2 == null)
             return 0;
         int days = 0;
-        days = (int) (Math.abs((date1.getTime() - date2.getTime()))/(60*60*1000*24));
+        days = (int) (Math.abs((date1.getTime() - date2.getTime())) / (60 * 60 * 1000 * 24));
         return days;
     }
 
@@ -351,7 +367,7 @@ public class DateHelper {
      * @return
      */
     public static String getNo(Date date) {
-        return formatDate(date, "yyyyMMddHHmm") ;
+        return formatDate(date, "yyyyMMddHHmm");
     }
 
     /**
@@ -360,14 +376,13 @@ public class DateHelper {
      * @return
      */
     public static String getTimeStr(Date date) {
-        return formatDate(date, "yyyyMMddHHmmssSSS") ;
+        return formatDate(date, "yyyyMMddHHmmssSSS");
     }
-
 
     public static String formatDate(Date date, String format) {
         SimpleDateFormat dt = new SimpleDateFormat(format);
         String _date = "";
-        if(date != null)
+        if (date != null)
             _date = dt.format(date);
         return _date;
     }
@@ -389,7 +404,7 @@ public class DateHelper {
     public static Date getNextNHour(Date date, int hour) {
         Calendar c = Calendar.getInstance();
         c.setTime(date);
-        c.set(Calendar.HOUR, c.get(Calendar.HOUR ) + hour);
+        c.set(Calendar.HOUR, c.get(Calendar.HOUR) + hour);
         return c.getTime();
     }
     /**
@@ -447,7 +462,7 @@ public class DateHelper {
         SimpleDateFormat dt = new SimpleDateFormat(TIME);
         Date date = null;
         try {
-            if(time != null) {
+            if (time != null) {
                 date = dt.parse(time);
             }
         } catch (ParseException e) {
@@ -463,7 +478,7 @@ public class DateHelper {
     public static String getTime(Date date) {
         SimpleDateFormat dt = new SimpleDateFormat(TIME);
         String _date = "";
-        if(date != null)
+        if (date != null)
             _date = dt.format(date);
         return _date;
     }
@@ -496,7 +511,7 @@ public class DateHelper {
     public static String getYearMonth(Date date) {
         SimpleDateFormat dt = new SimpleDateFormat(YEARMONTH);
         String _date = "";
-        if(date != null)
+        if (date != null)
             _date = dt.format(date);
         return _date;
     }
@@ -509,7 +524,7 @@ public class DateHelper {
         SimpleDateFormat dt = new SimpleDateFormat(YEARMONTH);
         Date date = null;
         try {
-            if(strdate != null) {
+            if (strdate != null) {
                 date = dt.parse(strdate);
             }
         } catch (ParseException e) {
@@ -523,17 +538,17 @@ public class DateHelper {
      * @return
      */
     public static String getWeek(Date date) {
-//		Map weekmap = new HashMap();
-//		weekmap.put("Mon","1");
-//		weekmap.put("Tue","2");
-//		weekmap.put("Wed","3");
-//		weekmap.put("Thu","4");
-//		weekmap.put("Fri","5");
-//		weekmap.put("Sat","6");
-//		weekmap.put("Sun","7");
+        // Map weekmap = new HashMap();
+        // weekmap.put("Mon","1");
+        // weekmap.put("Tue","2");
+        // weekmap.put("Wed","3");
+        // weekmap.put("Thu","4");
+        // weekmap.put("Fri","5");
+        // weekmap.put("Sat","6");
+        // weekmap.put("Sun","7");
         SimpleDateFormat dt = new SimpleDateFormat("EEE");
         String weekname = dt.format(date);
-        //String week = weekmap.get(dt.format(date)).toString();
+        // String week = weekmap.get(dt.format(date)).toString();
         return weekname;
     }
 
@@ -575,12 +590,11 @@ public class DateHelper {
     public static String getStrDate(Date date) {
         SimpleDateFormat dt = new SimpleDateFormat(DATE);
         String _date = "";
-        if(date != null)
+        if (date != null)
             _date = dt.format(date);
         return _date;
     }
-    
-    
+
     /**
      * 把日期格式化为 yyyy-MM-dd HH:mm:ss
      * @param date
@@ -589,7 +603,7 @@ public class DateHelper {
     public static String getStrAsFileName(Date date) {
         SimpleDateFormat dt = new SimpleDateFormat(TIME_FILENAME);
         String _date = "";
-        if(date != null)
+        if (date != null)
             _date = dt.format(date);
         return _date;
     }
@@ -601,7 +615,7 @@ public class DateHelper {
     public static String getFullDate(Date date) {
         SimpleDateFormat dt = new SimpleDateFormat(DATE_NOS);
         String _date = "";
-        if(date != null)
+        if (date != null)
             _date = dt.format(date);
         return _date;
     }
@@ -613,7 +627,7 @@ public class DateHelper {
     public static String getDate(Date date) {
         SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         String _date = "";
-        if(date != null)
+        if (date != null)
             _date = dt.format(date);
         return _date;
     }
@@ -638,11 +652,11 @@ public class DateHelper {
      * @param second
      * @return
      */
-    public static Date getTime(String date,String second){
-        Date d=parseDate(date);
-        long time=d.getTime();
-        int i=new Integer(second).intValue();
-        time+=i*1000;
+    public static Date getTime(String date, String second) {
+        Date d = parseDate(date);
+        long time = d.getTime();
+        int i = new Integer(second).intValue();
+        time += i * 1000;
         return new Date(time);
     }
     /**
@@ -651,22 +665,22 @@ public class DateHelper {
      * @return
      */
     public static String getDay(Date date) {
-//		Calendar calendar  = new GregorianCalendar();
-//		calendar.setTime(date);
+        // Calendar calendar = new GregorianCalendar();
+        // calendar.setTime(date);
         String day = "";
 
         SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd");
-        if(date != null) {
+        if (date != null) {
             day = dt.format(date);
         }
         return day;
-        //return calendar.get(Calendar.YEAR) + "-" ;
+        // return calendar.get(Calendar.YEAR) + "-" ;
     }
 
     private static String getSingle(Date date, int x) {
         String r = "";
-        if(date != null) {
-            Calendar calendar  = Calendar.getInstance();
+        if (date != null) {
+            Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
             r = calendar.get(x) + "";
         }
@@ -679,7 +693,7 @@ public class DateHelper {
      */
     public static String getHour(Date date) {
         String hour = "";
-        if(date != null) {
+        if (date != null) {
             hour = getSingle(date, Calendar.HOUR_OF_DAY);
         }
         return hour;
@@ -691,7 +705,7 @@ public class DateHelper {
      */
     public static String getOnlyDay(Date date) {
         String day = "";
-        if(date != null) {
+        if (date != null) {
             day = getSingle(date, Calendar.DAY_OF_MONTH);
         }
         return day;
@@ -704,7 +718,7 @@ public class DateHelper {
      */
     public static String getYear(Date date) {
         String day = "";
-        if(date != null) {
+        if (date != null) {
             day = getSingle(date, Calendar.YEAR);
         }
         return day;
@@ -717,7 +731,7 @@ public class DateHelper {
      */
     public static String getMonth(Date date) {
         String day = "";
-        if(date != null) {
+        if (date != null) {
             day = (Integer.valueOf(getSingle(date, Calendar.MONTH)).toString() + 1) + "";
         }
         return day;
@@ -737,7 +751,7 @@ public class DateHelper {
      */
     public static String getMinute(Date date) {
         String hour = "";
-        if(date != null) {
+        if (date != null) {
             hour = getSingle(date, Calendar.MINUTE);
         }
         return hour;
@@ -745,15 +759,15 @@ public class DateHelper {
     public static String getHM(Date date) {
         String hm = "";
         SimpleDateFormat dt = new SimpleDateFormat("HH:mm");
-        if(date != null) {
+        if (date != null) {
             hm = dt.format(date);
         }
         return hm;
     }
     public static String getSearchDate(Date date) {
         String _strdate = getStrDate(date);
-//		String hm = _strdate.substring(11);
-        if(_strdate.substring(11).equals("00:00:00")) {
+        // String hm = _strdate.substring(11);
+        if (_strdate.substring(11).equals("00:00:00")) {
             _strdate = _strdate.substring(0, 10);
         }
         return _strdate;
@@ -777,13 +791,13 @@ public class DateHelper {
         Date datex = null;
         int month = Integer.parseInt(DateHelper.getMonth(date));
         String yearstr = DateHelper.getYear(date);
-        if(month >= 1 && month <=3) {
+        if (month >= 1 && month <= 3) {
             datex = DateHelper.getDate(yearstr + "-01-01");
-        } else if(month >= 4 && month <=6) {
+        } else if (month >= 4 && month <= 6) {
             datex = DateHelper.getDate(yearstr + "-04-01");
-        } else if(month >= 7 && month <=9) {
+        } else if (month >= 7 && month <= 9) {
             datex = DateHelper.getDate(yearstr + "-07-01");
-        } else if(month >= 10 && month <=12) {
+        } else if (month >= 10 && month <= 12) {
             datex = DateHelper.getDate(yearstr + "-10-01");
         }
         return datex;
@@ -793,13 +807,13 @@ public class DateHelper {
         String quarer = null;
         int month = Integer.parseInt(DateHelper.getMonth(date));
         String yearstr = DateHelper.getYear(date);
-        if(month >= 1 && month <=3) {
+        if (month >= 1 && month <= 3) {
             quarer = yearstr + "-01";
-        } else if(month >= 4 && month <=6) {
+        } else if (month >= 4 && month <= 6) {
             quarer = yearstr + "-02";
-        } else if(month >= 7 && month <=9) {
+        } else if (month >= 7 && month <= 9) {
             quarer = yearstr + "-03";
-        } else if(month >= 10 && month <=12) {
+        } else if (month >= 10 && month <= 12) {
             quarer = yearstr + "-04";
         }
         return quarer;
@@ -811,10 +825,10 @@ public class DateHelper {
      * @return
      */
     public static Date getDayStart(Date date2) {
-        Calendar c=Calendar.getInstance();
+        Calendar c = Calendar.getInstance();
         c.setTime(date2);
         c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE,0);
+        c.set(Calendar.MINUTE, 0);
         c.set(Calendar.SECOND, 0);
         return c.getTime();
     }
@@ -824,10 +838,10 @@ public class DateHelper {
      * @return
      */
     public static Date getDayEnd(Date date2) {
-        Calendar c=Calendar.getInstance();
+        Calendar c = Calendar.getInstance();
         c.setTime(date2);
         c.set(Calendar.HOUR_OF_DAY, 23);
-        c.set(Calendar.MINUTE,29);
+        c.set(Calendar.MINUTE, 29);
         c.set(Calendar.SECOND, 59);
         c.set(Calendar.MILLISECOND, 999);
         return c.getTime();
@@ -838,16 +852,16 @@ public class DateHelper {
      * @return
      */
     public static Date getMonthEnd(Date date2) {
-        Calendar c=Calendar.getInstance();
+        Calendar c = Calendar.getInstance();
         c.setTime(date2);
-        int month=c.get(Calendar.MONTH);
-        c.set(Calendar.MONTH, month+1);
+        int month = c.get(Calendar.MONTH);
+        c.set(Calendar.MONTH, month + 1);
         c.set(Calendar.DAY_OF_MONTH, 1);
         c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE,0);
+        c.set(Calendar.MINUTE, 0);
         c.set(Calendar.SECOND, 0);
-        long time= c.getTime().getTime();
-        return new Date(time-1000);
+        long time = c.getTime().getTime();
+        return new Date(time - 1000);
     }
     /**
      * 获取年末时间
@@ -855,82 +869,84 @@ public class DateHelper {
      * @return
      */
     public static Date getYearEnd(Date date2) {
-        Calendar c=Calendar.getInstance();
+        Calendar c = Calendar.getInstance();
         c.setTime(date2);
-        int year=c.get(Calendar.YEAR);
-        c.set(Calendar.YEAR,year+1);
+        int year = c.get(Calendar.YEAR);
+        c.set(Calendar.YEAR, year + 1);
         c.set(Calendar.MONTH, 0);
         c.set(Calendar.DAY_OF_MONTH, 1);
         c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE,0);
+        c.set(Calendar.MINUTE, 0);
         c.set(Calendar.SECOND, 0);
-        long time= c.getTime().getTime();
-        return new Date(time-1000);
+        long time = c.getTime().getTime();
+        return new Date(time - 1000);
     }
 
     public static Date getQuarterStart(int year, int quarter) {
-        if(quarter>=4) throw new RuntimeException("参数错误");
-        int month=quarter*3;
-        Calendar c=Calendar.getInstance();
-        c.set(Calendar.YEAR,year);
+        if (quarter >= 4)
+            throw new RuntimeException("参数错误");
+        int month = quarter * 3;
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.YEAR, year);
         c.set(Calendar.MONTH, month);
         c.set(Calendar.DAY_OF_MONTH, 1);
         c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE,0);
+        c.set(Calendar.MINUTE, 0);
         c.set(Calendar.SECOND, 0);
-        long time= c.getTime().getTime();
+        long time = c.getTime().getTime();
         return new Date(time);
 
     }
 
     public static Date getQuarterEnd(int year, int quarter) {
-        if(quarter>=4) throw new RuntimeException("参数错误");
-        int month=quarter*3+3;
-        Calendar c=Calendar.getInstance();
-        c.set(Calendar.YEAR,year);
+        if (quarter >= 4)
+            throw new RuntimeException("参数错误");
+        int month = quarter * 3 + 3;
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.YEAR, year);
         c.set(Calendar.MONTH, month);
         c.set(Calendar.DAY_OF_MONTH, 1);
         c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE,0);
+        c.set(Calendar.MINUTE, 0);
         c.set(Calendar.SECOND, 0);
-        long time= c.getTime().getTime();
-        return new Date(time-1000);
+        long time = c.getTime().getTime();
+        return new Date(time - 1000);
     }
 
     public static Date getYearStart(int year) {
-        Calendar c=Calendar.getInstance();
-        c.set(Calendar.YEAR,year);
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.YEAR, year);
         c.set(Calendar.MONTH, 0);
         c.set(Calendar.DAY_OF_MONTH, 1);
         c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE,0);
+        c.set(Calendar.MINUTE, 0);
         c.set(Calendar.SECOND, 0);
-        long time= c.getTime().getTime();
+        long time = c.getTime().getTime();
         return new Date(time);
     }
 
     public static Date getYearEnd(int year) {
-        Calendar c=Calendar.getInstance();
-        c.set(Calendar.YEAR,year+1);
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.YEAR, year + 1);
         c.set(Calendar.MONTH, 0);
         c.set(Calendar.DAY_OF_MONTH, 1);
         c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE,0);
+        c.set(Calendar.MINUTE, 0);
         c.set(Calendar.SECOND, 0);
-        long time= c.getTime().getTime();
-        return new Date(time-1000);
+        long time = c.getTime().getTime();
+        return new Date(time - 1000);
     }
     public static List getDaysBetweenTwoDays(Date d1, Date d2) {
         List days = new ArrayList();
         Date sd = DateHelper.getDayStart(d1);
 
-        Calendar c=Calendar.getInstance();
+        Calendar c = Calendar.getInstance();
         c.setTime(sd);
-        while(c.getTime().compareTo(d2)<=0) {
+        while (c.getTime().compareTo(d2) <= 0) {
             days.add(c.getTime());
             Calendar cx = Calendar.getInstance();
             cx.setTime(c.getTime());
-            cx.set(Calendar.DAY_OF_MONTH, c.get(Calendar.DAY_OF_MONTH)+1);
+            cx.set(Calendar.DAY_OF_MONTH, c.get(Calendar.DAY_OF_MONTH) + 1);
             c = cx;
         }
         return days;
@@ -939,14 +955,14 @@ public class DateHelper {
     public static List getExtraDays(List wdays, List days) {
         List rs = new ArrayList();
         Map mdays = new HashMap(days.size());
-        for(int i=0; i<days.size(); i++) {
+        for (int i = 0; i < days.size(); i++) {
             Date d = (Date) days.get(i);
             d = DateHelper.getDayStart(d);
             mdays.put(d, d);
         }
-        for(int i=0; i<wdays.size(); i++) {
+        for (int i = 0; i < wdays.size(); i++) {
             Date d = (Date) wdays.get(i);
-            if(mdays.get(DateHelper.getDayStart(d)) == null) {
+            if (mdays.get(DateHelper.getDayStart(d)) == null) {
                 rs.add(d);
             }
         }
@@ -963,12 +979,12 @@ public class DateHelper {
      * @return
      */
     public static Date getDate(int year, int month, int day, int hour, int minute, int second) {
-        Calendar c=Calendar.getInstance();
-        c.set(Calendar.YEAR,year);
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.YEAR, year);
         c.set(Calendar.MONTH, month);
         c.set(Calendar.DAY_OF_MONTH, day);
         c.set(Calendar.HOUR_OF_DAY, hour);
-        c.set(Calendar.MINUTE,minute);
+        c.set(Calendar.MINUTE, minute);
         c.set(Calendar.SECOND, second);
         return c.getTime();
     }
@@ -991,25 +1007,24 @@ public class DateHelper {
      * @param args
      */
     public static void main(String[] args) {
-//		Date d = new Date();
-//		Date d2 = getBeforeMonth(d);
+        // Date d = new Date();
+        // Date d2 = getBeforeMonth(d);
 
-//		System.out.println(getTime(-1));
-//		System.out.println(getDay(d2) + "--");
-//		Date d3 = getDate("2006-8-16");
-//		getDays(getDate(getDay(d2)), getDate(getDay(d3)));
+        // System.out.println(getTime(-1));
+        // System.out.println(getDay(d2) + "--");
+        // Date d3 = getDate("2006-8-16");
+        // getDays(getDate(getDay(d2)), getDate(getDay(d3)));
 
-
-//		String week = getWeek(d);
-//		Date datex = getFullDate("2006-6-12 0:0:0");
-//		System.out.println(getActualMaximum(datex));
-//		String date = getstrDate(getDate("2006-6-12 1:1:1"));
-//		String _date = getSearchDate(datex);
-//		System.out.println(_date);
-        //System.out.println(Calendar.MONDAY);
-        //Date date1 = new Date();
-        //Date date2 = DateHelper.getNextNDate(date1,1);
-        //long minutes = DateHelper.getMinutes(date1, date2);
+        // String week = getWeek(d);
+        // Date datex = getFullDate("2006-6-12 0:0:0");
+        // System.out.println(getActualMaximum(datex));
+        // String date = getstrDate(getDate("2006-6-12 1:1:1"));
+        // String _date = getSearchDate(datex);
+        // System.out.println(_date);
+        // System.out.println(Calendar.MONDAY);
+        // Date date1 = new Date();
+        // Date date2 = DateHelper.getNextNDate(date1,1);
+        // long minutes = DateHelper.getMinutes(date1, date2);
         System.out.println("|" + getYearDate(new Date()).compareTo(DateHelper.getDate("2007-01-01")));
         System.out.println("|" + getQuarterDate(new Date()).compareTo(DateHelper.getDate("2007-04-01")));
         System.out.println("|" + getMonthDate(new Date()).compareTo(DateHelper.getDate("2007-04-01")));

@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.cloud.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,6 +41,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 public class HttpUtils {
+
     private static volatile OkHttpClient okHttpClient = null;
     private static volatile Semaphore semaphore = null;
     private Map<String, String> headerMap;
@@ -43,11 +61,13 @@ public class HttpUtils {
                             .connectTimeout(15, TimeUnit.SECONDS)
                             .writeTimeout(20, TimeUnit.SECONDS)
                             .readTimeout(20, TimeUnit.SECONDS)
-                            .sslSocketFactory(createSSLSocketFactory(trustManagers), (X509TrustManager) trustManagers[0])
+                            .sslSocketFactory(createSSLSocketFactory(trustManagers),
+                                    (X509TrustManager) trustManagers[0])
                             .hostnameVerifier((hostName, session) -> true)
                             .retryOnConnectionFailure(true)
                             .build();
-                    addHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36");
+                    addHeader("User-Agent",
+                            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36");
                 }
             }
         }
@@ -59,7 +79,7 @@ public class HttpUtils {
      * @return
      */
     private static Semaphore getSemaphoreInstance() {
-        //只能1个线程同时访问
+        // 只能1个线程同时访问
         synchronized (HttpUtils.class) {
             if (semaphore == null) {
                 semaphore = new Semaphore(0);
@@ -130,10 +150,8 @@ public class HttpUtils {
             urlBuilder.append("?");
             try {
                 for (Map.Entry<String, String> entry : paramMap.entrySet()) {
-                    urlBuilder.append(URLEncoder.encode(entry.getKey(), "utf-8")).
-                            append("=").
-                            append(URLEncoder.encode(entry.getValue(), "utf-8")).
-                            append("&");
+                    urlBuilder.append(URLEncoder.encode(entry.getKey(), "utf-8")).append("=")
+                            .append(URLEncoder.encode(entry.getValue(), "utf-8")).append("&");
                 }
             } catch (Exception e) {
                 ;
@@ -183,7 +201,7 @@ public class HttpUtils {
             assert response.body() != null;
             return response.body().string();
         } catch (IOException e) {
-           log.error("sync failed.", e);
+            log.error("sync failed.", e);
             return "请求失败：" + e.getMessage();
         }
     }
@@ -195,6 +213,7 @@ public class HttpUtils {
         StringBuilder buffer = new StringBuilder("");
         setHeader(request);
         okHttpClient.newCall(request.build()).enqueue(new Callback() {
+
             @Override
             public void onFailure(Call call, IOException e) {
                 buffer.append("请求出错：").append(e.getMessage());
@@ -223,6 +242,7 @@ public class HttpUtils {
     public void async(ICallBack callBack) {
         setHeader(request);
         okHttpClient.newCall(request.build()).enqueue(new Callback() {
+
             @Override
             public void onFailure(Call call, IOException e) {
                 callBack.onFailure(call, e.getMessage());
@@ -253,7 +273,6 @@ public class HttpUtils {
         }
     }
 
-
     /**
      * 生成安全套接字工厂，用于https请求的证书跳过
      *
@@ -274,6 +293,7 @@ public class HttpUtils {
     private static TrustManager[] buildTrustManagers() {
         return new TrustManager[]{
                 new X509TrustManager() {
+
                     @Override
                     public void checkClientTrusted(X509Certificate[] chain, String authType) {
                     }

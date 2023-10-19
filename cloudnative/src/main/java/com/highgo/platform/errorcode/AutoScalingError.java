@@ -24,9 +24,9 @@ package com.highgo.platform.errorcode;
  */
 public enum AutoScalingError implements BaseError {
 
-    AUTOSCALINGSWITCH_NOT_EXIST("200.007001", "autoscalingswitch.not.exist"),
-    USER_MONITOR_NOT_EXIST("200.007002", "user.monitoring.information.not.exist"),
-    CONFIG_ALERTMANAGER_FAILED("200.007003", "config.alertmanager.failed");
+    AUTOSCALINGSWITCH_NOT_EXIST("200.007001", "autoscalingswitch.not.exist"), USER_MONITOR_NOT_EXIST("200.007002",
+            "user.monitoring.information.not.exist"), CONFIG_ALERTMANAGER_FAILED("200.007003",
+                    "config.alertmanager.failed");
 
     private String code;
     private String message;

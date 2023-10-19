@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.cloud.auth.controller;
 
 import javax.annotation.Resource;
@@ -28,38 +45,39 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping("${common.request-path-prefix}/v1")
 @Api(tags = "授权管理")
 public class AuthController {
+
     @Resource
     private AuthService authService;
 
-//    @GetMapping(path = "/getUserDetail")
-//    @ApiOperation("获取用户信息")
-//    UserDTO findUserInfo(@RequestParam(value = "username") String username){
-//        return authService.findUser(username);
-//    }
+    // @GetMapping(path = "/getUserDetail")
+    // @ApiOperation("获取用户信息")
+    // UserDTO findUserInfo(@RequestParam(value = "username") String username){
+    // return authService.findUser(username);
+    // }
 
-//    @GetMapping(path = "/getProvider")
-//    @ApiOperation("获取供应商")
-//    List<ProviderDTO> findProvider(){
-//        return authService.findProvider();
-//    }
+    // @GetMapping(path = "/getProvider")
+    // @ApiOperation("获取供应商")
+    // List<ProviderDTO> findProvider(){
+    // return authService.findProvider();
+    // }
 
-    @RequestMapping(value="/userRegister", method = RequestMethod.POST)
+    @RequestMapping(value = "/userRegister", method = RequestMethod.POST)
     @ApiOperation("用户注册")
-    //@ReqLog("用户注册")
+    // @ReqLog("用户注册")
     public R userRegister(@RequestBody RegisterUserDTO registerUserDTO) {
         authService.userRegister(registerUserDTO);
-        return R.success("注册成功！");    }
-
+        return R.success("注册成功！");
+    }
 
     @ApiOperation(value = "用户登出")
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
-    //@ReqLog("用户登出")
+    // @ReqLog("用户登出")
     public R userLogout() {
         return R.success("登出成功！");
     }
 
     @ApiOperation(value = "忘记密码")
-    //@ReqLog("忘记密码")
+    // @ReqLog("忘记密码")
     @RequestMapping(value = "/updateUserInfo", method = RequestMethod.POST)
     public R updateUserInfo(@RequestBody UpdateUserDTO udpateUserDTO) {
         authService.updateUserInfo(udpateUserDTO);
@@ -67,13 +85,13 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/emailVerificationCode", method = RequestMethod.POST)
-    public R emailVerificationCode(@Valid @RequestBody UserEmailDTO userEmailDTO){
+    public R emailVerificationCode(@Valid @RequestBody UserEmailDTO userEmailDTO) {
         authService.sendEmailVerificationCode(userEmailDTO);
         return R.success("验证码发送成功！");
     }
 
     @RequestMapping(value = "/emailVerificationCodeForRegister", method = RequestMethod.POST)
-    public R emailVerificationCodeForRegister(@Valid @RequestBody UserEmailDTO userEmailDTO){
+    public R emailVerificationCodeForRegister(@Valid @RequestBody UserEmailDTO userEmailDTO) {
         authService.sendEmailVerificationCodeForRegister(userEmailDTO);
         return R.success("验证码发送成功！");
     }

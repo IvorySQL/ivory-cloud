@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.cloud.util;
 
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +42,10 @@ public class CommonUtil {
      * 校验(clusterId,namespaceName)在命名空间集合{"cluster1":["ns1","ns2"], "cluster2":["ns2","ns3"]}中存在
      * @return
      */
-    public static boolean isNsMapContainNs(Map<String, List<String>> map, String clusterId, String namespace){
+    public static boolean isNsMapContainNs(Map<String, List<String>> map, String clusterId, String namespace) {
         boolean flag = false;
         List<String> namespaces = map.get(clusterId);
-        if(namespaces!=null && namespaces.contains(namespace)){
+        if (namespaces != null && namespaces.contains(namespace)) {
             flag = true;
         }
         return flag;
@@ -42,11 +59,11 @@ public class CommonUtil {
     public static <T> T getEnum(Class<T> enumType, String name) {
         T e = null;
         try {
-            //e = (T)
+            // e = (T)
             Class t = enumType;
             e = (T) Enum.valueOf(t, name);
-        } catch(Exception ex) {
-            //忽略所有异常
+        } catch (Exception ex) {
+            // 忽略所有异常
         }
         return e;
     }
@@ -58,7 +75,7 @@ public class CommonUtil {
      */
     @SuppressWarnings("rawtypes")
     public static boolean isEnum(Class enumClass) {
-        while ( enumClass.isAnonymousClass() ) {
+        while (enumClass.isAnonymousClass()) {
             enumClass = enumClass.getSuperclass();
         }
         return enumClass.isEnum();
@@ -89,21 +106,21 @@ public class CommonUtil {
     @SuppressWarnings("rawtypes")
     public static List<Object> clearNulls(Object arrayObject) {
         List<Object> objs = new ArrayList<Object>();
-        if(arrayObject != null) {
-            if(arrayObject.getClass().isArray()) {
+        if (arrayObject != null) {
+            if (arrayObject.getClass().isArray()) {
                 int length = Array.getLength(arrayObject);
-                for(int i=0; i<length; i++) {
+                for (int i = 0; i < length; i++) {
                     Object obj = Array.get(arrayObject, i);
-                    if(obj != null && ! obj.toString().trim().equals("")) {
+                    if (obj != null && !obj.toString().trim().equals("")) {
                         objs.add(obj);
                     }
                 }
-            } else if(isIterator(arrayObject)) {
+            } else if (isIterator(arrayObject)) {
                 Iterable it = (Iterable) arrayObject;
                 Iterator itor = it.iterator();
-                while(itor.hasNext()) {
+                while (itor.hasNext()) {
                     Object obj = itor.next();
-                    if(obj != null && ! obj.toString().trim().equals("")) {
+                    if (obj != null && !obj.toString().trim().equals("")) {
                         objs.add(obj);
                     }
                 }
@@ -119,7 +136,7 @@ public class CommonUtil {
     }
 
     public static boolean isIterator(Object obj) {
-        if(obj == null) {
+        if (obj == null) {
             return false;
         }
         return isIterator(obj.getClass());
@@ -135,7 +152,7 @@ public class CommonUtil {
     public static <T> T[] buildArray(Class<T> cls, List<T> values) {
         T[] array = (T[]) Array.newInstance(cls, values.size());
         int i = 0;
-        for(T t:values) {
+        for (T t : values) {
             array[i] = t;
             i++;
         }
@@ -147,7 +164,7 @@ public class CommonUtil {
      * @param str
      * @return
      */
-    public static String base64(String str){
+    public static String base64(String str) {
         Base64.Encoder encoder = Base64.getEncoder();
         return encoder.encodeToString(str.getBytes());
 
@@ -158,7 +175,7 @@ public class CommonUtil {
      * @param str
      * @return
      */
-    public static String unBase64(String str){
+    public static String unBase64(String str) {
         Base64.Decoder decoder = Base64.getDecoder();
         byte[] decode = decoder.decode(str);
         return new String(decode);
@@ -174,11 +191,11 @@ public class CommonUtil {
         return simpleDateFormat.format(date);
     }
 
-    public static String uuid(){
+    public static String uuid() {
         return UUID.randomUUID().toString().replace("-", "");
     }
 
-    //获取当前UTC时间
+    // 获取当前UTC时间
     public static Date getUTCDate() {
         try {
             DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
@@ -186,7 +203,7 @@ public class CommonUtil {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
             return sdf.parse(utc);
         } catch (ParseException e) {
-            
+
         }
         return null;
     }
@@ -283,17 +300,17 @@ public class CommonUtil {
         Socket connect = new Socket();
         boolean res = false;
         try {
-            connect.connect(new InetSocketAddress(ip, port), 1000);//建立连接
-            //能connect通返回true，否则返回false
-            res = connect.isConnected();//通过现有方法查看连通状态
+            connect.connect(new InetSocketAddress(ip, port), 1000);// 建立连接
+            // 能connect通返回true，否则返回false
+            res = connect.isConnected();// 通过现有方法查看连通状态
         } catch (Exception e) {
-            log.error("This [{}] cannot be connected", ip+":"+port);
-            log.error("ERROR:",e);
+            log.error("This [{}] cannot be connected", ip + ":" + port);
+            log.error("ERROR:", e);
         } finally {
             try {
                 connect.close();
             } catch (Exception e) {
-                log.error("Close connection error:",e);
+                log.error("Close connection error:", e);
             }
         }
         return res;
@@ -336,7 +353,7 @@ public class CommonUtil {
      * 打印当前时间。
      */
     public static void printCurrentTime() {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");//设置日期格式
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");// 设置日期格式
         log.debug(df.format(new Date()));// new Date()为获取当前系统时间
     }
 
@@ -346,15 +363,15 @@ public class CommonUtil {
     public static boolean isEmpty(Map<?, ?> map) {
         return map == null || map.isEmpty();
     }
-    
+
     /**
      * 获取系统当前时间 当作文件名
      * @return
      */
-    public static String  getCurrentTimeAsFileName() {
-    	Date currentDate = getCurrentGMT8();
-    	
-    	return DateHelper.getStrAsFileName(currentDate);
+    public static String getCurrentTimeAsFileName() {
+        Date currentDate = getCurrentGMT8();
+
+        return DateHelper.getStrAsFileName(currentDate);
     }
-   
+
 }

@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.cloud.auth.service.impl;
 
 import com.highgo.cloud.auth.entity.EmailVerificationCode;
@@ -36,17 +53,17 @@ public class EmailServiceImpl implements EmailService {
      */
     @Override
     public void sendEmailVerificationCode(EmailVerificationCode code) {
-        //创建SimpleMailMessage对象
+        // 创建SimpleMailMessage对象
         SimpleMailMessage message = new SimpleMailMessage();
-        //邮件发送人
+        // 邮件发送人
         message.setFrom(fromEmail);
-        //邮件接收人
+        // 邮件接收人
         message.setTo(code.getUserEmail());
-        //邮件主题
+        // 邮件主题
         message.setSubject("Highgo Cloud 验证码");
-        //邮件内容
+        // 邮件内容
         message.setText("【Highgo Cloud】 您的验证码为：" + code.getVerificationCode() + "，请在2分钟之内操作，谢谢！");
-        //发送邮件
+        // 发送邮件
         mailSender.send(message);
     }
 }

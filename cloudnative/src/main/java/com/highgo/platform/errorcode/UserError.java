@@ -19,8 +19,8 @@ package com.highgo.platform.errorcode;
 
 public enum UserError implements BaseError {
 
-    DUPLICATE_NAME("200.003001", "instance.user.duplicate_name"),
-    USER_NOT_EXIST("200.003002", "instance.user.not_exist");
+    DUPLICATE_NAME("200.003001", "instance.user.duplicate_name"), USER_NOT_EXIST("200.003002",
+            "instance.user.not_exist");
 
     private String code;
     private String message;

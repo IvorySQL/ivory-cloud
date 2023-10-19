@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.cloud.auth.service.impl;
 
 import javax.annotation.Resource;
@@ -10,7 +27,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.highgo.cloud.auth.model.CustomUserDetail;
 
 import lombok.extern.slf4j.Slf4j;
-
 
 /**
  * @Description: 自定义UserDetailsService
@@ -29,6 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class UserDetailsServiceImpl implements UserDetailsService {
+
     @Resource()
     UserServiceImpl userServiceImpl;
 
@@ -40,23 +57,23 @@ public class UserDetailsServiceImpl implements UserDetailsService {
          *  查询db获取用户角色及权限
          *  db中的用户密码已用BCryptPasswordEncoder加密
          */
-       CustomUserDetail userDetails = userServiceImpl.findUserInfo(username);
+        CustomUserDetail userDetails = userServiceImpl.findUserInfo(username);
         if (userDetails == null) {
             log.error("Username :" + username + ",not found");
             throw new UsernameNotFoundException("Username :" + username + ",not found");
         }
-//        Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-//
-//        //该用户的
-//        ArrayList<String> userRoles = (ArrayList<String>) userDetails.getRoles();
-//
-//        if (null != userRoles) {
-//            for (String role : userRoles) {
-//                SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);
-//                authorities.add(authority);
-//            }
-//
-//        }
+        // Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        //
+        // //该用户的
+        // ArrayList<String> userRoles = (ArrayList<String>) userDetails.getRoles();
+        //
+        // if (null != userRoles) {
+        // for (String role : userRoles) {
+        // SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);
+        // authorities.add(authority);
+        // }
+        //
+        // }
         log.info("Successed login, the detail user info: ", JSONObject.toJSONString(userDetails));
 
         return userDetails;
