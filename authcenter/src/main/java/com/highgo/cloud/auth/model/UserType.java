@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.cloud.auth.model;
 
 import com.highgo.cloud.auth.constant.UserConstants;
@@ -29,9 +46,8 @@ import com.highgo.cloud.auth.constant.UserConstants;
  */
 public enum UserType {
 
-    TRIVAL(UserConstants.ROLE_ROUTINE_NAME, 1),
-    ROUTINE(UserConstants.ROLE_ROUTINE_NAME, 2),
-    ADMIN(UserConstants.ROLE_ADMIN_NAME, 3);
+    TRIVAL(UserConstants.ROLE_ROUTINE_NAME, 1), ROUTINE(UserConstants.ROLE_ROUTINE_NAME,
+            2), ADMIN(UserConstants.ROLE_ADMIN_NAME, 3);
 
     // 成员变量
     private String name;
@@ -42,7 +58,7 @@ public enum UserType {
         this.index = index;
     }
 
- // 普通方法
+    // 普通方法
     public static String getName(int index) {
         for (UserType c : UserType.values()) {
             if (c.getIndex() == index) {

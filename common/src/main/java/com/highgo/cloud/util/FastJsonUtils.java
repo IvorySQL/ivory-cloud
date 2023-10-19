@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.cloud.util;
 
 import com.alibaba.fastjson.JSON;
@@ -16,6 +33,7 @@ import java.util.Map;
  * 阿里的  fastjson   的自定义工具类
  */
 public class FastJsonUtils {
+
     private static final SerializeConfig config;
     static {
         config = new SerializeConfig();
@@ -30,11 +48,9 @@ public class FastJsonUtils {
             SerializerFeature.WriteNullStringAsEmpty // 字符类型字段如果为null，输出为""，而不是null
     };
 
-
     public static String convertObjectToJSON(Object object) {
         return JSON.toJSONString(object, config, features);
     }
-
 
     public static String toJSONNoFeatures(Object object) {
         return JSON.toJSONString(object, config);
@@ -44,13 +60,9 @@ public class FastJsonUtils {
         return JSON.toJSONString(object);
     }
 
-
-
     public static Object toBean(String text) {
         return JSON.parse(text);
     }
-
-
 
     public static <T> T toBean(String text, Class<T> clazz) {
         return JSON.parseObject(text, clazz);
@@ -91,7 +103,7 @@ public class FastJsonUtils {
      * @return
      */
     public static Object textToJson(String text) {
-        Object objectJson  = JSON.parse(text);
+        Object objectJson = JSON.parse(text);
         return objectJson;
     }
 
@@ -100,7 +112,7 @@ public class FastJsonUtils {
      * @param s
      * @return
      */
-    public static <K, V> Map<K, V>  stringToCollect(String s) {
+    public static <K, V> Map<K, V> stringToCollect(String s) {
         Map<K, V> m = (Map<K, V>) JSONObject.parseObject(s);
         return m;
     }
@@ -125,7 +137,6 @@ public class FastJsonUtils {
         return s;
     }
 
-
     public static String list2json(List<?> list) {
         StringBuilder json = new StringBuilder();
         json.append("[");
@@ -140,10 +151,5 @@ public class FastJsonUtils {
         }
         return json.toString();
     }
-
-
-
-
-
 
 }

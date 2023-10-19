@@ -24,12 +24,12 @@ package com.highgo.cloud.constant;
  */
 public enum ProviderTypeEnum {
 
-    PHYSICAL(OrderContant.PROVIDER_CODE_PHYSICAL, OrderContant.PROVIDER_PURE_BMS_SERVER),
-    HUAWEI(OrderContant.PROVIDER_CODE_HUAWEI, OrderContant.PROVIDER_HUAWEI),
-    ALIYUN(OrderContant.PROVIDER_CODE_ALIYUN, OrderContant.PROVIDER_ALIYUN),
-    TIANYI(OrderContant.PROVIDER_CODE_TIANYI, OrderContant.PROVIDER_TIANYI),
-    LANGCHAO(OrderContant.PROVIDER_CODE_LANGCHAO, OrderContant.PROVIDER_LANGCHAO),
-    XINFU(OrderContant.PROVIDER_CODE_XINFU, OrderContant.PROVIDER_XINFU);
+    PHYSICAL(OrderContant.PROVIDER_CODE_PHYSICAL, OrderContant.PROVIDER_PURE_BMS_SERVER), HUAWEI(
+            OrderContant.PROVIDER_CODE_HUAWEI, OrderContant.PROVIDER_HUAWEI), ALIYUN(OrderContant.PROVIDER_CODE_ALIYUN,
+                    OrderContant.PROVIDER_ALIYUN), TIANYI(OrderContant.PROVIDER_CODE_TIANYI,
+                            OrderContant.PROVIDER_TIANYI), LANGCHAO(OrderContant.PROVIDER_CODE_LANGCHAO,
+                                    OrderContant.PROVIDER_LANGCHAO), XINFU(OrderContant.PROVIDER_CODE_XINFU,
+                                            OrderContant.PROVIDER_XINFU);
 
     // 成员变量
     private String name;

@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.cloud.util;
 
 import com.highgo.cloud.exception.PropertyException;
@@ -49,7 +66,7 @@ public final class BeanUtil {
     static {
         ConvertUtils.register(new BigDecimalConverter(null), BigDecimal.class);
         ConvertUtils.register(new IntegerConverter(null), Integer.class);
-        //fixed: org.apache.commons.beanutils.ConversionException: No value specified for 'Date'
+        // fixed: org.apache.commons.beanutils.ConversionException: No value specified for 'Date'
         ConvertUtils.register(new DateConverter(null), Date.class);
     }
 
@@ -92,19 +109,17 @@ public final class BeanUtil {
      * @param bean
      * @param properties
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public static void copyProperties(Object bean, Map properties, String... ignoreProperties) {
         Map beanMap = toMap(bean);
         beanMap.remove("class");
-        if(ignoreProperties != null && ignoreProperties.length > 0) {
-            for(String p : ignoreProperties) {
+        if (ignoreProperties != null && ignoreProperties.length > 0) {
+            for (String p : ignoreProperties) {
                 beanMap.remove(p);
             }
         }
         properties.putAll(beanMap);
     }
-
-
 
     /**
      * Copy the property values of the given source bean into the given target map,
@@ -112,9 +127,9 @@ public final class BeanUtil {
      * @param bean
      * @param properties
      */
-    @SuppressWarnings({ "rawtypes"})
+    @SuppressWarnings({"rawtypes"})
     public static void copyProperties(Object bean, Map properties) {
-        copyProperties(bean, properties, (String[])null);
+        copyProperties(bean, properties, (String[]) null);
     }
 
     /**
@@ -130,7 +145,8 @@ public final class BeanUtil {
         if ((bean == null) || (properties == null)) {
             return;
         }
-        log.debug("BeanUtil.populate({}, {}) --- {}", bean, properties, bean.getClass().getClassLoader().getClass().getName());
+        log.debug("BeanUtil.populate({}, {}) --- {}", bean, properties,
+                bean.getClass().getClassLoader().getClass().getName());
         // Loop through the property name/value pairs to be set
         Iterator names = properties.keySet().iterator();
         Map<String, Object> listTypes = new HashMap<String, Object>(0);
@@ -145,57 +161,57 @@ public final class BeanUtil {
             try {
                 name = BeanUtil.correctListName(name);
 
-                //如果是含有点（.）的属性，检查listTypes是否已存在，如果已存在，且此属性没有下标索引，则
-                //忽略此 名称
-                if(name.indexOf('.') > 0 && name.indexOf('[') < 0) {
+                // 如果是含有点（.）的属性，检查listTypes是否已存在，如果已存在，且此属性没有下标索引，则
+                // 忽略此 名称
+                if (name.indexOf('.') > 0 && name.indexOf('[') < 0) {
                     String listProp = name.substring(0, name.lastIndexOf('.'));
-                    if(listTypes.containsKey(listProp)) {
+                    if (listTypes.containsKey(listProp)) {
                         continue;
                     }
                 }
                 BeanUtil.checkProperty(bean, name, listTypes);
 
-                //如果数据类型为 字符串数组
-                if(value != null && (value instanceof String[] || value instanceof String )) {
+                // 如果数据类型为 字符串数组
+                if (value != null && (value instanceof String[] || value instanceof String)) {
                     String[] vs = null;
-                    if(value instanceof String[]){
+                    if (value instanceof String[]) {
                         vs = (String[]) value;
                     }
-                    if(value instanceof String){
+                    if (value instanceof String) {
                         vs = new String[1];
-                        vs[0] = (String)value;
+                        vs[0] = (String) value;
                     }
 
                     Class cls = PropertyUtil.getPropertyType(bean, name);
-                    if(cls != null) {
-                        if(CommonUtil.isEnum(cls)) {//属性为枚举类型时（TODO 是否可以重构为转换器？）
+                    if (cls != null) {
+                        if (CommonUtil.isEnum(cls)) {// 属性为枚举类型时（TODO 是否可以重构为转换器？）
                             value = CommonUtil.getEnum(cls, vs[0]);
-                        } else if(cls.isArray()) {//属性为数组时
+                        } else if (cls.isArray()) {// 属性为数组时
                             Class clazz = cls.getComponentType();
-                            if(CommonUtil.isEnum(clazz)) {//数组元素为枚举时
+                            if (CommonUtil.isEnum(clazz)) {// 数组元素为枚举时
                                 List es = new ArrayList();
-                                for(String v: vs) {
+                                for (String v : vs) {
                                     Object enumv = CommonUtil.getEnum(clazz, v);
-                                    if(enumv != null) {
+                                    if (enumv != null) {
                                         es.add(enumv);
                                     }
                                 }
                                 value = CommonUtil.buildArray(clazz, es);
                             }
-                        } else if(cls.getSuperclass().equals(Number.class)) {//属性为数字类型时
+                        } else if (cls.getSuperclass().equals(Number.class)) {// 属性为数字类型时
                             String str = vs[0];
-                            if(!NumberUtils.isNumber(str)) {
+                            if (!NumberUtils.isNumber(str)) {
                                 value = null;
                             }
-                        } else if(cls.equals(Date.class) || cls.equals(java.sql.Date.class)) {//日期类型
+                        } else if (cls.equals(Date.class) || cls.equals(java.sql.Date.class)) {// 日期类型
                             String str = vs[0];
-                            if(StringUtils.isNotEmpty(str)) {
+                            if (StringUtils.isNotEmpty(str)) {
                                 Date date = DateHelper.parseDate(str);
                                 value = date;
-                                if(cls.equals(java.sql.Date.class)) {
+                                if (cls.equals(java.sql.Date.class)) {
                                     value = new java.sql.Date(date.getTime());
                                 }
-                            } else {//如果输入的值为空字符串, 则把值设置为null
+                            } else {// 如果输入的值为空字符串, 则把值设置为null
                                 value = null;
                             }
                         }
@@ -208,18 +224,17 @@ public final class BeanUtil {
             } catch (PropertyException e) {
                 // cww 忽略此异常
                 log.debug("property do not processing: \"{}\"", name);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 // cww 忽略此异常
                 log.debug("processing property.");
             }
 
             // Perform the assignment for this property
             try {
-                //log.debug(">>>>>>>>>>>>value : " + name + " = " + value);
+                // log.debug(">>>>>>>>>>>>value : " + name + " = " + value);
                 org.apache.commons.beanutils.BeanUtils.setProperty(bean, name, value);
             } catch (Exception ex) {
-                log.error("common-utils:copyProperties 异常",ex);
+                log.error("common-utils:copyProperties 异常", ex);
                 throw new PropertyException("赋值错误!" + bean + "***" + "name:" + name + "****" + "value:" + value, ex);
             }
         }
@@ -228,21 +243,21 @@ public final class BeanUtil {
     /**
      * copy not null properties from one bean to another bean
      */
-    public static void copyNotNullProperties(Object frombean,Object tobean){
-        Map<Object,Object> fromMap = new HashMap();
-        BeanUtil.copyProperties(frombean,fromMap);
+    public static void copyNotNullProperties(Object frombean, Object tobean) {
+        Map<Object, Object> fromMap = new HashMap();
+        BeanUtil.copyProperties(frombean, fromMap);
 
-        Map<Object,Object> toMap = new HashMap();
+        Map<Object, Object> toMap = new HashMap();
         BeanUtil.copyProperties(tobean, toMap);
-        for(Map.Entry<Object,Object> entry : fromMap.entrySet()){
-            if(entry.getValue() != null){
-                toMap.put(entry.getKey(),entry.getValue());
+        for (Map.Entry<Object, Object> entry : fromMap.entrySet()) {
+            if (entry.getValue() != null) {
+                toMap.put(entry.getKey(), entry.getValue());
             }
         }
         // Filter invalid value in variable toMap.
-        Iterator<Entry<Object,Object>> iterator = toMap.entrySet().iterator();
+        Iterator<Entry<Object, Object>> iterator = toMap.entrySet().iterator();
         while (iterator.hasNext()) {
-            Entry<Object,Object> entry = iterator.next();
+            Entry<Object, Object> entry = iterator.next();
             if (entry.getValue() == null) {
                 iterator.remove();
             }
@@ -261,14 +276,14 @@ public final class BeanUtil {
             throws Exception {
         try {
             PropertyUtil.getProperty(bean, propertyName);
-        } catch(IndexOutOfBoundsException e){
-//			BeanUtil.initList(bean, propertyName, listTypes);
-        } catch(IllegalArgumentException e) {
-            //2009-12-23 cww
+        } catch (IndexOutOfBoundsException e) {
+            // BeanUtil.initList(bean, propertyName, listTypes);
+        } catch (IllegalArgumentException e) {
+            // 2009-12-23 cww
             // 当bean有嵌套的对象，且需要赋值时，将出现此异常
             // 异常信息示例 : Null property value for 'entrust'
             String msg = e.getMessage();
-            if(msg != null && msg.startsWith("Null property value for")) {
+            if (msg != null && msg.startsWith("Null property value for")) {
                 int qIndex = msg.indexOf("'");
                 String subPropertyName = msg.substring(qIndex + 1, msg.lastIndexOf("'"));
                 BeanUtil.initProperty(bean, subPropertyName);
@@ -279,48 +294,48 @@ public final class BeanUtil {
         }
     }
 
-//	/**
-//	 * 利用java5的泛型和反射处理子记录，对于有list属性bean不再需要实现特定的接口：IAddEditGrid
-//	 * 并且不需要再关心grid在页面中的顺序
-//	 * @see com.inspur.asm.AsmClassGenerator#generateSubObject(Class, ClassLoader)
-//	 * @param bean
-//	 * @param name
-//	 * @param listTypes
-//	 * @throws Exception
-//	 */
-//	private static void initList(Object bean, String name, Map listTypes) throws Exception {
-//		int leftIndex = name.indexOf('[');
-//		int rightIndex = name.indexOf(']');
-//		String fieldName = name.substring(0, leftIndex);
-//		String propName = name.substring(rightIndex + 2);
-//
-//		String strIndex = name.substring(leftIndex + 1, rightIndex);
-//		int objIndex = Integer.parseInt(strIndex);
-//		if(listTypes.containsKey(fieldName)) {
-//			Integer size = (Integer) listTypes.get(fieldName + LIST_FIELD_INDEX_SUFFIX);
-//			if(size.intValue() < objIndex) {
-//				Class genericCls = (Class) listTypes.get(fieldName);
-//				Collection c = (Collection)listTypes.get(fieldName + LIST_FIELD_PROPERTY_SUFFIX);
-//				listTypes.put(fieldName + LIST_FIELD_INDEX_SUFFIX, objIndex);
-//				for(int i=0; i<objIndex - size; i++) {
-//					Object obj = AsmClassGenerator.generateSubObject(genericCls, BeanUtil.class.getClassLoader());
-//					c.add(obj);
-//				}
-//			}
-//
-//		} else {
-//			Class genericCls = GenericUtils.getListFieldGenericType(bean.getClass(), fieldName);
-//			Collection c = (Collection) PropertyUtils.getProperty(bean, fieldName);
-//			listTypes.put(fieldName + LIST_FIELD_PROPERTY_SUFFIX, c);
-//			listTypes.put(fieldName + LIST_FIELD_INDEX_SUFFIX, objIndex);
-//			listTypes.put(fieldName, genericCls);
-//
-//			for(int i=0; i<=objIndex; i++) {
-//				Object obj = AsmClassGenerator.generateSubObject(genericCls, BeanUtil.class.getClassLoader());
-//				c.add(obj);
-//			}
-//		}
-//	}
+    // /**
+    // * 利用java5的泛型和反射处理子记录，对于有list属性bean不再需要实现特定的接口：IAddEditGrid
+    // * 并且不需要再关心grid在页面中的顺序
+    // * @see com.inspur.asm.AsmClassGenerator#generateSubObject(Class, ClassLoader)
+    // * @param bean
+    // * @param name
+    // * @param listTypes
+    // * @throws Exception
+    // */
+    // private static void initList(Object bean, String name, Map listTypes) throws Exception {
+    // int leftIndex = name.indexOf('[');
+    // int rightIndex = name.indexOf(']');
+    // String fieldName = name.substring(0, leftIndex);
+    // String propName = name.substring(rightIndex + 2);
+    //
+    // String strIndex = name.substring(leftIndex + 1, rightIndex);
+    // int objIndex = Integer.parseInt(strIndex);
+    // if(listTypes.containsKey(fieldName)) {
+    // Integer size = (Integer) listTypes.get(fieldName + LIST_FIELD_INDEX_SUFFIX);
+    // if(size.intValue() < objIndex) {
+    // Class genericCls = (Class) listTypes.get(fieldName);
+    // Collection c = (Collection)listTypes.get(fieldName + LIST_FIELD_PROPERTY_SUFFIX);
+    // listTypes.put(fieldName + LIST_FIELD_INDEX_SUFFIX, objIndex);
+    // for(int i=0; i<objIndex - size; i++) {
+    // Object obj = AsmClassGenerator.generateSubObject(genericCls, BeanUtil.class.getClassLoader());
+    // c.add(obj);
+    // }
+    // }
+    //
+    // } else {
+    // Class genericCls = GenericUtils.getListFieldGenericType(bean.getClass(), fieldName);
+    // Collection c = (Collection) PropertyUtils.getProperty(bean, fieldName);
+    // listTypes.put(fieldName + LIST_FIELD_PROPERTY_SUFFIX, c);
+    // listTypes.put(fieldName + LIST_FIELD_INDEX_SUFFIX, objIndex);
+    // listTypes.put(fieldName, genericCls);
+    //
+    // for(int i=0; i<=objIndex; i++) {
+    // Object obj = AsmClassGenerator.generateSubObject(genericCls, BeanUtil.class.getClassLoader());
+    // c.add(obj);
+    // }
+    // }
+    // }
 
     /**
      * 当bean有嵌套的对象，且需要赋值时，初始化嵌套对象
@@ -329,7 +344,7 @@ public final class BeanUtil {
      */
     private static void initProperty(Object bean, String propertyName) {
         try {
-            //String[] properties = propertyName.split("\\.");
+            // String[] properties = propertyName.split("\\.");
 
             Class cls = PropertyUtil.getPropertyType(bean, propertyName);
             PropertyUtil.setProperty(bean, propertyName, cls.newInstance());
@@ -342,7 +357,7 @@ public final class BeanUtil {
 
     private static String correctListName(String name) {
         int pointCount = StringUtils.countMatches(name, ".");
-        if(name.indexOf('[') < 0 || pointCount == 1) {
+        if (name.indexOf('[') < 0 || pointCount == 1) {
             return name;
         }
         StringBuffer cname = new StringBuffer();
@@ -355,25 +370,25 @@ public final class BeanUtil {
         return cname.toString();
     }
 
-//	@SuppressWarnings("unchecked")
-//	public static Map<String, Object> toMap(Object object) {
-//		try {
-//			return org.apache.commons.beanutils.BeanUtils.describe(object);
-//		} catch (IllegalAccessException e) {
-//			throw new PropertyException(object.getClass().getName(), e);
-//		} catch (InvocationTargetException e) {
-//			throw new PropertyException(object.getClass().getName(), e);
-//		} catch (NoSuchMethodException e) {
-//			throw new PropertyException(object.getClass().getName(), e);
-//		}
-//	}
+    // @SuppressWarnings("unchecked")
+    // public static Map<String, Object> toMap(Object object) {
+    // try {
+    // return org.apache.commons.beanutils.BeanUtils.describe(object);
+    // } catch (IllegalAccessException e) {
+    // throw new PropertyException(object.getClass().getName(), e);
+    // } catch (InvocationTargetException e) {
+    // throw new PropertyException(object.getClass().getName(), e);
+    // } catch (NoSuchMethodException e) {
+    // throw new PropertyException(object.getClass().getName(), e);
+    // }
+    // }
 
     /**
      * Convert a bean to a map
      * @param bean
      * @return
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public static Map toMap(Object bean) {
         try {
             Class type = bean.getClass();
@@ -391,7 +406,7 @@ public final class BeanUtil {
                 }
             }
             return returnMap;
-        } catch(IntrospectionException e) {
+        } catch (IntrospectionException e) {
             throw new PropertyException(bean.getClass().getName(), e);
         } catch (IllegalAccessException e) {
             throw new PropertyException(bean.getClass().getName(), e);

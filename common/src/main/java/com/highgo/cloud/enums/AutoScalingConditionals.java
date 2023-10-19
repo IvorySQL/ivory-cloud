@@ -24,11 +24,7 @@ package com.highgo.cloud.enums;
  */
 public enum AutoScalingConditionals {
 
-    GT(">"),
-    GE(">="),
-    LT("<"),
-    LE("<="),
-    EQ("=");
+    GT(">"), GE(">="), LT("<"), LE("<="), EQ("=");
 
     private String value;
 
