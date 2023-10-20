@@ -17,7 +17,7 @@
 
 package com.highgo.cloud.auth.config;
 
-import com.highgo.cloud.util.DESUtil;
+import com.highgo.cloud.util.AESUtil;
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
@@ -39,7 +39,7 @@ public class JasyptConfig {
     public StringEncryptor stringEncryptor() {
         PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
         SimpleStringPBEConfig config = new SimpleStringPBEConfig();
-        config.setPassword(DESUtil.decrypt(salt));
+        config.setPassword(AESUtil.decrypt(salt));
         config.setPoolSize("1");
         config.setStringOutputType("base64");
         config.setProviderName("SunJCE");

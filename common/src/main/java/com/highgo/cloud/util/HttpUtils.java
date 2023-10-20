@@ -56,13 +56,13 @@ public class HttpUtils {
         if (okHttpClient == null) {
             synchronized (HttpUtils.class) {
                 if (okHttpClient == null) {
-                    TrustManager[] trustManagers = buildTrustManagers();
+                    X509TrustManager[] trustManagers = buildTrustManagers();
                     okHttpClient = new OkHttpClient.Builder()
                             .connectTimeout(15, TimeUnit.SECONDS)
                             .writeTimeout(20, TimeUnit.SECONDS)
                             .readTimeout(20, TimeUnit.SECONDS)
                             .sslSocketFactory(createSSLSocketFactory(trustManagers),
-                                    (X509TrustManager) trustManagers[0])
+                                    trustManagers[0])
                             .hostnameVerifier((hostName, session) -> true)
                             .retryOnConnectionFailure(true)
                             .build();
@@ -290,8 +290,8 @@ public class HttpUtils {
         return ssfFactory;
     }
 
-    private static TrustManager[] buildTrustManagers() {
-        return new TrustManager[]{
+    private static X509TrustManager[] buildTrustManagers() {
+        return new X509TrustManager[]{
                 new X509TrustManager() {
 
                     @Override
