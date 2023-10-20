@@ -19,7 +19,7 @@
  */
 -->
 <profiles version="1">
-    <profile kind="CodeFormatterProfile" name="'Apache InLong'" version="12">
+    <profile kind="CodeFormatterProfile" name="'ivroy cloud'" version="12">
         <setting id="org.eclipse.jdt.core.compiler.source" value="1.8" />
         <setting id="org.eclipse.jdt.core.compiler.compliance" value="1.8" />
         <setting id="org.eclipse.jdt.core.compiler.codegen.targetPlatform" value="1.8" />
@@ -34,7 +34,7 @@
         <setting id="org.eclipse.jdt.core.formatter.join_wrapped_lines" value="false" />
         <setting id="org.eclipse.jdt.core.formatter.insert_space_before_colon_in_conditional" value="insert" />
         <setting id="org.eclipse.jdt.core.formatter.insert_space_before_colon_in_default" value="do not insert" />
-        <setting id="org.eclipse.jdt.core.formatter.alignment_for_enum_constants" value="16" />
+      <!--  <setting id="org.eclipse.jdt.core.formatter.alignment_for_enum_constants" value="16" /> --> 
         <setting id="org.eclipse.jdt.core.formatter.insert_space_before_colon_in_labeled_statement" value="do not insert" />
         <setting id="org.eclipse.jdt.core.formatter.insert_space_before_colon_in_case" value="do not insert" />
         <setting id="org.eclipse.jdt.core.formatter.alignment_for_conditional_expression" value="80" />

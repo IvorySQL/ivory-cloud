@@ -1,5 +1,21 @@
-package com.highgo.cloud.util;
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
+package com.highgo.cloud.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
@@ -22,6 +38,7 @@ import java.util.Map;
 
 @Slf4j
 public class HttpRequest {
+
     /**
      * 向指定URL发送GET方法的请求
      * @param url  发送请求的URL
@@ -33,14 +50,14 @@ public class HttpRequest {
         BufferedReader in = null;
         String urlNameString = "";
         try {
-            if(CommonUtil.isEmpty(param)){
+            if (CommonUtil.isEmpty(param)) {
                 urlNameString = url;
-            }else{
+            } else {
                 urlNameString = url + "?" + param;
             }
             URL realUrl = new URL(urlNameString);
             // 打开和URL之间的连接
-            HttpURLConnection connection = (HttpURLConnection)realUrl.openConnection();
+            HttpURLConnection connection = (HttpURLConnection) realUrl.openConnection();
             // 设置通用的请求属性
             connection.setRequestProperty("accept", "*/*");
             connection.setRequestProperty("connection", "Keep-Alive");
@@ -112,19 +129,18 @@ public class HttpRequest {
                 result += line;
             }
         } catch (Exception e) {
-            log.error("发送 POST 请求出现异常！",e);
+            log.error("发送 POST 请求出现异常！", e);
         }
-        //使用finally块来关闭输出流、输入流
-        finally{
-            try{
-                if(out!=null){
+        // 使用finally块来关闭输出流、输入流
+        finally {
+            try {
+                if (out != null) {
                     out.close();
                 }
-                if(in!=null){
+                if (in != null) {
                     in.close();
                 }
-            }
-            catch(IOException ex){
+            } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
@@ -137,36 +153,36 @@ public class HttpRequest {
      * @param t  参数对象
      * @return
      */
-    public static<T> String sendPostJSONObj(String url, T t ) throws IOException {
+    public static <T> String sendPostJSONObj(String url, T t) throws IOException {
         String body = "";
-        //创建httpclient对象
+        // 创建httpclient对象
         CloseableHttpClient client = HttpClients.createDefault();
-        //创建post方式请求对象
+        // 创建post方式请求对象
         HttpPost httpPost = new HttpPost(url);
         String objectJSON = FastJsonUtils.convertObjectToJSON(t);
-        //装填参数
+        // 装填参数
         StringEntity strEntity = new StringEntity(objectJSON, "utf-8");
-//        strEntity.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE,
-//                "application/json"));
-        //设置参数到请求对象中
+        // strEntity.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE,
+        // "application/json"));
+        // 设置参数到请求对象中
         httpPost.setEntity(strEntity);
         log.info("the request url of monitor config : [{}]", url);
-        //设置header信息
-        //指定报文头【Content-type】、【User-Agent】
-//        httpPost.setHeader("Content-type", "application/x-www-form-urlencoded");
+        // 设置header信息
+        // 指定报文头【Content-type】、【User-Agent】
+        // httpPost.setHeader("Content-type", "application/x-www-form-urlencoded");
         httpPost.setHeader("Content-Type", "application/json");
         httpPost.setHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
 
-        //执行请求操作，并拿到结果（同步阻塞）
+        // 执行请求操作，并拿到结果（同步阻塞）
         CloseableHttpResponse response = client.execute(httpPost);
-        //获取结果实体
+        // 获取结果实体
         HttpEntity entity = response.getEntity();
         if (entity != null) {
-            //按指定编码转换结果实体为String类型
+            // 按指定编码转换结果实体为String类型
             body = EntityUtils.toString(entity, "UTF-8");
         }
         EntityUtils.consume(entity);
-        //释放链接
+        // 释放链接
         response.close();
         return body;
     }
@@ -177,35 +193,35 @@ public class HttpRequest {
      * @param json  参数对象
      * @return
      */
-    public static<T> String sendPostJSONStr(String url, String json ) throws IOException {
+    public static <T> String sendPostJSONStr(String url, String json) throws IOException {
         String body = "";
-        //创建httpclient对象
+        // 创建httpclient对象
         CloseableHttpClient client = HttpClients.createDefault();
-        //创建post方式请求对象
+        // 创建post方式请求对象
         HttpPost httpPost = new HttpPost(url);
-        //装填参数
+        // 装填参数
         StringEntity strEntity = new StringEntity(json, "utf-8");
-//        strEntity.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE,
-//                "application/json"));
-        //设置参数到请求对象中
+        // strEntity.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE,
+        // "application/json"));
+        // 设置参数到请求对象中
         httpPost.setEntity(strEntity);
         log.info("the request url of monitor config ：[{}]", url);
-        //设置header信息
-        //指定报文头【Content-type】、【User-Agent】
-//        httpPost.setHeader("Content-type", "application/x-www-form-urlencoded");
+        // 设置header信息
+        // 指定报文头【Content-type】、【User-Agent】
+        // httpPost.setHeader("Content-type", "application/x-www-form-urlencoded");
         httpPost.setHeader("Content-type", "application/json");
         httpPost.setHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
 
-        //执行请求操作，并拿到结果（同步阻塞）
+        // 执行请求操作，并拿到结果（同步阻塞）
         CloseableHttpResponse response = client.execute(httpPost);
-        //获取结果实体
+        // 获取结果实体
         HttpEntity entity = response.getEntity();
         if (entity != null) {
-            //按指定编码转换结果实体为String类型
+            // 按指定编码转换结果实体为String类型
             body = EntityUtils.toString(entity, "UTF-8");
         }
         EntityUtils.consume(entity);
-        //释放链接
+        // 释放链接
         response.close();
         return body;
     }
@@ -220,7 +236,7 @@ public class HttpRequest {
     public static String apiKeyPostRequest(String path, String data, String apiKey) {
         try {
             URL url = new URL(path);
-            //打开和url之间的连接
+            // 打开和url之间的连接
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             PrintWriter out = null;
             /**设置URLConnection的参数和普通的请求属性****start***/
@@ -231,26 +247,26 @@ public class HttpRequest {
             conn.setRequestProperty("Authorization", "Bearer " + apiKey);
             conn.setDoOutput(true);
             conn.setDoInput(true);
-            conn.setRequestMethod("POST");//GET和POST必须全大写
+            conn.setRequestMethod("POST");// GET和POST必须全大写
             conn.connect();
-            //POST请求
-            BufferedWriter out1 = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream(),"UTF-8"));
+            // POST请求
+            BufferedWriter out1 = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream(), "UTF-8"));
             out1.write(data);
             out1.flush();
             out1.close();
-            //获取URLConnection对象对应的输入流
+            // 获取URLConnection对象对应的输入流
             InputStream is = conn.getInputStream();
-            //构造一个字符流缓存
+            // 构造一个字符流缓存
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String str = "";
             while ((str = br.readLine()) != null) {
-                str = new String(str.getBytes(), "UTF-8");//解决中文乱码问题
+                str = new String(str.getBytes(), "UTF-8");// 解决中文乱码问题
                 System.out.println(str);
             }
-            //关闭流
+            // 关闭流
             is.close();
-            //断开连接，最好写上，disconnect是在底层tcp socket链接空闲时才切断。如果正在被其他线程使用就不切断。
-            //固定多线程的话，如果不disconnect，链接会增多，直到收发不出信息。写上disconnect后正常一些。
+            // 断开连接，最好写上，disconnect是在底层tcp socket链接空闲时才切断。如果正在被其他线程使用就不切断。
+            // 固定多线程的话，如果不disconnect，链接会增多，直到收发不出信息。写上disconnect后正常一些。
             conn.disconnect();
             System.out.println("success");
             return str;
@@ -271,43 +287,43 @@ public class HttpRequest {
     public static String noKeyPostRequest(String path, String data, String autuserpwd) {
         try {
 
-//            String authString = "admin:highgo";
+            // String authString = "admin:highgo";
             byte[] authEncBytes = Base64.encodeBase64(autuserpwd.getBytes("utf-8"));
             String authStringEnc = new String(authEncBytes);
             URL url = new URL(path);
-            //打开和url之间的连接
+            // 打开和url之间的连接
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             PrintWriter out = null;
             /**设置URLConnection的参数和普通的请求属性****start***/
             conn.setRequestProperty("accept", "*/*");
             conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
             conn.setRequestProperty("connection", "Keep-Alive");
-//            request.addHeader("Authorization", "Basic " + authStringEnc);
+            // request.addHeader("Authorization", "Basic " + authStringEnc);
             conn.setRequestProperty("Authorization", "Basic " + authStringEnc);
             conn.setRequestProperty("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)");
             conn.setDoOutput(true);
             conn.setDoInput(true);
-            conn.setRequestMethod("POST");//GET和POST必须全大写
+            conn.setRequestMethod("POST");// GET和POST必须全大写
 
             conn.connect();
-            //POST请求
-            BufferedWriter out1 = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream(),"UTF-8"));
+            // POST请求
+            BufferedWriter out1 = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream(), "UTF-8"));
             out1.write(data);
             out1.flush();
             out1.close();
-            //获取URLConnection对象对应的输入流
+            // 获取URLConnection对象对应的输入流
             InputStream is = conn.getInputStream();
-            //构造一个字符流缓存
+            // 构造一个字符流缓存
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String str = "";
             while ((str = br.readLine()) != null) {
-                str = new String(str.getBytes(), "UTF-8");//解决中文乱码问题
+                str = new String(str.getBytes(), "UTF-8");// 解决中文乱码问题
                 System.out.println(str);
             }
-            //关闭流
+            // 关闭流
             is.close();
-            //断开连接，最好写上，disconnect是在底层tcp socket链接空闲时才切断。如果正在被其他线程使用就不切断。
-            //固定多线程的话，如果不disconnect，链接会增多，直到收发不出信息。写上disconnect后正常一些。
+            // 断开连接，最好写上，disconnect是在底层tcp socket链接空闲时才切断。如果正在被其他线程使用就不切断。
+            // 固定多线程的话，如果不disconnect，链接会增多，直到收发不出信息。写上disconnect后正常一些。
             conn.disconnect();
             System.out.println("success");
             return str;
@@ -326,7 +342,7 @@ public class HttpRequest {
     public static String apiKeyGetRequest(String path, String apiKey) {
         try {
             URL url = new URL(path);
-            //打开和url之间的连接
+            // 打开和url之间的连接
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             PrintWriter out = null;
             /**设置URLConnection的参数和普通的请求属性****start***/
@@ -337,25 +353,25 @@ public class HttpRequest {
             conn.setRequestProperty("Authorization", "Bearer " + apiKey);
             conn.setDoOutput(true);
             conn.setDoInput(true);
-            conn.setRequestMethod("GET");//GET和POST必须全大写
+            conn.setRequestMethod("GET");// GET和POST必须全大写
             conn.connect();
-//            //POST请求
-//            BufferedWriter out1 = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream(),"UTF-8"));
-//            out1.flush();
-//            out1.close();
-            //获取URLConnection对象对应的输入流
+            // //POST请求
+            // BufferedWriter out1 = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream(),"UTF-8"));
+            // out1.flush();
+            // out1.close();
+            // 获取URLConnection对象对应的输入流
             InputStream is = conn.getInputStream();
-            //构造一个字符流缓存
+            // 构造一个字符流缓存
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String str = "";
             while ((str = br.readLine()) != null) {
-                str = new String(str.getBytes(), "UTF-8");//解决中文乱码问题
+                str = new String(str.getBytes(), "UTF-8");// 解决中文乱码问题
                 System.out.println(str);
             }
-            //关闭流
+            // 关闭流
             is.close();
-            //断开连接，最好写上，disconnect是在底层tcp socket链接空闲时才切断。如果正在被其他线程使用就不切断。
-            //固定多线程的话，如果不disconnect，链接会增多，直到收发不出信息。写上disconnect后正常一些。
+            // 断开连接，最好写上，disconnect是在底层tcp socket链接空闲时才切断。如果正在被其他线程使用就不切断。
+            // 固定多线程的话，如果不disconnect，链接会增多，直到收发不出信息。写上disconnect后正常一些。
             conn.disconnect();
             System.out.println("success");
             return str;
@@ -373,16 +389,17 @@ public class HttpRequest {
      * @author srk
      * @date 2023/5/23 16:07
      */
-    public static CloseableHttpResponse sendPut(String url, String authStringEnc, StringEntity strEntity) throws IOException {
+    public static CloseableHttpResponse sendPut(String url, String authStringEnc, StringEntity strEntity)
+            throws IOException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPut httpPut = new HttpPut(url);
 
-        //设置请求头
+        // 设置请求头
         httpPut.setHeader("Authorization", authStringEnc);
         httpPut.setHeader("Content-type", "application/json");
         httpPut.setEntity(strEntity);
 
-        CloseableHttpResponse response =  httpClient.execute(httpPut);
+        CloseableHttpResponse response = httpClient.execute(httpPut);
         return response;
     }
 
@@ -396,16 +413,17 @@ public class HttpRequest {
      * @author srk
      * @date 2023/5/24 10:33
      */
-    public static CloseableHttpResponse sendPostWithAuthorization(String url, String authStringEnc, StringEntity strEntity) throws IOException {
+    public static CloseableHttpResponse sendPostWithAuthorization(String url, String authStringEnc,
+            StringEntity strEntity) throws IOException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(url);
 
-        //设置请求头
+        // 设置请求头
         httpPost.setHeader("Authorization", authStringEnc);
         httpPost.setHeader("Content-type", "application/json");
         httpPost.setEntity(strEntity);
 
-        CloseableHttpResponse response =  httpClient.execute(httpPost);
+        CloseableHttpResponse response = httpClient.execute(httpPost);
         return response;
     }
     /***
@@ -421,14 +439,13 @@ public class HttpRequest {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(url);
 
-        //设置请求头
+        // 设置请求头
         httpPost.setHeader("Content-type", "application/json");
         httpPost.setEntity(strEntity);
 
-        CloseableHttpResponse response =  httpClient.execute(httpPost);
+        CloseableHttpResponse response = httpClient.execute(httpPost);
         return response;
     }
-
 
     /***
      * @description 使用apiKey认证调用grafana api
@@ -440,17 +457,18 @@ public class HttpRequest {
      * @author srk
      * @date 2023/5/24 17:00
      */
-    public static CloseableHttpResponse sendPostWithApiKey(String url, String apiKey, StringEntity strEntity) throws IOException {
+    public static CloseableHttpResponse sendPostWithApiKey(String url, String apiKey, StringEntity strEntity)
+            throws IOException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(url);
 
-        //设置请求头
+        // 设置请求头
         httpPost.setHeader("Authorization", "Bearer " + apiKey);
         httpPost.setHeader("Content-type", "application/json");
 
         httpPost.setEntity(strEntity);
 
-        CloseableHttpResponse response =  httpClient.execute(httpPost);
+        CloseableHttpResponse response = httpClient.execute(httpPost);
         return response;
     }
 
@@ -464,17 +482,17 @@ public class HttpRequest {
      * @author srk
      * @date 2023/5/24 10:34
      */
-    public static CloseableHttpResponse sendDeleteWithAuthorization(String url, String authStringEnc) throws IOException {
+    public static CloseableHttpResponse sendDeleteWithAuthorization(String url, String authStringEnc)
+            throws IOException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpDelete httpDelete = new HttpDelete(url);
 
-        //设置请求头
+        // 设置请求头
         httpDelete.setHeader("Authorization", authStringEnc);
         httpDelete.setHeader("Content-type", "application/json");
 
-        CloseableHttpResponse response =  httpClient.execute(httpDelete);
+        CloseableHttpResponse response = httpClient.execute(httpDelete);
         return response;
     }
-
 
 }

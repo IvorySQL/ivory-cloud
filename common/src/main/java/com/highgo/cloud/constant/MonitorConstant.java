@@ -100,8 +100,8 @@ public class MonitorConstant {
     public static final Integer PATRONI_EXPORTER_PORT = 9547;
     public enum MonitorResultCode {
 
-        ACTIVE("active", 0), FAILED("failed", 1), BUILDING("building", 2), UNINSTALL("uninstall", 3),
-        ERROR("error", -1);
+        ACTIVE("active", 0), FAILED("failed", 1), BUILDING("building", 2), UNINSTALL("uninstall", 3), ERROR("error",
+                -1);
         private String name;
         private int code;
         MonitorResultCode(String name, int code) {

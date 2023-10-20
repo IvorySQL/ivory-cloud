@@ -770,7 +770,8 @@ public class InstanceServiceImpl implements InstanceService {
         BeanUtil.copyNotNullProperties(instancePO, instanceDTO);
         // String projectId = getProjectIdByNamespace(instanceDTO.getClusterId(), instanceDTO.getNamespace());
         websocketService.sendMsgToUser(instanceDTO,
-                OperationDTO.builder().name(OperationName.MODIFY_INSTANCE).status(operationStatus).build());
+                OperationDTO.builder().name(OperationName.CREATE_BACKUP).status(operationStatus).build());
+
     }
 
     /**
@@ -843,6 +844,7 @@ public class InstanceServiceImpl implements InstanceService {
         // String projectId = getProjectIdByNamespace(instanceDTO.getClusterId(), instanceDTO.getNamespace());
         websocketService.sendMsgToUser(instanceDTO,
                 OperationDTO.builder().name(OperationName.EXTEND_STORAGE).status(operationStatus).build());
+
     }
 
     /**

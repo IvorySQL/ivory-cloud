@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.highgo.cloud.util;
 
 import com.cronutils.converter.CalendarToCronTransformer;
@@ -24,7 +41,8 @@ import java.util.*;
  */
 public class CronUtil {
 
-    private final static CronConverter cronConverter = new CronConverter(new CronToCalendarTransformer(), new CalendarToCronTransformer());
+    private final static CronConverter cronConverter =
+            new CronConverter(new CronToCalendarTransformer(), new CalendarToCronTransformer());
 
     /**
      * 生成cron表达式
@@ -38,15 +56,18 @@ public class CronUtil {
             return null;
         }
         startTime = startTime.split("-")[0].trim();
-        Map<String, String> weekRelatioMap = new HashMap<String, String>() {{
-            put("sunday", "0");
-            put("monday", "1");
-            put("tuesday", "2");
-            put("wednesday", "3");
-            put("thursday", "4");
-            put("friday", "5");
-            put("saturday", "6");
-        }};
+        Map<String, String> weekRelatioMap = new HashMap<String, String>() {
+
+            {
+                put("sunday", "0");
+                put("monday", "1");
+                put("tuesday", "2");
+                put("wednesday", "3");
+                put("thursday", "4");
+                put("friday", "5");
+                put("saturday", "6");
+            }
+        };
 
         String[] periodList = period.split(",");
         List<String> weekIntList = new ArrayList<>();
