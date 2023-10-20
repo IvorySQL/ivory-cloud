@@ -672,9 +672,10 @@ public class SshUtil {
                 JarEntry entry = jarEntrys.nextElement();
                 // 判断路径，获取 resource下的文件
                 String name = entry.getName();
+                String normalizedPath = Paths.get(name).normalize().toString();
                 String pathDir = "BOOT-INF/classes/" + dirPath;
-                if (name.startsWith(pathDir) && !entry.isDirectory()) {
-                    String substring = name.substring("BOOT-INF/classes/".length());
+                if (normalizedPath.startsWith(pathDir) && !entry.isDirectory()) {
+                    String substring = normalizedPath.substring("BOOT-INF/classes/".length());
                     SshUtil.copy(substring);
                 }
             }
