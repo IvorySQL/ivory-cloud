@@ -116,7 +116,7 @@ public class AsyncTask {
             k8sClusterService.createNamespace(k.getClusterId(), userDto.getNamespace());
 
             // 2.创建用户的监控安装包空间
-            String userDir = "/opt/monitor/" + userDto.getNamespace();
+            String userDir = "/opt/" + databaseName + "/" + userDto.getNamespace();
             server.setCommand("mkdir -p " + userDir);
             SshUtil.remoteExeCommand(server);
             // 3.将监控安装包从jar包中拷贝到jar包的同级目录
@@ -125,26 +125,25 @@ public class AsyncTask {
             // 4.压缩监控安装包
             String currentDirPath = SshUtil.getCurrentDirPath();
             // 监控安装包路径
-            String monitorPath = currentDirPath + "monitor/" + databaseName;
-            SshUtil.localExecShell("cd " + monitorPath);
-            SshUtil.localExecShell("tar -cvf " + databaseName + ".tar " + databaseName);
+            SshUtil.localExecShell("cd " + currentDirPath);
+            SshUtil.localExecShell("tar -cvf " + "./monitor/" + databaseName +".tar " + "./monitor/" + databaseName);
 
             // 5.将监控安装包上传到k8s master
-            String filepath = monitorPath + File.separator + databaseName + ".tar";
+            String filepath = currentDirPath + "/monitor" + File.separator + databaseName + ".tar";
             SshUtil.uploadFile(server, filepath, userDir);
 
             // 6.解压监控安装包并执行脚本，根据模板生成用户监控安装文件
             String serverUrl = SshUtil.getLocalIp() + ":" + serverPort;
             server.setCommand("cd " + userDir + " " +
-                    "&& tar -xvf  " + databaseName + ".tar " +
-                    "&& cd " + databaseName +
+                    "&& tar -xvf " + databaseName + ".tar" +
+                    "&& cd monitor/" + databaseName +
                     "&& chmod +x installMonitor.sh " +
                     "&& ./installMonitor.sh " + userDto.getNamespace() + " " + userDto.getAccessMode() + " "
                     + serverUrl);
             SshUtil.remoteExeCommand(server);
 
             // 7.安装monitor
-            server.setCommand("kubectl apply -k " + userDir + "/" + databaseName);
+            server.setCommand("kubectl apply -k " + userDir + "/monitor/" + databaseName);
             String result = SshUtil.remoteExeCommand(server);
             logger.info(result);
 
@@ -177,9 +176,7 @@ public class AsyncTask {
                     if (prometheusName.equals(name)) {
                         logger.info("The prometheus is running.");
                         monitorService.createPrometheusCallback(userDto, true);
-                        break;
-                    }
-                    if (grafanaName.equals(name)) {
+                    } else if (grafanaName.equals(name)) {
                         logger.info("The grafana is running.");
                         Integer nodePort = kubernetesClient
                                 .services()
@@ -203,10 +200,6 @@ public class AsyncTask {
                                     userDto.getClusterId());
                             return;
                         }
-                    }
-                    if (alertManagerName.equals(name)) {
-                        logger.info("No processing.");
-                        break;
                     }
                 }
             }

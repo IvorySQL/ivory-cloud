@@ -42,7 +42,7 @@ import java.util.Map;
 @Slf4j
 public class OperatorBackupServiceImpl implements OperatorBackupsService {
 
-    @Value(value = "${images.ivory23.backrest}")
+    @Value(value = "${images.image.backrest}")
     private String backrestImage;
 
     @Autowired
