@@ -69,10 +69,26 @@ jobs:
       - uses: actions/checkout@v3
 
       # Runs a single command using the runners shell
-      - name: Set up PostgreSQL Database
+      - name: Setup the PGDG APT repo
         run: |
-          sudo apt-get update
-          sudo apt-get install postgresql -y
+          sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+
+      - name: Install platform dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y libpq-dev libffi-dev libssl-dev libkrb5-dev zlib1g-dev postgresql-${{ matrix.pgver }} postgresql-${{ matrix.pgver }}-pldebugger pgagent
+
+      - name: Create the tablespace directory
+        run: |
+          sudo mkdir -p /var/lib/postgresql/tablespaces/${{ matrix.pgver }}
+          sudo chown postgres:postgres /var/lib/postgresql/tablespaces/${{ matrix.pgver }}
+
+      - name: Re-create stats directory, just in case
+        run: |
+          sudo rm -rf /var/run/postgresql/${{ matrix.pgver }}-main.pg_stat_tmp/
+          sudo mkdir -p /var/run/postgresql/${{ matrix.pgver }}-main.pg_stat_tmp/
+          sudo chown postgres:postgres /var/run/postgresql/${{ matrix.pgver }}-main.pg_stat_tmp/
       # Runs a set of commands using the runners shell
       - name: Start PostgreSQL
         run: |
