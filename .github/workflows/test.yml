@@ -1,0 +1,103 @@
+name: Tests
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "IVYC_REL_1.0_DEV" ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+# k3s env 
+  kuttl-k3d:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        kubernetes: [v1.25, v1.24, v1.23, v1.22, v1.21]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with: { go-version: 1.x }
+
+      - name: Start k3s
+        uses: ./.github/actions/k3d
+        with:
+          k3s-channel: "${{ matrix.kubernetes }}"
+          prefetch-images: |
+            docker.io/ivorysql/pgadmin:ubi8-7.4-1.1-1
+            docker.io/ivorysql/pgbackrest:ubi8-2.45-1.1-1
+            docker.io/ivorysql/pgbouncer:ubi8-1.18.0-1.1-1
+            docker.io/ivorysql/postgres-exporter:ubi8-0.13.2-1.1-1
+            docker.io/ivorysql/ivorysql:ubi8-2.2-1.1-1
+            docker.io/ivorysql/postgis:ubi8-3.2-1.1-1
+            registry.developers.crunchydata.com/crunchydata/crunchy-upgrade:ubi8-5.3.1-0
+      - run: go mod download
+      - name: Build executable
+        run: IVYO_VERSION='${{ github.sha }}' make build-ivory-operator
+
+      # Start a Docker container with the working directory mounted.
+      - name: Start IVYO
+        run: |
+          kubectl apply --server-side -k ./config/namespace
+          kubectl apply --server-side -k ./config/dev
+          hack/create-kubeconfig.sh ivory-operator ivyo
+          docker run --detach --network host --read-only \
+            --volume "$(pwd):/mnt" --workdir '/mnt' --env 'PATH=/mnt/bin' \
+            --env 'KUBECONFIG=hack/.kube/ivory-operator/ivyo' \
+            --env 'RELATED_IMAGE_PGADMIN=docker.io/ivorysql/pgadmin:ubi8-7.4-1.1-1' \
+            --env 'RELATED_IMAGE_PGBACKREST=docker.io/ivorysql/pgbackrest:ubi8-2.45-1.1-1' \
+            --env 'RELATED_IMAGE_PGBOUNCER=docker.io/ivorysql/pgbouncer:ubi8-1.18.0-1.1-1' \
+            --env 'RELATED_IMAGE_PGEXPORTER=docker.io/ivorysql/postgres-exporter:ubi8-0.13.2-1.1-1' \
+            --env 'RELATED_IMAGE_PGUPGRADE=registry.developers.crunchydata.com/crunchydata/crunchy-upgrade:ubi8-5.3.1-0' \
+            --env 'RELATED_IMAGE_IVORY_14=docker.io/ivorysql/ivorysql:ubi8-2.2-1.1-1' \
+            --env 'RELATED_IMAGE_IVORY_15=docker.io/ivorysql/ivorysql:ubi8-2.2-1.1-1' \
+            --env 'RELATED_IMAGE_IVORY_15_GIS_3.2=docker.io/ivorysql/postgis:ubi8-3.2-1.1-1' \
+            --env 'IVYO_FEATURE_GATES=TablespaceVolumes=true' \
+            --name 'ivory-operator' ubuntu \
+            ivory-operator
+  # This workflow contains a single job called "build"
+  build-and-test:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        pgver: [12]
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      # Runs a single command using the runners shell
+      - name: Set up PostgreSQL Database
+        run: |
+          sudo apt-get update
+          sudo apt-get install postgresql -y
+      # Runs a set of commands using the runners shell
+      - name: Start PostgreSQL
+        run: |
+          sudo su -c "echo local all all trust > /etc/postgresql/${{ matrix.pgver }}/main/pg_hba.conf"
+          sudo sed -i "s/port = 543[0-9]/port = 59${{ matrix.pgver }}/g" /etc/postgresql/${{ matrix.pgver }}/main/postgresql.conf
+          sudo sed -i "s/#shared_preload_libraries = ''/shared_preload_libraries = '\$libdir\/plugin_debugger'/g" /etc/postgresql/${{ matrix.pgver }}/main/postgresql.conf
+          sudo su - postgres -c "/usr/lib/postgresql/${{ matrix.pgver }}/bin/postgres -D /var/lib/postgresql/${{ matrix.pgver }}/main -c config_file=/etc/postgresql/${{ matrix.pgver }}/main/postgresql.conf &"
+
+          until sudo runuser -l postgres -c "pg_isready -p 59${{ matrix.pgver }}" 2>/dev/null; do
+            >&2 echo "Postgres is unavailable - sleeping for 2 seconds"
+            sleep 2
+          done
+
+          psql -U postgres -p 59${{ matrix.pgver }} -c 'CREATE database ivory;'
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'  # 根据您的项目需要选择合适的Java版本
+
+      - name: Build with Maven
+        run: mvn clean install -DskipTests=true 
+      - name: Run Function Tests
+        run: mvn verify -Pfunctional-tests
+
