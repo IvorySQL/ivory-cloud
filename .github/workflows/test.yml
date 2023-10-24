@@ -9,7 +9,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 # k3s env 
-  kuttl-k3d:
+  build-k3s:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -36,29 +36,13 @@ jobs:
         run: IVYO_VERSION='${{ github.sha }}' make build-ivory-operator
 
       # Start a Docker container with the working directory mounted.
-      - name: Start IVYO
-        run: |
-          kubectl apply --server-side -k ./config/namespace
-          kubectl apply --server-side -k ./config/dev
-          hack/create-kubeconfig.sh ivory-operator ivyo
-          docker run --detach --network host --read-only \
-            --volume "$(pwd):/mnt" --workdir '/mnt' --env 'PATH=/mnt/bin' \
-            --env 'KUBECONFIG=hack/.kube/ivory-operator/ivyo' \
-            --env 'RELATED_IMAGE_PGADMIN=docker.io/ivorysql/pgadmin:ubi8-7.4-1.1-1' \
-            --env 'RELATED_IMAGE_PGBACKREST=docker.io/ivorysql/pgbackrest:ubi8-2.45-1.1-1' \
-            --env 'RELATED_IMAGE_PGBOUNCER=docker.io/ivorysql/pgbouncer:ubi8-1.18.0-1.1-1' \
-            --env 'RELATED_IMAGE_PGEXPORTER=docker.io/ivorysql/postgres-exporter:ubi8-0.13.2-1.1-1' \
-            --env 'RELATED_IMAGE_PGUPGRADE=registry.developers.crunchydata.com/crunchydata/crunchy-upgrade:ubi8-5.3.1-0' \
-            --env 'RELATED_IMAGE_IVORY_14=docker.io/ivorysql/ivorysql:ubi8-2.2-1.1-1' \
-            --env 'RELATED_IMAGE_IVORY_15=docker.io/ivorysql/ivorysql:ubi8-2.2-1.1-1' \
-            --env 'RELATED_IMAGE_IVORY_15_GIS_3.2=docker.io/ivorysql/postgis:ubi8-3.2-1.1-1' \
-            --env 'IVYO_FEATURE_GATES=TablespaceVolumes=true' \
-            --name 'ivory-operator' ubuntu \
-            ivory-operator
+      - name: Start ivory-operator
+        run: tools/ivory-operator 2>&1 &
   # This workflow contains a single job called "build"
   build-and-test:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    needs: [build-k3s]
     strategy:
       fail-fast: false
       matrix:
