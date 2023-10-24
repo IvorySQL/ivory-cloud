@@ -43,7 +43,7 @@ logging:
     org:
       hibernate: error
     root: info
-  config: config/spring_pro_logback.xml
+  #config: config/spring_pro_logback.xml
 
 images:
   image:
