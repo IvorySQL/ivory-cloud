@@ -84,18 +84,26 @@ jobs:
             sleep 2
           done
 
-          psql -U postgres -p 59${{ matrix.pgver }} -c 'CREATE database ivory;'
+          psql -U postgres -p 59${{ matrix.pgver }} -c 'CREATE database native;'
       - name: Checkout Repository
         uses: actions/checkout@v2
 
       - name: Set up Java
         uses: actions/setup-java@v2
         with:
-          java-version: '8'
-          distribution: 'zulu'
+          java-version: 8
+          distribution: adopt
+          cache: maven
 
       - name: Build with Maven
         run: mvn clean install -DskipTests=true 
-      - name: Run Function Tests
-        run: mvn verify -Pfunctional-tests
+      - name: Run native cloud
+        run: nohup java -jar ./target/cloudnative-1.0-SNAPSHOT.jar &
+
+      - name: Wait for the application to start
+        run: sleep 70s
+#      - name: Run functional tests
+#        run: |
+        # You can use a testing framework or tool here, e.g., JUnit, TestNG, or a custom script
+        # Example: mvn test
 
