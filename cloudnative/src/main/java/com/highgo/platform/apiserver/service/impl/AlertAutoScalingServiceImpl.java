@@ -393,7 +393,7 @@ public class AlertAutoScalingServiceImpl implements AlertAutoScalingService {
             BeanUtil.copyNotNullProperties(users.get(0), userDTO);
             String userDir = "/opt/" + databaseName + "/" + userDTO.getNamespace();
             server.setCommand("cd " + userDir
-                    + " && chmod +x ./monitor/"+ databaseName + "/configAlertRule.sh "
+                    + " && chmod +x ./monitor/" + databaseName + "/configAlertRule.sh "
                     + " && ./monitor/" + databaseName + "/configAlertRule.sh " + String.join(" ", ruleStrList)
                     + " && kubectl apply -k ./monitor/" + databaseName);
             String result = SshUtil.remoteExeCommand(server);

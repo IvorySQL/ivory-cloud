@@ -126,7 +126,7 @@ public class AsyncTask {
             String currentDirPath = SshUtil.getCurrentDirPath();
             // 监控安装包路径
             SshUtil.localExecShell("cd " + currentDirPath);
-            SshUtil.localExecShell("tar -cvf " + "./monitor/" + databaseName +".tar " + "./monitor/" + databaseName);
+            SshUtil.localExecShell("tar -cvf " + "./monitor/" + databaseName + ".tar " + "./monitor/" + databaseName);
 
             // 5.将监控安装包上传到k8s master
             String filepath = currentDirPath + "/monitor" + File.separator + databaseName + ".tar";
