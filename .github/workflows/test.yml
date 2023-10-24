@@ -91,7 +91,8 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v2
         with:
-          java-version: '8'  # 根据您的项目需要选择合适的Java版本
+          java-version: '8'
+          distribution: 'zulu'
 
       - name: Build with Maven
         run: mvn clean install -DskipTests=true 
