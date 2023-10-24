@@ -32,8 +32,6 @@ jobs:
             docker.io/ivorysql/ivorysql:ubi8-2.2-1.1-1
             docker.io/ivorysql/postgis:ubi8-3.2-1.1-1
             registry.developers.crunchydata.com/crunchydata/crunchy-upgrade:ubi8-5.3.1-0
-      - name: Build executable
-        run: IVYO_VERSION='${{ github.sha }}' make build-ivory-operator
 
       # Start a Docker container with the working directory mounted.
       - name: Start ivory-operator
