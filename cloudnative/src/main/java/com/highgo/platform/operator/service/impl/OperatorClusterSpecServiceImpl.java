@@ -112,15 +112,15 @@ public class OperatorClusterSpecServiceImpl implements OperatorClusterSpecServic
             databaseClusterSpec.setImage(databaseImage);
             databaseClusterSpec.setPostgresVersion(DBConstant.IVORY_PG_KERNEL_VERSION);
         } else if (HighgoDBVersion.HGDB458.getKey().equalsIgnoreCase(instanceDTO.getVersion())) {
-        databaseClusterSpec.setImage(databaseImage);
-        databaseClusterSpec.setPostgresVersion(DBConstant.PG_KERNEL_VERSION);
+            databaseClusterSpec.setImage(databaseImage);
+            databaseClusterSpec.setPostgresVersion(DBConstant.PG_KERNEL_VERSION);
         } else {
             logger.error("[OperatorClusterSpecServiceImpl.initClusterSpec] pg version not support. version is {}",
                     instanceDTO.getVersion());
             throw new InstanceException(InstanceError.INSTANCE_VERSION_NOT_SUPPORT);
         }
         if (InstanceType.HA.equals(instanceDTO.getType())) {
-            //todo 改为页面输入
+            // todo 改为页面输入
             replicas = 3;
         }
         // 节点数量信息入库 instance_event表

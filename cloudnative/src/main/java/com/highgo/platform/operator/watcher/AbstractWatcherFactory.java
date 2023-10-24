@@ -155,7 +155,8 @@ public abstract class AbstractWatcherFactory implements WatcherFactory {
                     SharedInformerFactory sharedInformerFactory = kubernetesClient.informers();
                     SharedIndexInformer<DatabaseCluster> existingSharedIndexInformer =
                             sharedInformerFactory.getExistingSharedIndexInformer(DatabaseCluster.class);
-                    if(existingSharedIndexInformer != null && (!existingSharedIndexInformer.isRunning() || !existingSharedIndexInformer.isWatching())){
+                    if (existingSharedIndexInformer != null && (!existingSharedIndexInformer.isRunning()
+                            || !existingSharedIndexInformer.isWatching())) {
                         logger.info(
                                 "[WatcherFactoryImpl.startWatcherById] watcher already started, but not working, now reboot. cluster id {}",
                                 clusterId);

@@ -70,7 +70,7 @@ public class DatabaseCluster extends CustomResource<DatabaseClusterSpec, Databas
     }
 
     @PostConstruct
-    public void init(){
+    public void init() {
 
         try {
             editAnnotation(Group.class, group);
