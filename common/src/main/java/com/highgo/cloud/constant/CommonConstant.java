@@ -33,7 +33,7 @@ public class CommonConstant {
     /**
      * DES加密算法的 key
      */
-    public static final String AES_KEY = "hiiagwe2452";
+    public static final String AES_KEY = "hiiagwe2452xzgsa";
 
     /**
      * 拷贝到服务器脚本使用的ip
