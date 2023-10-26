@@ -5,7 +5,6 @@
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
-
 name: Unit Test
 
 on:
@@ -16,8 +15,6 @@ on:
     branches:
       - IVYC_REL_1.0_DEV
 
-env:
-  LOG_DIR: /tmp/ivory_cloud
 
 concurrency:
   group: unit-test-${{ github.event.pull_request.number || github.ref }}
@@ -26,7 +23,6 @@ concurrency:
 jobs:
    unit-test:
     name: Unit-Test
-    needs: paths-filter
     if: ${{ (github.event_name == 'push') }}
     runs-on: ubuntu-latest
     strategy:
