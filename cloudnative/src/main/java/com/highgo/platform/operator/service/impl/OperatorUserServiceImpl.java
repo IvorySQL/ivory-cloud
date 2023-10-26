@@ -28,6 +28,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -42,11 +43,12 @@ public class OperatorUserServiceImpl implements OperatorUserService {
 
     @Autowired
     private K8sClientConfiguration k8sClientConfiguration;
-
+    @Value("${cluster.user}")
+    private String user;
     @Override
     public void resetPassword(String clusterId, String namespace, String crName, String userName, String password) {
         KubernetesClient kubernetesClient = k8sClientConfiguration.getAdminKubernetesClientById(clusterId);
-        String userSecretName = crName + "-pguser-" + userName;
+        String userSecretName = crName + "-" + user + "-" + userName;
         Secret userSecret = kubernetesClient.secrets().inNamespace(namespace).withName(userSecretName).get();
         if (userSecret == null) {
             logger.error(

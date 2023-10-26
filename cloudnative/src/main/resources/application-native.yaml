@@ -47,16 +47,15 @@ logging:
 
 images:
   image:
-    db: harbor.highgo.com/highgo/crunchy-highgo:sm3nodemx
-    #    db: harbor.highgo.com/highgo/crunchy-highgo:sm3-v2
-    backrest: harbor.highgo.com/highgo/crunchy-pgbackrest:sm3-v2
-    pgadmin: harbor.highgo.com/highgo/crunchy-pgadmin4:hgadmin2
-    exporter: harbor.highgo.com/highgo/crunchy-postgres-exporter:v1.5
+#    db: harbor.highgo.com/highgo/crunchy-highgo:sm3nodemx
+#    backrest: harbor.highgo.com/highgo/crunchy-pgbackrest:sm3-v2
+#    pgadmin: harbor.highgo.com/highgo/crunchy-pgadmin4:hgadmin2
+#    exporter: harbor.highgo.com/highgo/crunchy-postgres-exporter:v1.5
 #  image:
-#    db: docker.io/ivorysql/ivorysql:ubi8-2.2-1.1-1
-#    backrest: docker.io/ivorysql/pgbackrest:ubi8-2.45-1.1-1
-#    pgadmin: docker.io/ivorysql/pgadmin:ubi8-7.4-1.1-1
-#    exporter: docker.io/ivorysql/postgres-exporter:ubi8-0.13.2-1.1-1
+    db: docker.io/ivorysql/ivorysql:ubi8-2.2-1.1-1
+    backrest: docker.io/ivorysql/pgbackrest:ubi8-2.45-1.1-1
+    pgadmin: docker.io/ivorysql/pgadmin:ubi8-7.4-1.1-1
+    exporter: docker.io/ivorysql/postgres-exporter:ubi8-0.13.2-1.1-1
 server:
   port: 8081
   error:
@@ -70,32 +69,32 @@ server:
       #指定多个注册中地址进行注册
 #      defaultZone: http://highgo:highgo@localhost:8764/eureka
 cluster:
-    #  user: pguser
-    user: hguser
-    #  group: ivory-operator.ivorysql.org
-    group: highgo-operator.inspur.com
-    #  version: v1beta1
+    user: pguser
+#    user: hguser
+    group: ivory-operator.ivorysql.org
+#    group: highgo-operator.inspur.com
     version: v1beta1
-    #  kind: IvoryCluster
-    kind: PostgresCluster
-    #  plural: ivoryclusters
-    plural: highgoclusters
-    #  singular: ivorycluster
-    singular: highgocluster
-    #  instanceIdName: ivory/instanceId
-    instanceIdName: highgo/instanceId
-    #  clusterId: ivory/clusterId
-    clusterId: highgo/clusterId
-    prometheusFilter: highgo/user
-    #  prometheusFilter: ivory/user
+#    version: v1beta1
+    kind: IvoryCluster
+#    kind: PostgresCluster
+    plural: ivoryclusters
+#    plural: highgoclusters
+    singular: ivorycluster
+#    singular: highgocluster
+    instanceIdName: ivory/instanceId
+#    instanceIdName: highgo/instanceId
+    clusterId: ivory/clusterId
+#    clusterId: highgo/clusterId
+#    prometheusFilter: highgo/user
+    prometheusFilter: ivory/user
     clusterNameLabel: ${cluster.group}/cluster
     clusterRoleLabel: ${cluster.group}/role
     clusterDataLabel: ${cluster.group}/data
     crBackupAnnotation: ${cluster.group}/pgbackrest-backup
     crRestoreAnnotation: ${cluster.group}/pgbackrest-restore
-    #  grafanaName: grafana
-    grafanaName: crunchy-grafana
-    #  alertManagerName: alertmanager
-    alertManagerName: crunchy-alertmanager
-    #  prometheusName: prometheus
-    prometheusName: crunchy-prometheus
+    grafanaName: grafana
+#    grafanaName: crunchy-grafana
+    alertManagerName: alertmanager
+#    alertManagerName: crunchy-alertmanager
+    prometheusName: prometheus
+#    prometheusName: crunchy-prometheus
