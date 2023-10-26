@@ -35,7 +35,10 @@ jobs:
 
       # Start a Docker container with the working directory mounted.
       - name: Start ivory-operator
-        run: tools/ivory-operator 2>&1 &
+
+        run: |
+          sudo chmod 777 tools/ivory-operator
+          sudo tools/ivory-operator 2>&1 &
   # This workflow contains a single job called "build"
   build-and-test:
     # The type of runner that the job will run on
