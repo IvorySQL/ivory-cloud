@@ -42,19 +42,3 @@ jobs:
         run: ./mvnw clean verify -B -Dmaven.test.skip=false -Dspotless.skip=true -DskipUT=false -DskipIT=false
       - name: Upload coverage report to codecov
         run: CODECOV_TOKEN="09c2663f-b091-4258-8a47-c981827eb29a" bash <(curl -s https://codecov.io/bash)
-
-
-  
-  result:
-    name: Unit Test
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    needs: [ unit-test ]
-    if: always()
-    steps:
-      - name: Status
-        run: |          
-          if [[ ${{ needs.unit-test.result }} != 'success' ]]; then
-            echo "Unit Test Failed!"
-            exit -1
-          fi
