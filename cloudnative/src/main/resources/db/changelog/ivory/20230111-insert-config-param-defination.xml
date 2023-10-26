@@ -1,0 +1,132 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+                   http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    <property name="now" value="now()" dbms="postgresql"/>
+    <changeSet author="lucunqiao" id="1673414055000">
+        <insert tableName="config_param_defination">
+            <column name="id" value="1001"/>
+            <column name="name" value="max_parallel_workers"/>
+            <column name="param_type" value="INTEGER"/>
+            <column name="default_value" value="8"/>
+            <column name="min" value="0"/>
+            <column name="max" value="1024"/>
+            <column name="enum_value"/>
+            <column name="rule"/>
+            <column name="description" value="设置系统为并行操作所支持的工作者的最大数量，其值不超过max_work_processes，改变该参数不需要重启。"/>
+            <column name="created_at" valueDate="${now}"/>
+            <column name="updated_at"/>
+            <column name="deleted_at"/>
+            <column name="is_deleted" valueBoolean="false"/>
+        </insert>
+        <insert tableName="config_param_defination">
+            <column name="id" value="1002"/>
+            <column name="name" value="max_worker_processes"/>
+            <column name="param_type" value="INTEGER"/>
+            <column name="default_value" value="8"/>
+            <column name="min" value="0"/>
+            <column name="max" value="262143"/>
+            <column name="enum_value"/>
+            <column name="rule"/>
+            <column name="description" value="系统支持的最大Background Work Process后台工作进程数，设置为0表示不允许并行，改变该参数需要重启。"/>
+            <column name="created_at" valueDate="${now}"/>
+            <column name="updated_at"/>
+            <column name="deleted_at"/>
+            <column name="is_deleted" valueBoolean="false"/>
+        </insert>
+        <insert tableName="config_param_defination">
+            <column name="id" value="1003"/>
+            <column name="name" value="shared_buffers"/>
+            <column name="param_type" value="VARCHAR"/>
+            <column name="default_value" value="128MB"/>
+            <column name="min" value="1"/>
+            <column name="max" value="1048576"/>
+            <column name="enum_value"/>
+            <column name="rule" value="^[1-9]\d*(MB){1}$"/>
+            <column name="description" value="设置数据库服务器将使用的共享内存缓冲区量，服务器使用共享内存的主要部分是分配给缓存块的大型块，用于读取或是写入数据库，改变该参数需要重启。"/>
+            <column name="created_at" valueDate="${now}"/>
+            <column name="updated_at"/>
+            <column name="deleted_at"/>
+            <column name="is_deleted" valueBoolean="false"/>
+        </insert>
+        <insert tableName="config_param_defination">
+            <column name="id" value="1004"/>
+            <column name="name" value="work_mem"/>
+            <column name="param_type" value="VARCHAR"/>
+            <column name="default_value" value="4MB"/>
+            <column name="min" value="1"/>
+            <column name="max" value="2048"/>
+            <column name="enum_value"/>
+            <column name="rule" value="^[1-9]\d*(MB){1}$"/>
+            <column name="description" value="设置在写入临时磁盘文件之前查询操作(例如排序或哈希表)可使用的最大内存容量，改变该参数不需要重启。"/>
+            <column name="created_at" valueDate="${now}"/>
+            <column name="updated_at"/>
+            <column name="deleted_at"/>
+            <column name="is_deleted" valueBoolean="false"/>
+        </insert>
+        <insert tableName="config_param_defination">
+            <column name="id" value="1005"/>
+            <column name="name" value="max_connections"/>
+            <column name="param_type" value="INTEGER"/>
+            <column name="default_value" value="200"/>
+            <column name="min" value="1"/>
+            <column name="max" value="65535"/>
+            <column name="enum_value"/>
+            <column name="rule"/>
+            <column name="description" value="数据库允许客户端连接的最大数目，改变该参数需要重启。"/>
+            <column name="created_at" valueDate="${now}"/>
+            <column name="updated_at"/>
+            <column name="deleted_at"/>
+            <column name="is_deleted" valueBoolean="false"/>
+        </insert>
+        <insert tableName="config_param_defination">
+            <column name="id" value="1006"/>
+            <column name="name" value="max_locks_per_transaction"/>
+            <column name="param_type" value="INTEGER"/>
+            <column name="default_value" value="64"/>
+            <column name="min" value="10"/>
+            <column name="max" value="2147483647"/>
+            <column name="enum_value"/>
+            <column name="rule"/>
+            <column name="description" value="共享锁表追踪 max_locks_per_transaction * (max_connections + max_prepared_transactions)个lock objects，一次只能锁定这么多不同的对象。本参数控制分配给每个事务的 object lock 的平均数量。单个事务可以锁定更多的对象，只要所有事务的锁都在锁表中。本参数值不是可以锁定的行数，可以锁定的行数是无限的，改变该参数需要重启。"/>
+            <column name="created_at" valueDate="${now}"/>
+            <column name="updated_at"/>
+            <column name="deleted_at"/>
+            <column name="is_deleted" valueBoolean="false"/>
+        </insert>
+        <insert tableName="config_param_defination">
+            <column name="id" value="1007"/>
+            <column name="name" value="max_prepared_transactions"/>
+            <column name="param_type" value="INTEGER"/>
+            <column name="default_value" value="0"/>
+            <column name="min" value="0"/>
+            <column name="max" value="65535"/>
+            <column name="enum_value"/>
+            <column name="rule"/>
+            <column name="description" value="决定能够同时处于prepared状态的事务的最大数目。如果它的值被设为0,则将数据库将关闭prepared事务的特性，改变该参数需要重启。"/>
+            <column name="created_at" valueDate="${now}"/>
+            <column name="updated_at"/>
+            <column name="deleted_at"/>
+            <column name="is_deleted" valueBoolean="false"/>
+        </insert>
+        <insert tableName="config_param_defination">
+            <column name="id" value="1008"/>
+            <column name="name" value="track_commit_timestamp"/>
+            <column name="param_type" value="ENUM"/>
+            <column name="default_value" value="off"/>
+            <column name="min"/>
+            <column name="max"/>
+            <column name="enum_value" value="on,off"/>
+            <column name="rule"/>
+            <column name="description" value="记录transaction的提交时间。只有当这个参数是on时，函数pg_xact_commit_timestamp(xid)、pg_last_committed_xact()才能获得已提交事务的时间值，改变该参数需要重启。"/>
+            <column name="created_at" valueDate="${now}"/>
+            <column name="updated_at"/>
+            <column name="deleted_at"/>
+            <column name="is_deleted" valueBoolean="false"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

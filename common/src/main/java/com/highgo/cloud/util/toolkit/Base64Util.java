@@ -1,0 +1,118 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.highgo.cloud.util.toolkit;
+
+import com.highgo.cloud.util.toolkit.support.Charsets;
+
+/**
+ * Base64工具
+ *
+ * @author L.cm
+ */
+public class Base64Util extends org.springframework.util.Base64Utils {
+
+    /**
+     * 编码
+     *
+     * @param value 字符串
+     * @return {String}
+     */
+    public static String encode(String value) {
+        return Base64Util.encode(value, Charsets.UTF_8);
+    }
+
+    /**
+     * 编码
+     *
+     * @param value   字符串
+     * @param charset 字符集
+     * @return {String}
+     */
+    public static String encode(String value, java.nio.charset.Charset charset) {
+        byte[] val = value.getBytes(charset);
+        return new String(Base64Util.encode(val), charset);
+    }
+
+    /**
+     * 编码URL安全
+     *
+     * @param value 字符串
+     * @return {String}
+     */
+    public static String encodeUrlSafe(String value) {
+        return Base64Util.encodeUrlSafe(value, Charsets.UTF_8);
+    }
+
+    /**
+     * 编码URL安全
+     *
+     * @param value   字符串
+     * @param charset 字符集
+     * @return {String}
+     */
+    public static String encodeUrlSafe(String value, java.nio.charset.Charset charset) {
+        byte[] val = value.getBytes(charset);
+        return new String(Base64Util.encodeUrlSafe(val), charset);
+    }
+
+    /**
+     * 解码
+     *
+     * @param value 字符串
+     * @return {String}
+     */
+    public static String decode(String value) {
+        return Base64Util.decode(value, Charsets.UTF_8);
+    }
+
+    /**
+     * 解码
+     *
+     * @param value   字符串
+     * @param charset 字符集
+     * @return {String}
+     */
+    public static String decode(String value, java.nio.charset.Charset charset) {
+        byte[] val = value.getBytes(charset);
+        byte[] decodedValue = Base64Util.decode(val);
+        return new String(decodedValue, charset);
+    }
+
+    /**
+     * 解码URL安全
+     *
+     * @param value 字符串
+     * @return {String}
+     */
+    public static String decodeUrlSafe(String value) {
+        return Base64Util.decodeUrlSafe(value, Charsets.UTF_8);
+    }
+
+    /**
+     * 解码URL安全
+     *
+     * @param value   字符串
+     * @param charset 字符集
+     * @return {String}
+     */
+    public static String decodeUrlSafe(String value, java.nio.charset.Charset charset) {
+        byte[] val = value.getBytes(charset);
+        byte[] decodedValue = Base64Util.decodeUrlSafe(val);
+        return new String(decodedValue, charset);
+    }
+}

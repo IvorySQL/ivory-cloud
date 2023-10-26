@@ -1,0 +1,52 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+name: Unit Test
+
+on:
+  pull_request:
+  push:
+    paths-ignore:
+      - '**/*.md'
+    branches:
+      - IVYC_REL_1.0_DEV
+
+
+concurrency:
+  group: unit-test-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+   unit-test:
+    name: Unit-Test
+    if: ${{ (github.event_name == 'push') }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: ['8']
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true      
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'adopt'
+      - uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}-unit-test
+          restore-keys: ${{ runner.os }}-maven-
+
+      - name: Run Unit tests
+        run: |
+          sudo chmod +x mvnw
+          ./mvnw clean verify -B -Dmaven.test.skip=false -Dspotless.skip=true -DskipUT=false -DskipIT=false
+      - name: Upload coverage report to codecov
+        run: CODECOV_TOKEN="09c2663f-b091-4258-8a47-c981827eb29a" bash <(curl -s https://codecov.io/bash)

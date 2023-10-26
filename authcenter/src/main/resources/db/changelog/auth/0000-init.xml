@@ -1,0 +1,92 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+                   http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+   
+    <changeSet author="chushaolin (generated)" id="1679363665579-44">
+        <createTable tableName="users">
+            <column autoIncrement="true" name="id" remarks="主键" startWith="4" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="users_pkey"/>
+            </column>
+            <column defaultValueNumeric="0" name="bms_quota_switch" remarks="是否开启bms配额， 0：关闭  1：开启" type="INTEGER"/>
+            <column name="db_config_status" remarks="用户的管理工具状态" type="VARCHAR(20)"/>
+            <column name="udb_config_url" remarks="用户的管理工具URL" type="VARCHAR(256)"/>
+            <column name="email" remarks="email地址" type="VARCHAR(50)"/>
+            <column name="first_login" remarks="是否是第一次登录。0：第一次登录不需要修改密码；1：第一次登录需要修改密码；2：该用户已经完成第一次登录修改密码" type="INTEGER"/>
+            <column defaultValue="uninstall" name="monitor_status" remarks="用户的监控状态,active:监控、building:安装中、failed:监控故障、uninstall:未安装" type="VARCHAR(20)"/>
+            <column name="monitor_url" remarks="用户的监控URL" type="VARCHAR(256)"/>
+            <column name="name" remarks="用户名" type="VARCHAR(20)"/>
+            <column name="password" remarks="密码" type="VARCHAR(200)"/>
+            <column name="reg_time" remarks="用户注册时间" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="saas_acceptancetime" remarks="用户验收时间。此时间为用户计费开始时间" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="saas_expiretime" remarks="过期时间" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="u_tel" remarks="注册手机号" type="VARCHAR(20)"/>
+            <column name="type" remarks="用户类型" type="INTEGER"/>
+            <column name="role" remarks="用户角色" type="INTEGER"/>
+            <column name="namespace" remarks="k8s命名空间" type="VARCHAR(255)"/>
+            <column name="cluster_id" remarks="集群id" type="VARCHAR(36)"/>
+            <column name="access_mode" remarks="接入模式" type="VARCHAR(36)"/>
+            <column name="prometheus_ready" remarks="prometheus是否部署成功" type="BOOLEAN"/>
+            <column name="grafana_ready" remarks="grafana是否部署成功" type="BOOLEAN"/>
+            <column name="created_time" remarks="创建时间" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_time" remarks="更新时间" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="deleted_time" remarks="删除时间"  type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column defaultValueNumeric="0" name="deleted" remarks="是否已删除"  type="INTEGER"/>
+        </createTable>
+    </changeSet>
+    
+     <changeSet author="chushaolin (generated)" id="1679363665579-68">
+        <createTable tableName="user_type">
+            <column name="id" remarks="主键" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="users_type_pkey"/>
+            </column>
+            <column name="type" remarks="用户类型：1: 体验用户、2: 正常用户." type="INTEGER"/>
+            <column name="name" remarks="用户类型：体验用户、正常用户" type="VARCHAR(20)"/>
+            <column name="created_time" remarks="创建时间" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_time" remarks="更新时间" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="deleted_time" remarks="删除时间"  type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column defaultValueNumeric="0" name="deleted" remarks="是否已删除"  type="INTEGER"/>
+        </createTable>
+    </changeSet>
+
+     <changeSet author="chushaolin (generated)" id="auth-user-role">
+        <createTable tableName="user_role">
+            <column name="id" remarks="主键" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="user_role_pkey"/>
+            </column>
+            <column name="type" remarks="角色类型：1: routine、2: admin" type="INTEGER"/>
+            <column name="name" remarks="角色：routine，admin" type="VARCHAR(20)"/>
+            <column name="created_time" remarks="创建时间" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="updated_time" remarks="更新时间" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="deleted_time" remarks="删除时间"  type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column defaultValueNumeric="0" name="deleted" remarks="是否已删除"  type="INTEGER"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="chushaolin (generated)" id="1679363665579-72">
+        <createTable tableName="email_verification_code">
+            <column autoIncrement="true" name="id" remarks="主键自增序号" type="INTEGER">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="email_verification_code_pkey"/>
+            </column>
+            <column name="create_time" remarks="数据库创建的时间" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="is_used" remarks="是否使用过：0未使用  1已使用" type="INTEGER"/>
+            <column name="user_email" remarks="用户邮箱" type="VARCHAR(255)"/>
+            <column name="user_id" remarks="用户id" type="INTEGER"/>
+            <column name="user_name" remarks="用户名" type="VARCHAR(255)"/>
+            <column name="verification_code" remarks="验证码" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="chushaolin (generated)" id="1679363665579-202">
+        <addForeignKeyConstraint baseColumnNames="type" baseTableName="users"
+                                 constraintName="user_type_key" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="id" referencedTableName="user_type" validate="true"/>
+    </changeSet>
+
+
+</databaseChangeLog>

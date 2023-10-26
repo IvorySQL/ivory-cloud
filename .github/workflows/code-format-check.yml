@@ -1,0 +1,21 @@
+name: Code Format Check
+
+on: [ push, pull_request ]
+
+
+jobs:
+  build:
+    name: Code Format Check
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 8
+          distribution: adopt
+
+      - name: Spotless Check
+        run: mvn spotless:check

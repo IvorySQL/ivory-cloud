@@ -1,0 +1,4 @@
+spring:
+  profiles:
+    #顺序不能改变，必须先auth,再native,否则，会导致auth的表无法生成
+    include: auth,native
