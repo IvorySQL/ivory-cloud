@@ -7,14 +7,7 @@
 # documentation.
 name: Unit Test
 
-on:
-  pull_request:
-  push:
-    paths-ignore:
-      - '**/*.md'
-    branches:
-      - IVYC_REL_1.0_DEV
-
+on: [ push, pull_request ]
 
 concurrency:
   group: unit-test-${{ github.event.pull_request.number || github.ref }}
