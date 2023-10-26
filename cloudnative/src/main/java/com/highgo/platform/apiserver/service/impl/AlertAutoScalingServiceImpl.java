@@ -101,6 +101,8 @@ public class AlertAutoScalingServiceImpl implements AlertAutoScalingService {
     @Resource(name = "asyncTask")
     private AsyncTask asyncTask;
 
+    @Value("${common.serviceName}")
+    private String databaseName;
     @Resource
     private AccountRepository accountRepository;
 
@@ -389,11 +391,11 @@ public class AlertAutoScalingServiceImpl implements AlertAutoScalingService {
                 throw new AutoScalingException(AutoScalingError.USER_MONITOR_NOT_EXIST);
             }
             BeanUtil.copyNotNullProperties(users.get(0), userDTO);
-            String userDir = "/opt/highgo/" + userDTO.getNamespace();
+            String userDir = "/opt/" + databaseName + "/" + userDTO.getNamespace();
             server.setCommand("cd " + userDir
-                    + " && chmod +x ./monitor/configAlertRule.sh "
-                    + " && ./monitor/configAlertRule.sh " + String.join(" ", ruleStrList)
-                    + " && kubectl apply -k ./monitor");
+                    + " && chmod +x ./monitor/" + databaseName + "/configAlertRule.sh "
+                    + " && ./monitor/" + databaseName + "/configAlertRule.sh " + String.join(" ", ruleStrList)
+                    + " && kubectl apply -k ./monitor/" + databaseName);
             String result = SshUtil.remoteExeCommand(server);
             log.info("configAlertManagerRule result: {}", result);
 

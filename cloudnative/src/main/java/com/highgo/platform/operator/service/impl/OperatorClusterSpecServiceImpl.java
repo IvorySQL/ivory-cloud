@@ -19,9 +19,7 @@ package com.highgo.platform.operator.service.impl;
 
 import com.highgo.cloud.constant.DBConstant;
 import com.highgo.cloud.constant.OperatorConstant;
-import com.highgo.cloud.enums.InstanceType;
-import com.highgo.cloud.enums.SwitchStatus;
-import com.highgo.cloud.enums.UserOption;
+import com.highgo.cloud.enums.*;
 import com.highgo.cloud.util.BeanUtil;
 import com.highgo.cloud.util.CommonUtil;
 import com.highgo.platform.apiserver.model.dto.InstanceDTO;
@@ -29,7 +27,6 @@ import com.highgo.platform.apiserver.model.vo.response.ConfigParamInfoVO;
 import com.highgo.platform.apiserver.repository.ConfigDefinationRepository;
 import com.highgo.platform.apiserver.service.ExtraMetaService;
 import com.highgo.platform.apiserver.service.InstanceService;
-import com.highgo.cloud.enums.IvoryVersion;
 import com.highgo.platform.errorcode.InstanceError;
 import com.highgo.platform.exception.InstanceException;
 import com.highgo.platform.operator.cr.bean.DatabaseClusterSpec;
@@ -37,7 +34,6 @@ import com.highgo.platform.operator.cr.bean.backup.Backup;
 import com.highgo.platform.operator.cr.bean.common.DataVolumeClaimSpec;
 import com.highgo.platform.operator.cr.bean.common.StorageRequests;
 import com.highgo.platform.operator.cr.bean.common.StorageResource;
-import com.highgo.platform.operator.cr.bean.service.DatabaseService;
 import com.highgo.platform.operator.cr.bean.imagePullsecret.ImagePullSecret;
 import com.highgo.platform.operator.cr.bean.instance.Instance;
 import com.highgo.platform.operator.cr.bean.monitor.Exporter;
@@ -48,6 +44,7 @@ import com.highgo.platform.operator.cr.bean.patroni.Patroni;
 import com.highgo.platform.operator.cr.bean.patroni.Postgresql;
 import com.highgo.platform.operator.cr.bean.pgadmin.PgAdmin;
 import com.highgo.platform.operator.cr.bean.pgadmin.UserInterface;
+import com.highgo.platform.operator.cr.bean.service.DatabaseService;
 import com.highgo.platform.operator.cr.bean.user.User;
 import com.highgo.platform.operator.service.OperatorBackupsService;
 import com.highgo.platform.operator.service.OperatorClusterSpecService;
@@ -71,13 +68,13 @@ public class OperatorClusterSpecServiceImpl implements OperatorClusterSpecServic
 
     private static final Logger logger = LoggerFactory.getLogger(OperatorClusterSpecServiceImpl.class);
 
-    @Value(value = "${images.ivory23.db}")
+    @Value(value = "${images.image.db}")
     private String databaseImage;
 
-    @Value(value = "${images.ivory23.pgadmin}")
+    @Value(value = "${images.image.pgadmin}")
     private String pgadminImage;
 
-    @Value(value = "${images.ivory23.exporter}")
+    @Value(value = "${images.image.exporter}")
     private String exporterImage;
 
     @Value(value = "${common.imagePullSecret:service-registry}")
@@ -114,12 +111,16 @@ public class OperatorClusterSpecServiceImpl implements OperatorClusterSpecServic
         if (IvoryVersion.IVORY23.getKey().equalsIgnoreCase(instanceDTO.getVersion())) {
             databaseClusterSpec.setImage(databaseImage);
             databaseClusterSpec.setPostgresVersion(DBConstant.IVORY_PG_KERNEL_VERSION);
+        } else if (HighgoDBVersion.HGDB458.getKey().equalsIgnoreCase(instanceDTO.getVersion())) {
+            databaseClusterSpec.setImage(databaseImage);
+            databaseClusterSpec.setPostgresVersion(DBConstant.PG_KERNEL_VERSION);
         } else {
             logger.error("[OperatorClusterSpecServiceImpl.initClusterSpec] pg version not support. version is {}",
                     instanceDTO.getVersion());
             throw new InstanceException(InstanceError.INSTANCE_VERSION_NOT_SUPPORT);
         }
         if (InstanceType.HA.equals(instanceDTO.getType())) {
+            // todo 改为页面输入
             replicas = 3;
         }
         // 节点数量信息入库 instance_event表

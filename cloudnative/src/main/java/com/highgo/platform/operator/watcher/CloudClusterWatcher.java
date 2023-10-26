@@ -46,6 +46,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -58,20 +59,32 @@ public class CloudClusterWatcher {
     private static final Logger logger = LoggerFactory.getLogger(CloudClusterWatcher.class);
     // private static CloudClusterWatcher cloudClusterWatcher;
     private KubernetesClient kubernetesClient;
+    @Resource
     private InstanceService instanceService;
+    @Resource
     private OperatorInstanceService operatorInstanceService;
+    @Resource
     private OperatorCommonService operatorCommonService;
+    @Resource
     private CrService crService;
+    @Resource
     private OperatorSvcService operatorSvcService;
+    @Resource
     private OperatorUserService operatorUserService;
+    @Resource
     private ExtraMetaService extraMetaService;
     private String clusterId;
+    @Resource
     private OperatorBackupServiceImpl operatorBackupsService;
+    @Resource
     private OperatorRestoreService operatorRestoreService;
 
+    @Resource
     private AlertAutoScalingService alertAutoScalingService;
 
+    @Resource
     private RestoreRecordService restoreRecordService;
+
     @Value("${cluster.instanceIdName}")
     private String instanceIdName;
 

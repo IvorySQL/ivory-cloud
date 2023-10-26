@@ -91,8 +91,6 @@ public class CrServiceImpl implements CrService {
     OperatorRestoreService operatorRestoreService;
     @Resource
     private OperatorUserService operatorUserService;
-    @Resource
-    private DatabaseCluster databaseCluster;
 
     @Value("${cluster.instanceIdName}")
     private String instanceIdName;
@@ -141,8 +139,7 @@ public class CrServiceImpl implements CrService {
     @Override
     public boolean applyCr(InstanceDTO instanceDTO) {
         // 若出现异常，抛到上层，终止创建实例的事务
-        // DatabaseCluster databaseCluster = new DatabaseCluster();
-        // matedata
+        DatabaseCluster databaseCluster = new DatabaseCluster();
         ObjectMeta matedata = new ObjectMeta();
         matedata.setName(instanceDTO.getName());
         // label

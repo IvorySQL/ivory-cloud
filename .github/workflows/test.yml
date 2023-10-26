@@ -1,0 +1,109 @@
+name: Tests
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "IVYC_REL_1.0_DEV" ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+# k3s env 
+  build-k3s:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        kubernetes: [v1.23]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with: { go-version: 1.x }
+
+      - name: Start k3s
+        uses: ./.github/actions/k3d
+        with:
+          k3s-channel: "${{ matrix.kubernetes }}"
+          prefetch-images: |
+            docker.io/ivorysql/pgadmin:ubi8-7.4-1.1-1
+            docker.io/ivorysql/pgbackrest:ubi8-2.45-1.1-1
+            docker.io/ivorysql/pgbouncer:ubi8-1.18.0-1.1-1
+            docker.io/ivorysql/postgres-exporter:ubi8-0.13.2-1.1-1
+            docker.io/ivorysql/ivorysql:ubi8-2.2-1.1-1
+            docker.io/ivorysql/postgis:ubi8-3.2-1.1-1
+            registry.developers.crunchydata.com/crunchydata/crunchy-upgrade:ubi8-5.3.1-0
+
+      # Start a Docker container with the working directory mounted.
+      - name: Start ivory-operator
+        run: tools/ivory-operator 2>&1 &
+  # This workflow contains a single job called "build"
+  build-and-test:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    needs: [build-k3s]
+    strategy:
+      fail-fast: false
+      matrix:
+        pgver: [12]
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      # Runs a single command using the runners shell
+      - name: Setup the PGDG APT repo
+        run: |
+          sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+
+      - name: Install platform dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y libpq-dev libffi-dev libssl-dev libkrb5-dev zlib1g-dev postgresql-${{ matrix.pgver }} postgresql-${{ matrix.pgver }}-pldebugger pgagent
+
+      - name: Create the tablespace directory
+        run: |
+          sudo mkdir -p /var/lib/postgresql/tablespaces/${{ matrix.pgver }}
+          sudo chown postgres:postgres /var/lib/postgresql/tablespaces/${{ matrix.pgver }}
+
+      - name: Re-create stats directory, just in case
+        run: |
+          sudo rm -rf /var/run/postgresql/${{ matrix.pgver }}-main.pg_stat_tmp/
+          sudo mkdir -p /var/run/postgresql/${{ matrix.pgver }}-main.pg_stat_tmp/
+          sudo chown postgres:postgres /var/run/postgresql/${{ matrix.pgver }}-main.pg_stat_tmp/
+      # Runs a set of commands using the runners shell
+      - name: Start PostgreSQL
+        run: |
+          sudo su -c "echo local all all trust > /etc/postgresql/${{ matrix.pgver }}/main/pg_hba.conf"
+          sudo sed -i "s/port = 543[0-9]/port = 5432/g" /etc/postgresql/${{ matrix.pgver }}/main/postgresql.conf
+          sudo sed -i "s/#shared_preload_libraries = ''/shared_preload_libraries = '\$libdir\/plugin_debugger'/g" /etc/postgresql/${{ matrix.pgver }}/main/postgresql.conf
+          sudo su - postgres -c "/usr/lib/postgresql/${{ matrix.pgver }}/bin/postgres -D /var/lib/postgresql/${{ matrix.pgver }}/main -c config_file=/etc/postgresql/${{ matrix.pgver }}/main/postgresql.conf &"
+
+          until sudo runuser -l postgres -c "pg_isready -p 5432" 2>/dev/null; do
+            >&2 echo "Postgres is unavailable - sleeping for 2 seconds"
+            sleep 2
+          done
+
+          psql -U postgres -p 5432 -c 'CREATE database native;'
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: 8
+          distribution: adopt
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn clean install -DskipTests=true 
+      - name: Run native cloud
+        run: nohup java -jar /home/runner/.m2/repository/com/highgo/cloud/cloudnative/1.0-SNAPSHOT/cloudnative-1.0-SNAPSHOT.jar &
+
+      - name: Wait for the application to start
+        run: sleep 70s
+#      - name: Run functional tests
+#        run: |
+        # You can use a testing framework or tool here, e.g., JUnit, TestNG, or a custom script
+        # Example: mvn test
+

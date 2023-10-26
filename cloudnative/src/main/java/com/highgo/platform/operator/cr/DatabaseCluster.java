@@ -26,6 +26,7 @@ import io.fabric8.kubernetes.model.annotation.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
@@ -54,25 +55,32 @@ public class DatabaseCluster extends CustomResource<DatabaseClusterSpec, Databas
     private String plural;
     @Value("${cluster.singular}")
     private String singular;
-    public DatabaseCluster() throws NoSuchFieldException, IllegalAccessException {
-        editAnnotaiton(Group.class, group);
-        editAnnotaiton(Version.class, version);
-        editAnnotaiton(Kind.class, kind);
-        editAnnotaiton(Plural.class, plural);
-        editAnnotaiton(Singular.class, singular);
-    }
 
-    private void editAnnotaiton(Class groupClass, String group) throws NoSuchFieldException, IllegalAccessException {
+    private void editAnnotation(Class clazz, String newValue) throws NoSuchFieldException, IllegalAccessException {
         // 这个代理实例所持有的 InvocationHandler
-        InvocationHandler invocationHandler = Proxy.getInvocationHandler(getClass().getAnnotation(groupClass));
+        InvocationHandler invocationHandler = Proxy.getInvocationHandler(getClass().getAnnotation(clazz));
         // 获取 AnnotationInvocationHandler 的 memberValues 字段
         Field declaredField = invocationHandler.getClass().getDeclaredField("memberValues");
         // 因为这个字段事 private final 修饰，所以要打开权限
         declaredField.setAccessible(true);
         // 获取 memberValues
-        Map memberValues = (Map) declaredField.get(invocationHandler);
+        Map<String, String> memberValues = (Map) declaredField.get(invocationHandler);
         // 修改 value 属性值
-        memberValues.put("value", group);
+        memberValues.put("value", newValue);
+    }
+
+    @PostConstruct
+    public void init() {
+
+        try {
+            editAnnotation(Group.class, group);
+            editAnnotation(Version.class, version);
+            editAnnotation(Kind.class, kind);
+            editAnnotation(Plural.class, plural);
+            editAnnotation(Singular.class, singular);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
