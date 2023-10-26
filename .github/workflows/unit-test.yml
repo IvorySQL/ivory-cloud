@@ -31,6 +31,8 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'adopt'
+      - name: Clean Maven cache
+        run: mvn dependency:purge-local-repository clean
       - uses: actions/cache@v3
         with:
           path: ~/.m2/repository
