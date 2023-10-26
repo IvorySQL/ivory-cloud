@@ -6,7 +6,7 @@ spring:
     username: hgcloud@highgo.com 
     #客户端授权码，不是邮箱密码,网易的是自己设置的
     #password: ENC(kcTf3lydCHRUrsrf87Hw89yei9G32lCkgDKKKRTm7RY=) 
-    password: ENC(kcTf3lydCHRUrsrf87Hw89yei9G32lCkgDKKKRTm7RY=)
+    password: ENC(jmL/keRhtcdsJVfmjsnFZh6viisigmV3gVI4xtre8sU=)
     #465或者994
     properties.mail.smtp.port: 25 
     # 发送邮件的地址，和上面username一致可以任意

@@ -33,7 +33,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JasyptConfig {
 
-    private static final String salt = "c6b1f3c1a07b519243535dc842ace03a";
+    private static final String salt = "c55303e7523456d40480b463dd2c82c9";
 
     @Bean("jasyptStringEncryptor")
     public StringEncryptor stringEncryptor() {

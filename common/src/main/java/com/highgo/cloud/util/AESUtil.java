@@ -129,7 +129,7 @@ public class AESUtil {
      * @throws java.lang.Exception
      */
     private static Key getKey(byte[] arrBTmp) throws Exception {
-        byte[] arrB = new byte[8];
+        byte[] arrB = new byte[16];
         for (int i = 0; i < arrBTmp.length && i < arrB.length; i++) {
             arrB[i] = arrBTmp[i];
         }
