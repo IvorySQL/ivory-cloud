@@ -75,7 +75,6 @@ jobs:
       - name: Start PostgreSQL
         run: |
           sudo su -c "echo local all all trust > /etc/postgresql/${{ matrix.pgver }}/main/pg_hba.conf"
-#          sudo sed -i "s/port = 543[0-9]/port = 59${{ matrix.pgver }}/g" /etc/postgresql/${{ matrix.pgver }}/main/postgresql.conf
           sudo sed -i "s/#shared_preload_libraries = ''/shared_preload_libraries = '\$libdir\/plugin_debugger'/g" /etc/postgresql/${{ matrix.pgver }}/main/postgresql.conf
           sudo su - postgres -c "/usr/lib/postgresql/${{ matrix.pgver }}/bin/postgres -D /var/lib/postgresql/${{ matrix.pgver }}/main -c config_file=/etc/postgresql/${{ matrix.pgver }}/main/postgresql.conf &"
 
