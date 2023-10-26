@@ -36,6 +36,8 @@ jobs:
       # Start a Docker container with the working directory mounted.
       - name: Start ivory-operator
         run: |
+          export KUBECONFIG=/etc/kubernetes/admin.conf
+          source /etc/profile
           sudo chmod 777 tools/ivory-operator
           sudo tools/ivory-operator 2>&1 &
   # This workflow contains a single job called "build"
@@ -103,7 +105,7 @@ jobs:
         run: nohup java -jar /home/runner/.m2/repository/com/highgo/cloud/cloudnative/1.0-SNAPSHOT/cloudnative-1.0-SNAPSHOT.jar &
 
       - name: Wait for the application to start
-        run: sleep 70s
+        run: sleep 10s
 #      - name: Run functional tests
 #        run: |
         # You can use a testing framework or tool here, e.g., JUnit, TestNG, or a custom script
