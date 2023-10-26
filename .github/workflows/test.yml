@@ -75,16 +75,16 @@ jobs:
       - name: Start PostgreSQL
         run: |
           sudo su -c "echo local all all trust > /etc/postgresql/${{ matrix.pgver }}/main/pg_hba.conf"
-          sudo sed -i "s/port = 543[0-9]/port = 59${{ matrix.pgver }}/g" /etc/postgresql/${{ matrix.pgver }}/main/postgresql.conf
+#          sudo sed -i "s/port = 543[0-9]/port = 59${{ matrix.pgver }}/g" /etc/postgresql/${{ matrix.pgver }}/main/postgresql.conf
           sudo sed -i "s/#shared_preload_libraries = ''/shared_preload_libraries = '\$libdir\/plugin_debugger'/g" /etc/postgresql/${{ matrix.pgver }}/main/postgresql.conf
           sudo su - postgres -c "/usr/lib/postgresql/${{ matrix.pgver }}/bin/postgres -D /var/lib/postgresql/${{ matrix.pgver }}/main -c config_file=/etc/postgresql/${{ matrix.pgver }}/main/postgresql.conf &"
 
-          until sudo runuser -l postgres -c "pg_isready -p 59${{ matrix.pgver }}" 2>/dev/null; do
+          until sudo runuser -l postgres -c "pg_isready -p 5432" 2>/dev/null; do
             >&2 echo "Postgres is unavailable - sleeping for 2 seconds"
             sleep 2
           done
 
-          psql -U postgres -p 59${{ matrix.pgver }} -c 'CREATE database native;'
+          psql -U postgres -p 5432 -c 'CREATE database native;'
       - name: Checkout Repository
         uses: actions/checkout@v2
 
