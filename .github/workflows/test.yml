@@ -35,7 +35,6 @@ jobs:
 
       # Start a Docker container with the working directory mounted.
       - name: Start ivory-operator
-
         run: |
           sudo chmod 777 tools/ivory-operator
           sudo tools/ivory-operator 2>&1 &

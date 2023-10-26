@@ -42,7 +42,7 @@ logging:
 #        common: ERROR
     org:
       hibernate: error
-    root: trace
+    root: debug
 #  config: config/spring_pro_logback.xml
 
 images:
