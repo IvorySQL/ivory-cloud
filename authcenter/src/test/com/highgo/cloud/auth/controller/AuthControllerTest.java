@@ -10,5 +10,10 @@ public class AuthControllerTest {
 		 Assert.assertEquals("1", "1");
 		//fail("Not yet implemented");
 	}
+	
+	@Test
+	public void testUserRegister() {
+		 fail("Not yet implemented");
+	}
 
 }
