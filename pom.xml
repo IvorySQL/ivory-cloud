@@ -28,7 +28,6 @@
         <root.dir>${project.basedir}</root.dir>
         <spotless.version>2.27.2</spotless.version>
     </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -111,7 +110,7 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.13.2</version>
-            <scope>test</scope>
+            <!--            <scope>test</scope>-->
         </dependency>
     </dependencies>
     <build>

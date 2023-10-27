@@ -10,7 +10,7 @@ on:
 jobs:
 # k3s env 
   build-k3s:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -106,8 +106,7 @@ jobs:
 
       - name: Wait for the application to start
         run: sleep 10s
-#      - name: Run functional tests
-#        run: |
-        # You can use a testing framework or tool here, e.g., JUnit, TestNG, or a custom script
-        # Example: mvn test
+      - name: Run functional tests
+        run: |
+          mvn clean verify -P integration-test 
 
