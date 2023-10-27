@@ -36,21 +36,13 @@ jobs:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}-unit-test
           restore-keys: ${{ runner.os }}-maven-
-      - name: RunMavenTest
-        # You may pin to the exact commit or the version.
-        # uses: Maes95/maven-action@27e3a6c3e9b40435ba5eebde5bbc2078678f9103
-        uses: Maes95/maven-action@1.1.0
-        with:
-          # If true, build jar of the project
-          package: # optional, default is false
-          # Test to exclude
-          exclude: # optional
+
     
       - name: Run Unit tests
         run: |
           ls -l
           chmod +x mvnw
           ls -l
-          ./mvnw clean verify -B -Dmaven.test.skip=false -Dspotless.skip=true -DskipUT=false -DskipIT=false
+          ./mvn clean test
       - name: Upload coverage report to codecov
         run: CODECOV_TOKEN="09c2663f-b091-4258-8a47-c981827eb29a" bash <(curl -s https://codecov.io/bash)
