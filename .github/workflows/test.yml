@@ -36,7 +36,7 @@ jobs:
       # Start a Docker container with the working directory mounted.
       - name: Start ivory-operator
         run: |
-          export KUBECONFIG=/etc/kubernetes/admin.conf
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
           source /etc/profile
           sudo chmod 777 tools/ivory-operator
           sudo tools/ivory-operator 2>&1 &
