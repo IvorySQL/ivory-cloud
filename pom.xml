@@ -49,19 +49,19 @@
     </dependencyManagement>
 
     <dependencies>
-        <!--Spring boot 核心-->
+        <!--Spring boot 核心 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!--Spring boot Web容器-->
+        <!--Spring boot Web容器 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!--lombok-->
+        <!--lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -69,7 +69,7 @@
             <optional>true</optional>
         </dependency>
 
-        <!--mapStruct依赖-->
+        <!--mapStruct依赖 -->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
@@ -87,7 +87,7 @@
             <version>1</version>
         </dependency>
 
-        <!--swagger依赖-->
+        <!--swagger依赖 -->
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
@@ -97,11 +97,11 @@
         </dependency>
         <!-- Swagger UI 相关 -->
         <!-- https://mvnrepository.com/artifact/com.github.xiaoymin/knife4j-spring-boot-starter -->
-        <!--        <dependency>-->
-        <!--            <groupId>com.github.xiaoymin</groupId>-->
-        <!--            <artifactId>knife4j-spring-boot-starter</artifactId>-->
-        <!--            <version>3.0.3</version>-->
-        <!--        </dependency>-->
+        <!-- <dependency> -->
+        <!-- <groupId>com.github.xiaoymin</groupId> -->
+        <!-- <artifactId>knife4j-spring-boot-starter</artifactId> -->
+        <!-- <version>3.0.3</version> -->
+        <!-- </dependency> -->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -110,6 +110,11 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -169,11 +174,10 @@
                     <execution>
                         <id>compile-apply-format</id>
                         <goals>
-                            <!-- apply the format when compile the project 
-                            <goal>check</goal>-->
+                            <!-- apply the format when compile the project <goal>check</goal> -->
                             <goal>apply</goal>
                         </goals>
-                        <!-- <phase>compile</phase>-->
+                        <!-- <phase>compile</phase> -->
                         <phase>process-sources</phase>
                     </execution>
                 </executions>
