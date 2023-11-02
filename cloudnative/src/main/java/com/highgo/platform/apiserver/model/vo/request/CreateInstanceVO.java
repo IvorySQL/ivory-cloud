@@ -19,6 +19,7 @@ package com.highgo.platform.apiserver.model.vo.request;
 
 import com.highgo.cloud.enums.InstanceType;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -31,6 +32,7 @@ import java.util.Date;
 import java.util.Map;
 
 @Getter
+@Setter
 public class CreateInstanceVO implements Serializable {
 
     /**
