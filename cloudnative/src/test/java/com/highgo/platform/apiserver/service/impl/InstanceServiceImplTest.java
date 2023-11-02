@@ -17,12 +17,13 @@
 
 package com.highgo.platform.apiserver.service.impl;
 
-import static org.mockito.ArgumentMatchers.any;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -37,9 +38,12 @@ import org.mockito.quality.Strictness;
 
 import com.highgo.cloud.enums.BackupStatus;
 import com.highgo.cloud.enums.InstanceStatus;
+import com.highgo.platform.apiserver.model.dto.InstanceDTO;
 import com.highgo.platform.apiserver.model.po.BackupPO;
+import com.highgo.platform.apiserver.model.po.ExtraMetaPO;
 import com.highgo.platform.apiserver.model.po.InstancePO;
 import com.highgo.platform.apiserver.model.vo.request.CreateInstanceVO;
+import com.highgo.platform.apiserver.model.vo.response.ActionResponse;
 import com.highgo.platform.apiserver.model.vo.response.InstanceVO;
 import com.highgo.platform.apiserver.repository.BackupPolicyRepository;
 import com.highgo.platform.apiserver.repository.BackupRepository;
@@ -125,7 +129,7 @@ class InstanceServiceImplTest {
     private String instanceName = "ivory";
 
     @Test
-    void testCreateInstanceCreateInstanceVO() {
+    void testCreateInstance() {
         CreateInstanceVO createInstanceVO = new CreateInstanceVO();
         createInstanceVO.setClusterId(clusterId);
         createInstanceVO.setNamespace(namespace);
@@ -265,6 +269,7 @@ class InstanceServiceImplTest {
 
     /**
      * 获取老实例， 其cpu 比新建实例的大
+     * 
      * @return
      */
     private Optional<InstancePO> getCpuLargerThanNewInstance() {
@@ -279,6 +284,7 @@ class InstanceServiceImplTest {
 
     /**
      * 获取老实例， 其memory 比新建实例的大
+     * 
      * @return
      */
     private Optional<InstancePO> getMemoryLargerThanNewInstance() {
@@ -294,6 +300,7 @@ class InstanceServiceImplTest {
 
     /**
      * 获取老实例， 其storage 比新建实例的大
+     * 
      * @return
      */
     private Optional<InstancePO> getStorageLargerThanNewInstance() {
@@ -317,18 +324,71 @@ class InstanceServiceImplTest {
     }
 
     @Test
-    void testCreateInstanceInstanceDTO() {
-
-    }
-
-    @Test
-    void testCreateInstanceCallback() {
-
-    }
-
-    @Test
     void testDeleteInstance() {
+        String instanceId = "123456";
+        // 测试实例不存在
+        Optional<InstancePO> instancePo_empty = Optional.empty();
 
+        when(instanceRepository.findById(instanceId)).thenReturn(instancePo_empty);
+        InstanceException exception = assertThrows(InstanceException.class, () -> {
+
+            instanceServiceImpl.deleteInstance(instanceId);
+        });
+        assertEquals(InstanceError.INSTANCE_NOT_EXIST.message(), exception.getMessage());
+
+        // 测试: 实例存在 但是实例状态不允许删除
+        when(instanceRepository.findById(instanceId)).thenReturn(getNotAllowedDelete_Instances());
+        when(extraMetaService.findAllByInstanceId(instanceId)).thenReturn(findExtrameta());
+        InstanceException exception_not_allow_deleted = assertThrows(InstanceException.class, () -> {
+
+            instanceServiceImpl.deleteInstance(instanceId);
+        });
+        assertEquals(InstanceError.INSTANCE_NOT_ALLOW_OPERATE.message(), exception_not_allow_deleted.getMessage());
+
+        // 测试: 成功删除实例
+        when(instanceRepository.findById(instanceId)).thenReturn(getAllowedDelete_Instances());
+        when(crService.deleteCr(any(InstanceDTO.class))).thenReturn(true);
+        ActionResponse actionResponse = instanceServiceImpl.deleteInstance(instanceId);
+
+        assertEquals(actionResponse.getCode(), ActionResponse.actionSuccess().getCode());
+    }
+
+    private List<ExtraMetaPO> findExtrameta() {
+        ExtraMetaPO extraMetaPO = new ExtraMetaPO();
+        extraMetaPO.setId("1");
+        extraMetaPO.setName("name1");
+        extraMetaPO.setValue("value1");
+        List<ExtraMetaPO> extraMetaPOS = new ArrayList<ExtraMetaPO>();
+        extraMetaPOS.add(extraMetaPO);
+
+        return extraMetaPOS;
+
+    }
+
+    /**
+     * 获取不允许被删除的实例
+     * @return
+     */
+    private Optional<InstancePO> getNotAllowedDelete_Instances() {
+        InstancePO instancePO = new InstancePO();
+        instancePO.setIsDeleted(false);
+        instancePO.setStatus(InstanceStatus.CREATING);
+        Optional<InstancePO> optionalInstancePo = Optional.of(instancePO);
+
+        return optionalInstancePo;
+    }
+
+    /**
+     * 获取允许被删除的实例
+     * @return
+     */
+    private Optional<InstancePO> getAllowedDelete_Instances() {
+        InstancePO instancePO = new InstancePO();
+        instancePO.setIsDeleted(false);
+        instancePO.setStatus(InstanceStatus.RUNNING);
+        Optional<InstancePO> optionalInstancePo = Optional.of(instancePO);
+
+        return optionalInstancePo;
     }
 
     @Test
