@@ -20,13 +20,17 @@ package com.highgo.platform.apiserver.service.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +45,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
+import com.highgo.cloud.constant.InstanceAllowConstant;
 import com.highgo.cloud.enums.BackupStatus;
 import com.highgo.cloud.enums.InstanceStatus;
 import com.highgo.platform.apiserver.model.dto.InstanceDTO;
@@ -51,6 +56,7 @@ import com.highgo.platform.apiserver.model.po.InstancePO;
 import com.highgo.platform.apiserver.model.po.K8sClusterInfoPO;
 import com.highgo.platform.apiserver.model.vo.request.CreateInstanceVO;
 import com.highgo.platform.apiserver.model.vo.response.ActionResponse;
+import com.highgo.platform.apiserver.model.vo.response.InstanceCountVO;
 import com.highgo.platform.apiserver.model.vo.response.InstanceVO;
 import com.highgo.platform.apiserver.repository.BackupPolicyRepository;
 import com.highgo.platform.apiserver.repository.BackupRepository;
@@ -514,6 +520,24 @@ class InstanceServiceImplTest {
     @Test
     void testGetInstanceCount() {
 
+        Query query = mock(Query.class);
+
+        // 模拟查询结果
+        Object[] row1 = {InstanceStatus.RUNNING.name(), BigInteger.valueOf(2)};
+        Object[] row2 = {InstanceStatus.CREATING.name(), BigInteger.valueOf(3)};
+        Object[] row3 = {InstanceStatus.ERROR.name(), BigInteger.valueOf(1)};
+        List<Object> resultList = Arrays.asList(row1, row2, row3);
+
+        // 模拟EntityManager和Query行为
+        when(entityManager.createNativeQuery(any(String.class))).thenReturn(query);
+        when(query.getResultList()).thenReturn(resultList);
+
+        InstanceCountVO result = instanceServiceImpl.getInstanceCount();
+
+        // 验证结果是否符合预期
+        assertEquals(2, result.getRunningCount());
+        assertEquals(3, result.getStartingCount());
+        assertEquals(1, result.getErrorCount());
     }
 
     @Test
