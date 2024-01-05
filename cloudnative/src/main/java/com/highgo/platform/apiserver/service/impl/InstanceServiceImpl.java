@@ -152,8 +152,6 @@ public class InstanceServiceImpl implements InstanceService {
                 instanceDTO.getName())) {
             throw new InstanceException(InstanceError.DUPLICATE_NAME);
         }
-        // 获取开通实例的集群的配置信息并入库
-        k8sClusterService.saveClusterInfo(createInstanceVO.getClusterId());
 
         // 执行创建实例并返回实例信息
         instanceDTO = createInstance(instanceDTO);
