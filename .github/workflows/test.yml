@@ -36,6 +36,7 @@ jobs:
       # Start a Docker container with the working directory mounted.
       - name: Start ivory-operator
         run: |
+          kubectl cluster-info
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
           source /etc/profile
           sudo chmod 777 tools/ivory-operator
@@ -53,19 +54,23 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
+
       # Runs a single command using the runners shell
       - name: Setup the PGDG APT repo
         run: |
           sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
           wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+
       - name: Install platform dependencies
         run: |
           sudo apt update
           sudo apt install -y libpq-dev libffi-dev libssl-dev libkrb5-dev zlib1g-dev postgresql-${{ matrix.pgver }} postgresql-${{ matrix.pgver }}-pldebugger pgagent
+
       - name: Create the tablespace directory
         run: |
           sudo mkdir -p /var/lib/postgresql/tablespaces/${{ matrix.pgver }}
           sudo chown postgres:postgres /var/lib/postgresql/tablespaces/${{ matrix.pgver }}
+
       - name: Re-create stats directory, just in case
         run: |
           sudo rm -rf /var/run/postgresql/${{ matrix.pgver }}-main.pg_stat_tmp/
@@ -78,10 +83,12 @@ jobs:
           sudo sed -i "s/port = 543[0-9]/port = 5432/g" /etc/postgresql/${{ matrix.pgver }}/main/postgresql.conf
           sudo sed -i "s/#shared_preload_libraries = ''/shared_preload_libraries = '\$libdir\/plugin_debugger'/g" /etc/postgresql/${{ matrix.pgver }}/main/postgresql.conf
           sudo su - postgres -c "/usr/lib/postgresql/${{ matrix.pgver }}/bin/postgres -D /var/lib/postgresql/${{ matrix.pgver }}/main -c config_file=/etc/postgresql/${{ matrix.pgver }}/main/postgresql.conf &"
+
           until sudo runuser -l postgres -c "pg_isready -p 5432" 2>/dev/null; do
             >&2 echo "Postgres is unavailable - sleeping for 2 seconds"
             sleep 2
           done
+
           psql -U postgres -p 5432 -c 'CREATE database native;'
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -93,13 +100,13 @@ jobs:
           distribution: adopt
           cache: maven
 
-#      - name: Build with Maven
-#        run: mvn clean install -DskipTests=true
-#      - name: Run native cloud
-#        run: nohup java -jar /home/runner/.m2/repository/com/highgo/cloud/cloudnative/1.0-SNAPSHOT/cloudnative-1.0-SNAPSHOT.jar &
-#
-#      - name: Wait for the application to start
-#        run: sleep 10s
+      - name: Build with Maven
+        run: mvn clean install -DskipTests=true 
+      - name: Run native cloud
+        run: nohup java -jar /home/runner/.m2/repository/com/highgo/cloud/cloudnative/1.0-SNAPSHOT/cloudnative-1.0-SNAPSHOT.jar &
+
+      - name: Wait for the application to start
+        run: sleep 10s
       - name: Run functional tests
         run: |
           mvn clean verify -P integration-test 
