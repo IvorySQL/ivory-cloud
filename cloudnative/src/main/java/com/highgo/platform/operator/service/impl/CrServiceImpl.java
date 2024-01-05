@@ -49,6 +49,7 @@ import io.fabric8.kubernetes.client.CustomResource;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.WatcherException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -196,10 +197,13 @@ public class CrServiceImpl implements CrService {
         KubernetesClient k8sClient = k8sClientConfiguration.getAdminKubernetesClientById(clusterId);
         DatabaseCluster databaseCluster =
                 k8sClient.customResources(DatabaseCluster.class).inNamespace(namespace).withName(crName).get();
+
+        // DatabaseCluster databaseCluster =
+        // k8sClient.customResources(DatabaseCluster.class).withName(crName).get();
         if (databaseCluster == null) {
             return false;
         } else {
-            return false;
+            return true;
         }
     }
 
