@@ -474,4 +474,12 @@ public class BackupServiceImpl implements BackupService {
     public void updateBackupIsRestoring(String backupId, Boolean isRestoring) {
         backupRepository.updateIsRestoring(backupId, CommonUtil.getUTCDate(), isRestoring);
     }
+
+    @Override
+    public BackupDTO createManualBackup(BackupPO backupPO) {
+        BackupDTO backupDTO = new BackupDTO();
+        BackupPO saved = backupRepository.save(backupPO);
+        BeanUtil.copyNotNullProperties(backupDTO, saved);
+        return backupDTO;
+    }
 }

@@ -80,6 +80,11 @@ public class OperatorClusterSpecServiceImpl implements OperatorClusterSpecServic
     @Value(value = "${common.imagePullSecret:service-registry}")
     private String imagePullSecret;
 
+    @Value(value = "${common.ivoryPgKernelVersion}")
+    private String ivoryPgKernelVersion;
+
+    @Value(value = "${common.ivoryVersion}")
+    private String ivoryVersion;
     @Autowired
     private OperatorInstanceService operatorInstanceService;
 
@@ -108,12 +113,14 @@ public class OperatorClusterSpecServiceImpl implements OperatorClusterSpecServic
     public DatabaseClusterSpec initClusterSpec(InstanceDTO instanceDTO) {
         int replicas = 1;
         DatabaseClusterSpec databaseClusterSpec = new DatabaseClusterSpec();
-        if (IvoryVersion.IVORY23.getKey().equalsIgnoreCase(instanceDTO.getVersion())) {
+        if (ivoryVersion.equalsIgnoreCase(instanceDTO.getVersion())) {
             databaseClusterSpec.setImage(databaseImage);
-            databaseClusterSpec.setPostgresVersion(DBConstant.IVORY_PG_KERNEL_VERSION);
+            databaseClusterSpec.setPostgresVersion(Integer.valueOf(ivoryPgKernelVersion));
+            databaseClusterSpec.setPort(DBConstant.PG_DEFAULT_PORT);
         } else if (HighgoDBVersion.HGDB458.getKey().equalsIgnoreCase(instanceDTO.getVersion())) {
             databaseClusterSpec.setImage(databaseImage);
             databaseClusterSpec.setPostgresVersion(DBConstant.PG_KERNEL_VERSION);
+            databaseClusterSpec.setPort(DBConstant.SEE_DEFAULT_PORT);
         } else {
             logger.error("[OperatorClusterSpecServiceImpl.initClusterSpec] pg version not support. version is {}",
                     instanceDTO.getVersion());
@@ -162,7 +169,6 @@ public class OperatorClusterSpecServiceImpl implements OperatorClusterSpecServic
 
         // highgoDBClusterSpec.setImagePullPolicy("Always");
         databaseClusterSpec.setImagePullPolicy("IfNotPresent");
-        databaseClusterSpec.setPort(DBConstant.SEE_DEFAULT_PORT);
 
         // 数据库param
         List<Map> maps = configDefinationRepository.listParamByInstanceId(instanceDTO.getId());

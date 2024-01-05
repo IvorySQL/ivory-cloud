@@ -54,5 +54,5 @@ public interface OperatorBackupsService {
     /**
      * 同步cr手动备份记录状态到数据库
      */
-    public void syncManualBackup(ManualBackupStatus newManualBackupStatus);
+    public void syncManualBackup(String instanceId, ManualBackupStatus newManualBackupStatus);
 }

@@ -20,6 +20,7 @@ package com.highgo.platform.apiserver.service;
 import com.highgo.cloud.enums.BackupStatus;
 import com.highgo.cloud.model.PageInfo;
 import com.highgo.platform.apiserver.model.dto.BackupDTO;
+import com.highgo.platform.apiserver.model.po.BackupPO;
 import com.highgo.platform.apiserver.model.po.BackupPolicyPO;
 import com.highgo.platform.apiserver.model.vo.request.CreateBackupVO;
 import com.highgo.platform.apiserver.model.vo.request.ModifyAutoBackupSwitchVO;
@@ -141,4 +142,6 @@ public interface BackupService {
     public void updateBackupStatus(String backupId, BackupStatus backupStatus);
 
     public void updateBackupIsRestoring(String backupId, Boolean isRestoring);
+
+    BackupDTO createManualBackup(BackupPO backupPO);
 }

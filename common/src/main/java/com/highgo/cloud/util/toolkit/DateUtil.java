@@ -46,6 +46,7 @@ public class DateUtil {
     public static final String PATTERN_DATE = "yyyy-MM-dd";
     public static final String PATTERN_TIME = "HH:mm:ss";
     public static final String MY_DATETIME = "yyyyMMddHHmmss";
+    public static final String PATTERN_DATETIME_MS = "yyyy-MM-dd HH:mm:ss.SSSSSS";
     /**
      * 老 date 格式化
      */
@@ -609,4 +610,14 @@ public class DateUtil {
         Timestamp timestamp = new Timestamp(date.getTime());
         return sdf.format(timestamp);
     }
+
+    public static String getSystemTime() {
+        Date date = new Date();
+        // 创建SimpleDateFormat对象，并设置日期格式和时区
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年 MM月 dd日 E HH:mm:ss z");
+        // 格式化日期并返回
+        return sdf.format(date);
+    }
+
+
 }

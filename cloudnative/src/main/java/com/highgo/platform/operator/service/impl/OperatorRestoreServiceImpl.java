@@ -17,6 +17,7 @@
 
 package com.highgo.platform.operator.service.impl;
 
+import com.highgo.cloud.constant.DBConstant;
 import com.highgo.platform.apiserver.model.dto.BackupDTO;
 import com.highgo.platform.apiserver.model.dto.InstanceDTO;
 import com.highgo.platform.apiserver.model.dto.RestoreRecordDTO;
@@ -39,6 +40,7 @@ import com.highgo.cloud.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -68,6 +70,8 @@ public class OperatorRestoreServiceImpl implements OperatorRestoreService {
     @Resource
     private RestoreRecordService restoreRecordService;
 
+    @Value("${cluster.plural}")
+    private String plural;
     @Override
     public RestoreDatasource getDataSourceCluster(InstanceDTO instanceDTO) {
         InstanceDTO originInstanceDTO = instanceService.getDTO(instanceDTO.getOriginalInstanceId());
@@ -80,15 +84,31 @@ public class OperatorRestoreServiceImpl implements OperatorRestoreService {
         try {
             List<String> options = new ArrayList(Arrays.asList("--type=time",
                     String.format("--target=\"%s\"", CommonUtil.dateToStr(backup.getCreatedAt()))));
-            return RestoreDatasource
-                    .builder()
-                    .postgresCluster(RestoreCluster
-                            .builder()
-                            .clusterName(originInstanceDTO.getName())
-                            .clusterNamespace(instanceDTO.getNamespace())
-                            .options(options)
-                            .build())
-                    .build();
+
+            if (plural.contains(DBConstant.IVORY)) {
+                return RestoreDatasource
+                        .builder()
+                        .ivoryCluster(RestoreCluster
+                                .builder()
+                                .clusterName(originInstanceDTO.getName())
+                                .clusterNamespace(instanceDTO.getNamespace())
+                                .options(options)
+                                .build())
+                        .build();
+            } else if (plural.contains(DBConstant.HIGHGO)) {
+                return RestoreDatasource
+                        .builder()
+                        .postgresCluster(RestoreCluster
+                                .builder()
+                                .clusterName(originInstanceDTO.getName())
+                                .clusterNamespace(instanceDTO.getNamespace())
+                                .options(options)
+                                .build())
+                        .build();
+            } else {
+                return null;
+            }
+
         } catch (ParseException e) {
             logger.error("[OperatorRestoreServiceImpl.getRestoreTime] error ", e);
             throw new RestoreException(RestoreError.RESTORE_TIME_ERROR);

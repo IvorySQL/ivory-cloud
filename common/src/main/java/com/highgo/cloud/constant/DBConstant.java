@@ -170,11 +170,6 @@ public class DBConstant {
     public static final int PG_KERNEL_VERSION = 12;
 
     /**
-     *数据库内核版本
-     */
-    public static final int IVORY_PG_KERNEL_VERSION = 15;
-
-    /**
      * 数据库管理员 sysdba
      */
     public static final String SYSDBA = "sysdba";
@@ -198,5 +193,10 @@ public class DBConstant {
      * 企业版数据库 highgopg
      */
     public static final String HIGHGOPG = "highgopg";
+
+    /**
+     * 数据库 ivory
+     */
+    public static final String IVORY = "ivory";
 
 }
