@@ -57,5 +57,18 @@ public class ThreadPoolConfig {
         autoScalingExecutor.initialize();
         return autoScalingExecutor;
     }
+    @Bean("initLeaderElector")
+    public Executor initLeaderElector() {
+        ThreadPoolTaskExecutor initLeaderElector = new ThreadPoolTaskExecutor();
+        initLeaderElector.setCorePoolSize(2);
+        initLeaderElector.setMaxPoolSize(10);
+        initLeaderElector.setQueueCapacity(100);
+        initLeaderElector.setKeepAliveSeconds(60);
+        initLeaderElector.setThreadNamePrefix("initLeaderElector");
+        initLeaderElector.setWaitForTasksToCompleteOnShutdown(true);
+        initLeaderElector.setAwaitTerminationSeconds(60);
+        initLeaderElector.initialize();
+        return initLeaderElector;
+    }
 
 }

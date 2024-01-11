@@ -17,13 +17,18 @@
 
 package com.highgo.platform.apiserver.service.impl;
 
+import cn.hutool.core.thread.ThreadUtil;
+import com.highgo.cloud.enums.InstanceStatus;
+import com.highgo.cloud.enums.InstanceType;
+import com.highgo.cloud.model.K8sClusterInfoDTO;
+import com.highgo.cloud.model.ServerConnectVO;
+import com.highgo.cloud.util.BeanUtil;
+import com.highgo.cloud.util.CommonUtil;
 import com.highgo.cloud.util.SshUtil;
 import com.highgo.platform.apiserver.model.dto.InstanceDTO;
-import com.highgo.cloud.model.K8sClusterInfoDTO;
 import com.highgo.platform.apiserver.model.po.InstancePO;
 import com.highgo.platform.apiserver.model.po.K8sClusterInfoPO;
 import com.highgo.platform.apiserver.model.vo.request.CreateClusterVO;
-import com.highgo.cloud.model.ServerConnectVO;
 import com.highgo.platform.apiserver.model.vo.response.ActionResponse;
 import com.highgo.platform.apiserver.model.vo.response.ClusterInfoVO;
 import com.highgo.platform.apiserver.model.vo.response.K8sResourceCountVO;
@@ -31,12 +36,10 @@ import com.highgo.platform.apiserver.repository.InstanceRepository;
 import com.highgo.platform.apiserver.repository.K8sClusterInfoRepository;
 import com.highgo.platform.apiserver.service.K8sClusterService;
 import com.highgo.platform.configuration.K8sClientConfiguration;
-import com.highgo.cloud.enums.InstanceStatus;
-import com.highgo.cloud.enums.InstanceType;
 import com.highgo.platform.errorcode.ClusterError;
 import com.highgo.platform.exception.ClusterException;
-import com.highgo.cloud.util.BeanUtil;
-import com.highgo.cloud.util.CommonUtil;
+import com.highgo.platform.operator.ElectLeader;
+import com.highgo.platform.operator.watcher.WatcherFactory;
 import com.jcraft.jsch.JSchException;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
@@ -70,7 +73,13 @@ public class K8sClusterServiceImpl implements K8sClusterService {
 
     @Autowired
     K8sClientConfiguration k8sClientConfiguration;
+    @Autowired
+    private WatcherFactory watcherFactory;
 
+    @javax.annotation.Resource
+    private ElectLeader electLeader;
+    @Value("${common.namespace:ivory}")
+    private String namespace;
     // k8s 默认的命名空间
     private final List<String> kubeNamespaces =
             new ArrayList<>(Arrays.asList("kube-node-lease", "kube-flannel", "kube-public", "kube-system"));
@@ -262,6 +271,22 @@ public class K8sClusterServiceImpl implements K8sClusterService {
         ClusterInfoVO clusterInfoVO = new ClusterInfoVO();
         BeanUtil.copyNotNullProperties(k8sClusterInfoPO, clusterInfoVO);
         processingIps.remove(k8sClusterInfoDTO.getServerUrl());
+        // 异步执行 创建namespace及启动leader
+        ThreadUtil.execute(() -> {
+            List<Namespace> namespaces = getNamespace(clusterInfoVO.getClusterId());
+            if (!CommonUtil.isEmpty(namespaces)) {
+                Optional<Namespace> namespaceOptional =
+                        namespaces.stream().filter(item -> item.getMetadata().getName().equals(namespace)).findFirst();
+                if (!namespaceOptional.isPresent()) {
+                    createNamespace(clusterInfoVO.getClusterId(), namespace);
+                }
+            }
+            try {
+                electLeader.initLeaderElector();
+            } catch (Exception e) {
+                logger.error("Failed to init leader elector.The cluster id is: {}", k8sClusterInfoDTO.getClusterId());
+            }
+        });
         return clusterInfoVO;
     }
 
@@ -276,6 +301,7 @@ public class K8sClusterServiceImpl implements K8sClusterService {
 
         Date now = CommonUtil.getUTCDate();
         k8sClusterInfoRepository.deleteByClusterId(clusterId, now);
+        watcherFactory.stopWatcherById(clusterId);
         return ActionResponse.actionSuccess();
     }
 

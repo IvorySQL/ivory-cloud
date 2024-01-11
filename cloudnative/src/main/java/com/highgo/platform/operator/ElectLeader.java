@@ -32,8 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
@@ -42,7 +40,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class ElectLeader implements ApplicationRunner {
+public class ElectLeader {
 
     private static final Logger logger = LoggerFactory.getLogger(ElectLeader.class);
 
@@ -72,11 +70,9 @@ public class ElectLeader implements ApplicationRunner {
     /**
      * Callback used to run the bean.
      *
-     * @param args incoming application arguments
      * @throws Exception on error
      */
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void initLeaderElector() throws Exception {
 
         ApiClient client = Config.defaultClient();
         Configuration.setDefaultApiClient(client);
