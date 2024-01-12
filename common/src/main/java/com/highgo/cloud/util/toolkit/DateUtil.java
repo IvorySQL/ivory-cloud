@@ -610,7 +610,10 @@ public class DateUtil {
         Timestamp timestamp = new Timestamp(date.getTime());
         return sdf.format(timestamp);
     }
-
+    /**
+     * 获取当前系统时间
+     * @return String
+     */
     public static String getSystemTime() {
         Date date = new Date();
         // 创建SimpleDateFormat对象，并设置日期格式和时区
@@ -618,6 +621,5 @@ public class DateUtil {
         // 格式化日期并返回
         return sdf.format(date);
     }
-
 
 }
