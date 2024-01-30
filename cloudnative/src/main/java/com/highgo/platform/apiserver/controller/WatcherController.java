@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Validated
 @RestController
-@RequestMapping("/${common.request-path-prefix}/${common.version}")
+@RequestMapping("${common.request-path-prefix}/${common.version}")
 public class WatcherController {
 
     @Autowired

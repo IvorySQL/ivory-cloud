@@ -42,7 +42,7 @@ import io.swagger.annotations.ApiOperation;
  */
 @RestController
 @Validated
-@RequestMapping("${common.request-path-prefix}/v1")
+@RequestMapping("${common.request-path-prefix}/${common.version}")
 @Api(tags = "授权管理")
 public class AuthController {
 

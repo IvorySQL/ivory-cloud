@@ -17,13 +17,12 @@
 
 package com.highgo.platform.operator.service.impl;
 
-import com.highgo.cloud.constant.DBConstant;
 import com.highgo.cloud.constant.OperatorConstant;
 import com.highgo.cloud.enums.InstanceStatus;
 import com.highgo.cloud.enums.InstanceType;
-import com.highgo.cloud.enums.IvoryVersion;
 import com.highgo.cloud.enums.SwitchStatus;
 import com.highgo.cloud.util.CommonUtil;
+import com.highgo.cloud.util.toolkit.DateUtil;
 import com.highgo.platform.apiserver.model.dto.BackupDTO;
 import com.highgo.platform.apiserver.model.dto.BackupPolicyDTO;
 import com.highgo.platform.apiserver.model.dto.ConfigInstanceParamDTO;
@@ -42,7 +41,10 @@ import com.highgo.platform.operator.cr.bean.DatabaseClusterSpec;
 import com.highgo.platform.operator.cr.bean.backup.Restore;
 import com.highgo.platform.operator.cr.bean.user.User;
 import com.highgo.platform.operator.service.*;
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.PersistentVolumeClaim;
+import io.fabric8.kubernetes.api.model.PersistentVolumeClaimList;
+import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.CustomResource;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.Watcher;
@@ -114,6 +116,11 @@ public class CrServiceImpl implements CrService {
     @Value("${cluster.crRestoreAnnotation}")
     private String crRestoreAnnotation;
 
+    @Value(value = "${common.ivoryPgKernelVersion}")
+    private String ivoryPgKernelVersion;
+
+    @Value(value = "${common.ivoryVersion}")
+    private String ivoryVersion;
     /**
      * 创建CR，若cr已存在，则退出
      *
@@ -291,26 +298,6 @@ public class CrServiceImpl implements CrService {
         return true;
     }
 
-    /**
-     * 删除实例的所有pod(重启实例时，删除pod进行重启)
-     *
-     * @param instanceDTO
-     * @return
-     */
-    @Override
-    public boolean deleteAllPod(InstanceDTO instanceDTO) {
-        KubernetesClient kubernetesClient =
-                k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
-        DatabaseCluster databaseCluster = kubernetesClient.customResources(DatabaseCluster.class)
-                .inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).get();
-        databaseCluster.getMetadata().getLabels().put(OperatorConstant.OPERATE_LABEL, InstanceStatus.RESTARTING.name());
-        kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
-                .withName(instanceDTO.getName()).patch(databaseCluster);
-        Map<String, String> labelFilterMap = operatorCommonService.getLabelSelector(instanceDTO.getName());
-        kubernetesClient.pods().inNamespace(instanceDTO.getNamespace()).withLabels(labelFilterMap).delete();
-        return true;
-    }
-
     @Override
     public boolean restartDatabase(InstanceDTO instanceDTO) {
         KubernetesClient kubernetesClient =
@@ -318,9 +305,15 @@ public class CrServiceImpl implements CrService {
         DatabaseCluster databaseCluster = kubernetesClient.customResources(DatabaseCluster.class)
                 .inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName()).get();
         databaseCluster.getMetadata().getLabels().put(OperatorConstant.OPERATE_LABEL, InstanceStatus.RESTARTING.name());
+        ObjectMeta metadata = databaseCluster.getSpec().getMetadata();
+        if (metadata == null) {
+            metadata = new ObjectMeta();
+        }
+
         Map<String, String> annotations = new HashMap<String, String>();
-        annotations.put(OperatorConstant.DATABASE_RESTART, "$(date)");
-        databaseCluster.getMetadata().setAnnotations(annotations);
+        annotations.put(OperatorConstant.DATABASE_RESTART, DateUtil.getSystemTime());
+        metadata.setAnnotations(annotations);
+        databaseCluster.getSpec().setMetadata(metadata);
         kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
                 .withName(instanceDTO.getName()).patch(databaseCluster);
         return true;
@@ -336,8 +329,8 @@ public class CrServiceImpl implements CrService {
             databaseCluster.getSpec().getService().setType(OperatorConstant.NODEPORT);
             kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
                     .withName(instanceDTO.getName()).patch(databaseCluster);
-            io.fabric8.kubernetes.api.model.Service service = kubernetesClient.services()
-                    .inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName() + "-ha").get();
+            // io.fabric8.kubernetes.api.model.Service service = kubernetesClient.services()
+            // .inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName() + "-ha").get();
             kubernetesClient.services().inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName() + "-ha")
                     .watch(new Watcher<io.fabric8.kubernetes.api.model.Service>() {
 
@@ -394,10 +387,10 @@ public class CrServiceImpl implements CrService {
             throw new BackupException(BackupError.WAIT_BACKUP_INIT);
         }
 
-        io.fabric8.kubernetes.client.dsl.Resource<DatabaseCluster> highgoDBClusterResource =
+        io.fabric8.kubernetes.client.dsl.Resource<DatabaseCluster> dbClusterResource =
                 kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
                         .withName(instanceDTO.getName());
-        DatabaseCluster databaseCluster = highgoDBClusterResource.get();
+        DatabaseCluster databaseCluster = dbClusterResource.get();
 
         // 状态 BACKUPING备份中
         databaseCluster.getMetadata().getLabels().put(OperatorConstant.OPERATE_LABEL, InstanceStatus.BACKUPING.name());
@@ -420,7 +413,7 @@ public class CrServiceImpl implements CrService {
         // annotations.put(CommonConstant.CR_BACKUP_ANNOTATION,now);
         // }
         // logger.info("Start backup, time:{} ,instanceId:{}", now, instanceDTO.getId());
-        // highgoDBClusterResource.patch(highgoDBCluster);
+        // dbClusterResource.patch(highgoDBCluster);
         //
         // Map<String, String> labelFilterMap = new HashMap<>();
         // labelFilterMap.put(CommonConstant.CLUSTER_NAME_LABEL, instanceDTO.getName());
@@ -435,9 +428,9 @@ public class CrServiceImpl implements CrService {
         // .watch(new Watcher<Job>() {
         // @Override
         // public void eventReceived(Action action, Job job) {
-        // io.fabric8.kubernetes.client.dsl.Resource<HighgoDBCluster> highgoDBClusterResource =
+        // io.fabric8.kubernetes.client.dsl.Resource<HighgoDBCluster> dbClusterResource =
         // kubernetesClient.customResources(HighgoDBCluster.class).inNamespace(instanceDTO.getNamespace()).withName(instanceDTO.getName());
-        // HighgoDBCluster highgodb = highgoDBClusterResource.get();
+        // HighgoDBCluster highgodb = dbClusterResource.get();
         // Map<String, String> jobAnnotations = job.getMetadata().getAnnotations();
         // JobStatus status = job.getStatus();
         // if (jobAnnotations != null && now.equals(jobAnnotations.get(CommonConstant.CR_BACKUP_ANNOTATION))) {
@@ -515,10 +508,10 @@ public class CrServiceImpl implements CrService {
 
         KubernetesClient kubernetesClient =
                 k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
-        io.fabric8.kubernetes.client.dsl.Resource<DatabaseCluster> highgoDBClusterResource =
+        io.fabric8.kubernetes.client.dsl.Resource<DatabaseCluster> dbClusterResource =
                 kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
                         .withName(instanceDTO.getName());
-        DatabaseCluster databaseCluster = highgoDBClusterResource.get();
+        DatabaseCluster databaseCluster = dbClusterResource.get();
         Map<String, String> runningParams =
                 databaseCluster.getSpec().getPatroni().getDynamicConfiguration().getPostgresql().getParameters();
 
@@ -532,9 +525,9 @@ public class CrServiceImpl implements CrService {
             }
         });
 
-        highgoDBClusterResource.patch(databaseCluster);
+        dbClusterResource.patch(databaseCluster);
         // lcq TODO 修改参数
-        highgoDBClusterResource.watch(new Watcher<DatabaseCluster>() {
+        dbClusterResource.watch(new Watcher<DatabaseCluster>() {
 
             @Override
             public void eventReceived(Action action, DatabaseCluster resource) {
@@ -580,8 +573,8 @@ public class CrServiceImpl implements CrService {
         instanceDTO.setName(metadata.getName());
         instanceDTO.setNamespace(metadata.getNamespace());
         DatabaseClusterSpec spec = databaseCluster.getSpec();
-        if (DBConstant.IVORY_PG_KERNEL_VERSION == spec.getPostgresVersion()) {
-            instanceDTO.setVersion(IvoryVersion.IVORY23.getKey());
+        if (Integer.valueOf(ivoryPgKernelVersion).equals(spec.getPostgresVersion())) {
+            instanceDTO.setVersion(ivoryVersion);
         }
         instanceDTO.setType(spec.getInstances().get(0).getReplicas() > 1 ? InstanceType.HA : InstanceType.ALONE);
         instanceDTO.setCpu(
@@ -666,10 +659,10 @@ public class CrServiceImpl implements CrService {
     public boolean patchCrUsers(InstanceDTO instanceDTO, DatabaseUserVO databaseUserVO) {
         KubernetesClient kubernetesClient =
                 k8sClientConfiguration.getAdminKubernetesClientById(instanceDTO.getClusterId());
-        io.fabric8.kubernetes.client.dsl.Resource<DatabaseCluster> highgoDBClusterResource =
+        io.fabric8.kubernetes.client.dsl.Resource<DatabaseCluster> dbClusterResource =
                 kubernetesClient.customResources(DatabaseCluster.class).inNamespace(instanceDTO.getNamespace())
                         .withName(instanceDTO.getName());
-        DatabaseCluster databaseCluster = highgoDBClusterResource.get();
+        DatabaseCluster databaseCluster = dbClusterResource.get();
         List<String> userNames = databaseCluster
                 .getSpec()
                 .getUsers()
@@ -685,7 +678,7 @@ public class CrServiceImpl implements CrService {
 
         User newUser = User.builder().name(databaseUserVO.getName()).options(databaseUserVO.getOption().name()).build();
         users.add(newUser);
-        highgoDBClusterResource.patch(databaseCluster);
+        dbClusterResource.patch(databaseCluster);
         return true;
     }
 

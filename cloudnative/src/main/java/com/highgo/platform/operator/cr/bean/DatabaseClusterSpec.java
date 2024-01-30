@@ -20,13 +20,14 @@ package com.highgo.platform.operator.cr.bean;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.highgo.platform.operator.cr.bean.backup.Backup;
 import com.highgo.platform.operator.cr.bean.backup.RestoreDatasource;
-import com.highgo.platform.operator.cr.bean.service.DatabaseService;
 import com.highgo.platform.operator.cr.bean.imagePullsecret.ImagePullSecret;
 import com.highgo.platform.operator.cr.bean.instance.Instance;
 import com.highgo.platform.operator.cr.bean.monitor.Monitor;
 import com.highgo.platform.operator.cr.bean.patroni.Patroni;
 import com.highgo.platform.operator.cr.bean.pgadmin.UserInterface;
+import com.highgo.platform.operator.cr.bean.service.DatabaseService;
 import com.highgo.platform.operator.cr.bean.user.User;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
 import lombok.*;
 
 import java.util.List;
@@ -87,5 +88,10 @@ public class DatabaseClusterSpec {
      * 恢复的数据源
      */
     private RestoreDatasource dataSource;
+
+    /**
+     * metadata
+     */
+    private ObjectMeta metadata;
 
 }

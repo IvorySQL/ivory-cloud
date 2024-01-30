@@ -69,13 +69,6 @@ public interface CrService {
     public boolean deleteCr(InstanceDTO instanceDTO);
 
     /**
-     * 删除实例的所有pod(重启实例时，删除pod进行重启)
-     * @param instanceDTO
-     * @return
-     */
-    public boolean deleteAllPod(InstanceDTO instanceDTO);
-
-    /**
      * @description 重启数据库实例
      *
      * @param: instanceDTO

@@ -140,8 +140,8 @@ public class AsyncTask {
                     "&& chmod +x installMonitor.sh " +
                     "&& ./installMonitor.sh " + userDto.getNamespace() + " " + userDto.getAccessMode() + " "
                     + serverUrl);
-            SshUtil.remoteExeCommand(server);
-
+            String ready = SshUtil.remoteExeCommand(server);
+            logger.info(ready);
             // 7.安装monitor
             server.setCommand("kubectl apply -k " + userDir + "/monitor/" + databaseName);
             String result = SshUtil.remoteExeCommand(server);

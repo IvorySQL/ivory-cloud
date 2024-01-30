@@ -32,5 +32,12 @@ import lombok.NoArgsConstructor;
 @Builder
 public class RestoreDatasource {
 
+    /**
+     * for ivoryCluster
+     */
+    private RestoreCluster ivoryCluster;
+    /**
+     * for highgoCluster
+     */
     private RestoreCluster postgresCluster;
 }
