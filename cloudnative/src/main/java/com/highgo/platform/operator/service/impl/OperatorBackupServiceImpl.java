@@ -158,29 +158,29 @@ public class OperatorBackupServiceImpl implements OperatorBackupsService {
         // 手动备份事件
         String backupId = newManualBackupStatus.getId();
         BackupDTO backupDTO = backupService.getBackupByBackupId(backupId);
-//        // 如果是在k8s中手动备份，id是用的备份时指定的标签，可以是任意字符串，没有备份完成时，开始时间为空，不处理
-//        if (StringUtil.isEmpty(newManualBackupStatus.getStartTime())) {
-//            return;
-//        }
-//        Date createDate = null;
-//        if (null == backupDTO) {
-//            // 转换开始时间，根据开始时间和instanceId查询是否已经入库
-//            createDate = DateUtil.parse(newManualBackupStatus.getStartTime(), DateUtil.PATTERN_DATETIME_MS);
-//            backupDTO = backupService.getBackupByCreateTime(instanceId, createDate);
-//        }
-//        // 没有入库，则新建入库
-//        if (null == backupDTO) {
-//            BackupPO backupPO = new BackupPO();
-//            backupPO.setCreatedAt(createDate);
-//            backupPO.setBackupMode(BackupMode.INCREMENTAL);
-//            backupPO.setBackupMethod(BackupMethod.MANUAL);
-//            backupPO.setBackupType(BackupType.PHYSICAL);
-//            backupPO.setName(newManualBackupStatus.getId());
-//            backupPO.setStatus(BackupStatus.PROCESSING);
-//            backupPO.setInstanceId(instanceId);
-//            backupPO.setIsRestoring(false);
-//            backupDTO = backupService.createManualBackup(backupPO);
-//        }
+        // // 如果是在k8s中手动备份，id是用的备份时指定的标签，可以是任意字符串，没有备份完成时，开始时间为空，不处理
+        // if (StringUtil.isEmpty(newManualBackupStatus.getStartTime())) {
+        // return;
+        // }
+        // Date createDate = null;
+        // if (null == backupDTO) {
+        // // 转换开始时间，根据开始时间和instanceId查询是否已经入库
+        // createDate = DateUtil.parse(newManualBackupStatus.getStartTime(), DateUtil.PATTERN_DATETIME_MS);
+        // backupDTO = backupService.getBackupByCreateTime(instanceId, createDate);
+        // }
+        // // 没有入库，则新建入库
+        // if (null == backupDTO) {
+        // BackupPO backupPO = new BackupPO();
+        // backupPO.setCreatedAt(createDate);
+        // backupPO.setBackupMode(BackupMode.INCREMENTAL);
+        // backupPO.setBackupMethod(BackupMethod.MANUAL);
+        // backupPO.setBackupType(BackupType.PHYSICAL);
+        // backupPO.setName(newManualBackupStatus.getId());
+        // backupPO.setStatus(BackupStatus.PROCESSING);
+        // backupPO.setInstanceId(instanceId);
+        // backupPO.setIsRestoring(false);
+        // backupDTO = backupService.createManualBackup(backupPO);
+        // }
         if (null == backupDTO) {
             return;
         }
