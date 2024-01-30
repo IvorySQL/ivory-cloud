@@ -392,8 +392,9 @@ public class CloudClusterWatcher {
             return;
         }
         PgbackrestStatus newPgbackrestStatus = newDatabaseCluster.getStatus().getPgbackrest();
+        String instanceId = newDatabaseCluster.getMetadata().getLabels().get(instanceIdName);
         // 手动备份事件，提交manualBackupEventHandler处理
-        manualBackupEventHandler(newPgbackrestStatus.getManualBackup());
+        manualBackupEventHandler(instanceId, newPgbackrestStatus.getManualBackup());
         // 修改cr状态
         if (newPgbackrestStatus.getManualBackup() == null) {
             return;
@@ -411,11 +412,11 @@ public class CloudClusterWatcher {
 
     }
 
-    private void manualBackupEventHandler(ManualBackupStatus newManualBackupStatus) {
-        if (newManualBackupStatus == null) {
+    private void manualBackupEventHandler(String instanceId, ManualBackupStatus newManualBackupStatus) {
+        if (newManualBackupStatus == null || StringUtils.isEmpty(instanceId)) {
             return;
         }
-        operatorBackupsService.syncManualBackup(newManualBackupStatus);
+        operatorBackupsService.syncManualBackup(instanceId, newManualBackupStatus);
     }
 
     // private void autoBackupEventHandler(String instanceId, List<ScheduledBackupsStatus>

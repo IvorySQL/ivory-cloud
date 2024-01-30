@@ -45,7 +45,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
-import com.highgo.cloud.constant.InstanceAllowConstant;
 import com.highgo.cloud.enums.BackupStatus;
 import com.highgo.cloud.enums.InstanceStatus;
 import com.highgo.platform.apiserver.model.dto.InstanceDTO;

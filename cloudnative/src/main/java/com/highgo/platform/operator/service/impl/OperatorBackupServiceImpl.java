@@ -154,14 +154,35 @@ public class OperatorBackupServiceImpl implements OperatorBackupsService {
      * 同步cr手动备份记录状态到数据库
      */
     @Override
-    public void syncManualBackup(ManualBackupStatus newManualBackupStatus) {
+    public void syncManualBackup(String instanceId, ManualBackupStatus newManualBackupStatus) {
         // 手动备份事件
         String backupId = newManualBackupStatus.getId();
         BackupDTO backupDTO = backupService.getBackupByBackupId(backupId);
+//        // 如果是在k8s中手动备份，id是用的备份时指定的标签，可以是任意字符串，没有备份完成时，开始时间为空，不处理
+//        if (StringUtil.isEmpty(newManualBackupStatus.getStartTime())) {
+//            return;
+//        }
+//        Date createDate = null;
+//        if (null == backupDTO) {
+//            // 转换开始时间，根据开始时间和instanceId查询是否已经入库
+//            createDate = DateUtil.parse(newManualBackupStatus.getStartTime(), DateUtil.PATTERN_DATETIME_MS);
+//            backupDTO = backupService.getBackupByCreateTime(instanceId, createDate);
+//        }
+//        // 没有入库，则新建入库
+//        if (null == backupDTO) {
+//            BackupPO backupPO = new BackupPO();
+//            backupPO.setCreatedAt(createDate);
+//            backupPO.setBackupMode(BackupMode.INCREMENTAL);
+//            backupPO.setBackupMethod(BackupMethod.MANUAL);
+//            backupPO.setBackupType(BackupType.PHYSICAL);
+//            backupPO.setName(newManualBackupStatus.getId());
+//            backupPO.setStatus(BackupStatus.PROCESSING);
+//            backupPO.setInstanceId(instanceId);
+//            backupPO.setIsRestoring(false);
+//            backupDTO = backupService.createManualBackup(backupPO);
+//        }
         if (null == backupDTO) {
-            // todo 从命令行触发手动备份，表中不存在备份记录，插入备份记录
             return;
-
         }
         if (!BackupStatus.PROCESSING.equals(backupDTO.getStatus())) {
             // 库里状态已更新，无需再处理
@@ -172,11 +193,8 @@ public class OperatorBackupServiceImpl implements OperatorBackupsService {
                 newManualBackupStatus.getFinished(), newManualBackupStatus.getSucceeded(),
                 newManualBackupStatus.getFailed(), newManualBackupStatus);
         if (newManualBackupStatus.getFinished()) {
-            if (newManualBackupStatus.getSucceeded() != null && newManualBackupStatus.getSucceeded() > 0) {
-                backupService.createBackupCallback(backupId, true);
-            } else {
-                backupService.createBackupCallback(backupId, false);
-            }
+            backupService.createBackupCallback(backupId,
+                    newManualBackupStatus.getSucceeded() != null && newManualBackupStatus.getSucceeded() > 0);
         }
     }
 
