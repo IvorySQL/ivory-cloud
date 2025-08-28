@@ -1,5 +1,18 @@
 ivory-cloud RELEASE NOTES
 
+******************v4.0******************
+1.IvorySqL operator 4.0适配（包括postgres-exporter、pgbackrest以及pgadmin的适配）
+2.IvorySqL 4.5适配
+
+
+
+******************v2.0******************
+1.IvorysoL3.0 operator适配（包括Prometheus以及pgadmin的适配）
+2.backup and restore 功能中的bugfix
+3.优化SharedInformerFactory启动时机
+4.增加多集群订阅功能
+
+
 ******************v1.0******************
 1.云平台的用户注册及登录功能（云平台内置用户，管理员用户admin，普通用户demo）
 2.使用管理员账号登录云平台进行K8S集群的配置
@@ -8,8 +21,3 @@ ivory-cloud RELEASE NOTES
 5.前端漏洞、代码扫描
 6.后端漏洞、代码扫描
 7.CICD流程搭建
-******************v2.0******************
-1.IvorysoL3.0 operator适配（包括Prometheus以及pgadmin的适配）
-2.backup and restore 功能中的bugfix
-3.优化SharedInformerFactory启动时机
-4.增加多集群订阅功能

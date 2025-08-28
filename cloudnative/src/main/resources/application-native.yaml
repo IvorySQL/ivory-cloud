@@ -37,8 +37,8 @@ common:
   linuxk8sConfigPath: /root/.kube/config
 #  ivoryPgKernelVersion: 15 #数据库内核版本
 #  ivoryVersion: 2.3 #ivory版本
-  ivoryPgKernelVersion: 16 #数据库内核版本
-  ivoryVersion: 3.0 #ivory版本
+  ivoryPgKernelVersion: 17 #数据库内核版本
+  ivoryVersion: 4.5 #ivory版本
 logging:
   level:
 #    com:
@@ -47,7 +47,7 @@ logging:
     org:
       hibernate: error
     root: info
-#  config: config/spring_pro_logback.xml
+  config: config/spring_pro_logback.xml
 
 images:
 #  image:
@@ -61,10 +61,10 @@ images:
 #    pgadmin: docker.io/ivorysql/pgadmin:ubi8-7.4-1.1-1
 #    exporter: docker.io/ivorysql/postgres-exporter:ubi8-0.13.2-1.1-1
   image:
-    db: docker.io/ivorysql/ivorysql:ubi8-3.0-2.0-1
-    backrest: docker.io/ivorysql/pgbackrest:ubi8-2.47-2.0-1
-    pgadmin: docker.io/ivorysql/pgadmin:ubi8-8.0-2.0-1
-    exporter: docker.io/ivorysql/postgres-exporter:ubi8-0.15.0-2.0-1
+    db: docker.io/ivorysql/ivorysql:ubi8-4.5-4.0-1
+    backrest: docker.io/ivorysql/pgbackrest:ubi8-2.54.1-4.0-1
+    pgadmin: docker.io/ivorysql/pgadmin:ubi8-8.14.0-4.0-1
+    exporter: docker.io/ivorysql/postgres-exporter:ubi8-0.17.0-4.0-1
 server:
   port: 8081
   error:
