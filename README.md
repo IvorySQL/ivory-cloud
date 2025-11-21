@@ -26,7 +26,7 @@ Maven：Maven configuration is required，After configuration, execute the follo
 
 ```
 mvn clean
-mvn install
+mvn package -Dmaven.test.skip=true
 ```
 After the packaging is completed, you can find the `pkg` directory in the root directory of the project. It contains the jar package to be deployed.
 ### Deploy backend projects 
@@ -45,6 +45,6 @@ datasource:
 In the directory where the jar package is located, execute:
 
 ```
-nohup java -jar cloudservice-1.0-SNAPSHOT.jar > log_native 2>&1 &
+nohup java -jar cloudnative-1.0-SNAPSHOT.jar > log_native 2>&1 &
 ```
-cloudservice-1.0-SNAPSHOT.jar is the name of the jar package; please replace it according to the actual situation.
+cloudnative-1.0-SNAPSHOT.jar is the name of the jar package; please replace it according to the actual situation.

@@ -1,4 +1,8 @@
 ivory-cloud RELEASE NOTES
+******************v5.0******************
+1.IvorySqL 5.0适配
+
+
 
 ******************v4.0******************
 1.IvorySqL operator 4.0适配（包括postgres-exporter、pgbackrest以及pgadmin的适配）

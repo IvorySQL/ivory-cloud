@@ -38,7 +38,7 @@ common:
 #  ivoryPgKernelVersion: 15 #数据库内核版本
 #  ivoryVersion: 2.3 #ivory版本
   ivoryPgKernelVersion: 17 #数据库内核版本
-  ivoryVersion: 4.5 #ivory版本
+  ivoryVersion: 5.0 #ivory版本
 logging:
   level:
 #    com:
