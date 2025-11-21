@@ -26,7 +26,7 @@ Maven：Maven configuration is required，After configuration, execute the follo
 
 ```
 mvn clean
-mvn package -Dmaven.test.skip=true
+mvn package -D maven.test.skip=true
 ```
 After the packaging is completed, you can find the `pkg` directory in the root directory of the project. It contains the jar package to be deployed.
 ### Deploy backend projects 

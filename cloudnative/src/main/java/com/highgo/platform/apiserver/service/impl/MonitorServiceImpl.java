@@ -33,6 +33,7 @@ import com.highgo.platform.apiserver.service.MonitorService;
 import com.highgo.platform.errorcode.ClusterError;
 import com.highgo.platform.exception.ClusterException;
 import com.highgo.platform.utils.AsyncTask;
+import org.springframework.context.annotation.Lazy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,7 @@ public class MonitorServiceImpl implements MonitorService {
     private K8sClusterInfoRepository k8sClusterInfoRepository;
 
     @Resource(name = "asyncTask")
+    @Lazy
     private AsyncTask asyncTask;
 
     @Value("${common.serviceName}")
