@@ -46,10 +46,11 @@ After the packaging is completed, you can find the cloudnative-1.0-SNAPSHOT.jar 
     mkdir -p /home/ivory/config
 ```
 6. Please upload below files from the source code path ivory-cloud/cloudnative/src/main/resources to the /home/ivory/config path on your server.
-
-   application.yaml
-   application-native.yaml
+```
+   application.yaml   
+   application-native.yaml   
    spring_pro_logback.xml
+```
 8. then edit /home/ivory/config/application-native.yaml
 Please modify url, username, password parts according to your actual situation.
 ```
