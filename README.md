@@ -1,6 +1,6 @@
 # Installation
 
-##Prerequisites
+## Prerequisites
 
 - JDK 1.8 
 - [Maven](http://maven.apache.org/) 3.0 and above
