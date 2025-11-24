@@ -54,7 +54,7 @@ datasource:
     druid:
       db-type: com.alibaba.druid.pool.DruidDataSource
       driver-class-name: org.postgresql.Driver
-      url: jdbc:postgresql://127.0.0.1:5432/ivory
+      url: jdbc:postgresql://127.0.0.1:5432/ivorysql
       username: ivorysql
       password: "ivory@123"
 ```
