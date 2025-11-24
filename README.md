@@ -26,8 +26,9 @@ cd ivory-cloud
 ## Deployment
 
 ### Compile and build
+1. Please ensure that all files ending with .sh in the ivory-cloud\cloudnative\src\main\resources\monitor folder and all its subfolders are in UNIX format. If they are not, please run the dos2unix command to convert them to UNIX format.
 
-Maven：Maven configuration is required，After configuration, execute the following command：
+2. Maven：Maven configuration is required，After configuration, execute the following command：
 
 ```
 mvn clean
