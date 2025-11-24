@@ -1,8 +1,13 @@
 # Installation
 
-## Installation instructions
+##Prerequisites
 
-As an open-source backend project, ivory-cloud requires the local installation of `git`, `jdk`, `maven`, etc., during the development process.
+- JDK 1.8 
+- [Maven](http://maven.apache.org/) 3.0 and above
+- IvorySQL 5.0
+- Kubernetes 1.23 (Must have default storage class)
+
+## Installation instructions
 
 Fork the backend repository of the open-source cloud platform to your own GitHub account, then clone it to your local machine, for example:
 
@@ -28,11 +33,20 @@ Maven：Maven configuration is required，After configuration, execute the follo
 mvn clean
 mvn package -D maven.test.skip=true
 ```
-After the packaging is completed, you can find the `pkg` directory in the root directory of the project. It contains the jar package to be deployed.
+After the packaging is completed, you can find the cloudnative-1.0-SNAPSHOT.jar file at the path ivory-cloud/cloudnative/target.
 ### Deploy backend projects 
-Install a database such as ivorysql on your server and start it.
-Place the above jar package in your server, then edit [configuration file](./cloudnative/src/main/resources/application-native.yaml) 
-Among them, 5432 is the port on which the ivorysql database runs; please modify it according to the actual situation.
+1. Install a database such as ivorysql on your server and start it.
+2. create a directory to store the application files. For example:
+   mkdir -p /home/ivory
+3. upload JAR file (cloudnative-1.0-SNAPSHOT.jar) to your server.
+4. create a directory(name must be: config) under /home/ivory to store the application files. For example:
+   mkdir -p /home/ivory/config
+5. Please upload below files from the source code path ivory-cloud/cloudnative/src/main/resources to the /home/ivory/config path on your server.
+   application.yaml
+   application-native.yaml
+   spring_pro_logback.xml
+6. then edit /home/ivory/config/application-native.yaml
+Please modify url, username, password parts according to your actual situation.
 ```
 datasource:
     druid:
@@ -42,9 +56,9 @@ datasource:
       username: ivorysql
       password: "ivory@123"
 ```
-In the directory where the jar package is located, execute:
+7. Launch ivory-cloud app
+   cd /home/ivory/
 
 ```
 nohup java -jar cloudnative-1.0-SNAPSHOT.jar > log_native 2>&1 &
 ```
-cloudnative-1.0-SNAPSHOT.jar is the name of the jar package; please replace it according to the actual situation.
