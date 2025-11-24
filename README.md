@@ -37,15 +37,17 @@ After the packaging is completed, you can find the cloudnative-1.0-SNAPSHOT.jar 
 ### Deploy backend projects 
 1. Install a database such as ivorysql on your server and start it.
 2. create a directory to store the application files. For example:
+
    mkdir -p /home/ivory
-3. upload JAR file (cloudnative-1.0-SNAPSHOT.jar) to your server.
-4. create a directory(name must be: config) under /home/ivory to store the application files. For example:
-   mkdir -p /home/ivory/config
-5. Please upload below files from the source code path ivory-cloud/cloudnative/src/main/resources to the /home/ivory/config path on your server.
+4. upload JAR file (cloudnative-1.0-SNAPSHOT.jar) to your server.
+5. create a directory(name must be: config) under /home/ivory to store the application files. For example:
+
+    mkdir -p /home/ivory/config
+6. Please upload below files from the source code path ivory-cloud/cloudnative/src/main/resources to the /home/ivory/config path on your server.
    application.yaml
    application-native.yaml
    spring_pro_logback.xml
-6. then edit /home/ivory/config/application-native.yaml
+7. then edit /home/ivory/config/application-native.yaml
 Please modify url, username, password parts according to your actual situation.
 ```
 datasource:
