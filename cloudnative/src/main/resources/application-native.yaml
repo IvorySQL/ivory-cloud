@@ -9,9 +9,9 @@ spring:
     druid:
       db-type: com.alibaba.druid.pool.DruidDataSource
       driver-class-name: org.postgresql.Driver
-      url: jdbc:postgresql://127.0.0.1:5432/ivory
-      username: postgres
-      password: "highgo@123"
+      url: jdbc:postgresql://127.0.0.1:5432/ivorysql
+      username: ivorysql
+      password: "ivory@123"
   jpa:
     show-sql: false
     open-in-view: false
@@ -32,39 +32,25 @@ common:
   alert-path-prefix: alert
   serviceName: ivory
   namespace: ivory
-#  storageClassLabels: "{'cnp.inspurcloud.cn/system-storageclass': 'false'}"
   refreshWatcherTaskTime: 600000 # 单位ms 默认10分钟
   linuxk8sConfigPath: /root/.kube/config
 #  ivoryPgKernelVersion: 15 #数据库内核版本
 #  ivoryVersion: 2.3 #ivory版本
-  ivoryPgKernelVersion: 17 #数据库内核版本
-  ivoryVersion: 4.5 #ivory版本
+  ivoryPgKernelVersion: 18 #数据库内核版本
+  ivoryVersion: 5.0 #ivory版本
 logging:
   level:
-#    com:
-#      inspur:
-#        common: ERROR
     org:
       hibernate: error
     root: info
   config: config/spring_pro_logback.xml
 
 images:
-#  image:
-#    db: harbor.highgo.com/highgo/crunchy-highgo:sm3nodemx
-#    backrest: harbor.highgo.com/highgo/crunchy-pgbackrest:sm3-v2
-#    pgadmin: harbor.highgo.com/highgo/crunchy-pgadmin4:hgadmin2
-#    exporter: harbor.highgo.com/highgo/crunchy-postgres-exporter:v1.5
-#  image:
-#    db: docker.io/ivorysql/ivorysql:ubi8-2.2-1.1-1
-#    backrest: docker.io/ivorysql/pgbackrest:ubi8-2.45-1.1-1
-#    pgadmin: docker.io/ivorysql/pgadmin:ubi8-7.4-1.1-1
-#    exporter: docker.io/ivorysql/postgres-exporter:ubi8-0.13.2-1.1-1
   image:
-    db: docker.io/ivorysql/ivorysql:ubi8-4.5-4.0-1
-    backrest: docker.io/ivorysql/pgbackrest:ubi8-2.54.1-4.0-1
-    pgadmin: docker.io/ivorysql/pgadmin:ubi8-8.14.0-4.0-1
-    exporter: docker.io/ivorysql/postgres-exporter:ubi8-0.17.0-4.0-1
+    db: docker.io/ivorysql/ivorysql:ubi8-5.0-5.0-1
+    backrest: docker.io/ivorysql/pgbackrest:ubi8-2.56.0-5.0-1
+    pgadmin: docker.io/ivorysql/pgadmin:ubi8-9.9-5.0-1
+    exporter: docker.io/ivorysql/postgres-exporter:ubi8-0.17.0-5.0-1
 server:
   port: 8081
   error:
@@ -73,22 +59,13 @@ server:
 
 cluster:
     user: pguser
-#    user: hguser
     group: ivory-operator.ivorysql.org
-#    group: highgo-operator.inspur.com
     version: v1beta1
-#    version: v1beta1
     kind: IvoryCluster
-#    kind: PostgresCluster
     plural: ivoryclusters
-#    plural: highgoclusters
     singular: ivorycluster
-#    singular: highgocluster
     instanceIdName: ivory/instanceId
-#    instanceIdName: highgo/instanceId
     clusterId: ivory/clusterId
-#    clusterId: highgo/clusterId
-#    prometheusFilter: highgo/user
     prometheusFilter: ivory/user
     clusterNameLabel: ${cluster.group}/cluster
     clusterRoleLabel: ${cluster.group}/role
@@ -96,8 +73,5 @@ cluster:
     crBackupAnnotation: ${cluster.group}/pgbackrest-backup
     crRestoreAnnotation: ${cluster.group}/pgbackrest-restore
     grafanaName: grafana
-#    grafanaName: crunchy-grafana
     alertManagerName: alertmanager
-#    alertManagerName: crunchy-alertmanager
     prometheusName: prometheus
-#    prometheusName: crunchy-prometheus

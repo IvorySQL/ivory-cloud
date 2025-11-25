@@ -114,7 +114,7 @@
             <column name="max" type="VARCHAR(36)"/>
             <column name="enum_value" type="VARCHAR(512)"/>
             <column name="rule" type="VARCHAR(64)"/>
-            <column name="description" type="VARCHAR(255)"/>
+            <column name="description" type="VARCHAR(512)"/>
             <column name="created_at" type="datetime"/>
             <column name="updated_at" type="datetime"/>
             <column name="deleted_at" type="datetime"/>
