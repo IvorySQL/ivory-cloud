@@ -4,7 +4,7 @@
 
 - JDK 1.8 
 - [Maven](http://maven.apache.org/) 3.0 and above
-- IvorySQL 5.0
+- IvorySQL 5.1
 - Kubernetes 1.23 (Must have default storage class)
 
 ## Installation instructions
