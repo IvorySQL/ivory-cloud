@@ -1,4 +1,9 @@
 ivory-cloud RELEASE NOTES
+******************v5.6******************
+1.IvorySqL 5.6适配
+
+
+ivory-cloud RELEASE NOTES
 ******************v5.3******************
 1.IvorySqL 5.3适配
 
