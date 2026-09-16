@@ -4,7 +4,7 @@
 
 - JDK 1.8 
 - [Maven](http://maven.apache.org/) 3.0 and above
-- IvorySQL 5.3
+- IvorySQL 5.6
 - Kubernetes 1.23 (Must have default storage class)
 
 ## Installation instructions
@@ -52,7 +52,7 @@ After the packaging is completed, you can find the cloudnative-1.0-SNAPSHOT.jar 
    application-native.yaml   
    spring_pro_logback.xml
 ```
-8. then edit /home/ivory/config/application-native.yaml
+7. then edit /home/ivory/config/application-native.yaml
 Please modify url, username, password parts according to your actual situation.
 ```
 datasource:
@@ -63,7 +63,7 @@ datasource:
       username: ivorysql
       password: "ivory@123"
 ```
-7. Launch ivory-cloud app
+8. Launch ivory-cloud app
    cd /home/ivory/
 
 ```
