@@ -183,6 +183,7 @@ public class CommonUtil {
 
     public static Date stringToDate(String dateStr) throws ParseException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         return simpleDateFormat.parse(dateStr);
     }
 
