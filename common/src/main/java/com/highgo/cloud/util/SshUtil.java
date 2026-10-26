@@ -631,7 +631,7 @@ public class SshUtil {
         if (path.contains(".jar!/")) {
             path = path.substring(0, path.indexOf(".jar!/") + 4);
         }
-        File file = new File(path);
+        File file = new File(java.net.URI.create(path).getPath());
         path = file.getParentFile().getAbsolutePath();
         return path;
     }
@@ -681,7 +681,11 @@ public class SshUtil {
             }
         } else {
             // ide运行
-            File file = new File(url.getPath());
+            File file = new File(java.net.URI.create(url.toString()));
+            if (file.isFile()) {
+                SshUtil.copy(dirPath);
+                return;
+            }
             List<File> allFileList = new ArrayList<>();
             getAllFile(file, allFileList);
 
