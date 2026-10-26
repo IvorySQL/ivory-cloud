@@ -77,6 +77,8 @@ public class ConcurrentDateFormat {
             sdf = createInstance();
         }
         Date result = sdf.parse(source);
+        // Parsing a named zone may replace the formatter's configured time zone.
+        sdf.setTimeZone(timezone);
         queue.add(sdf);
         return result;
     }
