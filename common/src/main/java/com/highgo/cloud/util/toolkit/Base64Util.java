@@ -19,6 +19,8 @@ package com.highgo.cloud.util.toolkit;
 
 import com.highgo.cloud.util.toolkit.support.Charsets;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * Base64工具
  *
@@ -45,7 +47,7 @@ public class Base64Util extends org.springframework.util.Base64Utils {
      */
     public static String encode(String value, java.nio.charset.Charset charset) {
         byte[] val = value.getBytes(charset);
-        return new String(Base64Util.encode(val), charset);
+        return new String(Base64Util.encode(val), StandardCharsets.US_ASCII);
     }
 
     /**
@@ -67,7 +69,7 @@ public class Base64Util extends org.springframework.util.Base64Utils {
      */
     public static String encodeUrlSafe(String value, java.nio.charset.Charset charset) {
         byte[] val = value.getBytes(charset);
-        return new String(Base64Util.encodeUrlSafe(val), charset);
+        return new String(Base64Util.encodeUrlSafe(val), StandardCharsets.US_ASCII);
     }
 
     /**
@@ -88,7 +90,7 @@ public class Base64Util extends org.springframework.util.Base64Utils {
      * @return {String}
      */
     public static String decode(String value, java.nio.charset.Charset charset) {
-        byte[] val = value.getBytes(charset);
+        byte[] val = value.getBytes(StandardCharsets.US_ASCII);
         byte[] decodedValue = Base64Util.decode(val);
         return new String(decodedValue, charset);
     }
@@ -111,7 +113,7 @@ public class Base64Util extends org.springframework.util.Base64Utils {
      * @return {String}
      */
     public static String decodeUrlSafe(String value, java.nio.charset.Charset charset) {
-        byte[] val = value.getBytes(charset);
+        byte[] val = value.getBytes(StandardCharsets.US_ASCII);
         byte[] decodedValue = Base64Util.decodeUrlSafe(val);
         return new String(decodedValue, charset);
     }
