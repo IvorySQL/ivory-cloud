@@ -401,6 +401,9 @@ public final class BeanUtil {
                 String propertyName = descriptor.getName();
                 if (!propertyName.equals("class")) {
                     Method readMethod = descriptor.getReadMethod();
+                    if (readMethod == null) {
+                        continue;
+                    }
                     Object result = readMethod.invoke(bean, new Object[0]);
                     returnMap.put(propertyName, result);
                 }
