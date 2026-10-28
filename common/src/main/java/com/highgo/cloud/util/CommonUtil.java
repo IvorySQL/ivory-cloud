@@ -95,7 +95,7 @@ public class CommonUtil {
 
     @SuppressWarnings("rawtypes")
     public static boolean isNumber(Class cls) {
-        return cls.getSuperclass().equals(Number.class) || CommonUtil.isWrapClass(cls) || cls.isPrimitive();
+        return Number.class.equals(cls.getSuperclass()) || CommonUtil.isWrapClass(cls) || cls.isPrimitive();
     }
 
     /**
