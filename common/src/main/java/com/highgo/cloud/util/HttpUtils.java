@@ -217,6 +217,7 @@ public class HttpUtils {
             @Override
             public void onFailure(Call call, IOException e) {
                 buffer.append("请求出错：").append(e.getMessage());
+                getSemaphoreInstance().release();
             }
 
             @Override
