@@ -834,7 +834,7 @@ public class StringUtil extends org.springframework.util.StringUtils {
             return str.toString().lastIndexOf(searchStr.toString(), fromIndex);
         }
 
-        for (int i = fromIndex; i > 0; i--) {
+        for (int i = fromIndex; i >= 0; i--) {
             if (isSubEquals(str, i, searchStr, 0, searchStr.length(), true)) {
                 return i;
             }
@@ -969,7 +969,7 @@ public class StringUtil extends org.springframework.util.StringUtils {
         if (ignoreCase) {
             return str1.toString().equalsIgnoreCase(str2.toString());
         } else {
-            return str1.equals(str2);
+            return str1.toString().equals(str2.toString());
         }
     }
 
